@@ -9,7 +9,7 @@ export default class Machine extends Command {
   static description = 'Create a new machine to manage a new feature';
 
   static examples = [
-    '$ xstatehive machine create ./src/machines quick-polls',
+    '$ xstate-hive machine create ./src/machines quick-polls',
   ];
 
   static flags = {

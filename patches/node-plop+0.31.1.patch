@@ -1,0 +1,10 @@
+diff --git a/node_modules/node-plop/types/index.d.ts b/node_modules/node-plop/types/index.d.ts
+index 20c975f..f6feb28 100644
+--- a/node_modules/node-plop/types/index.d.ts
++++ b/node_modules/node-plop/types/index.d.ts
+@@ -1,4 +1,4 @@
+-import inquirer from "inquirer";
++import * as inquirer from "inquirer";
+ 
+ type Inquirer = typeof inquirer;
+ 

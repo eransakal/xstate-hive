@@ -5,7 +5,7 @@ export default class Init extends Command {
   static description = 'Create a configuration file for xstate-hive on the root of your project';
 
   static examples = [
-    '$ xstatehive init',
+    '$ xstate-hive init',
   ];
 
   static flags = {
