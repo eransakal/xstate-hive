@@ -1,0 +1,22 @@
+import { actions } from 'xstate';
+import {
+  {{pascalCase name}}MachineContext,
+  {{pascalCase name}}MachineEvents,
+  {{pascalCase name}}MachineEventsTypes,
+} from '../../types';
+
+export const updateExternalInfo = actions.assign(
+  (context: {{pascalCase name}}MachineContext, event: {{pascalCase name}}MachineEvents) => {
+    if (event.type !== {{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated) {
+      return context;
+    }
+
+    return {
+      ...context,
+      externalInfo: {
+        ...context.externalInfo,
+        ...event.externalInfo,
+      },
+    };
+  }
+);

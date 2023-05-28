@@ -1,0 +1,14 @@
+import { useContext, useMemo } from 'react';
+import { {{pascalCase name}}Context } from './utils/{{dashCase name}}-context';
+
+export const use{{pascalCase name}}Service = () => {
+  const { {{lowerCase name}}MachineService } = useContext({{pascalCase name}}Context);
+
+  const actions = useMemo(() => {
+    return {};
+  }, [{{lowerCase name}}MachineService]);
+
+  return {    
+    actions,
+  };
+};

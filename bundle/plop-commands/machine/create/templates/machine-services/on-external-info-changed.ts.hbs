@@ -1,0 +1,31 @@
+import {
+  {{pascalCase name}}MachineContext,
+  {{pascalCase name}}MachineSender,
+} from '../types';
+
+// const logger = create{{pascalCase name}}MachineLogger('onExternalInfoChanged');
+
+// TODO add link to reference
+export const onExternalInfoChanged =
+  (context: {{pascalCase name}}MachineContext, data: any) => (send: {{pascalCase name}}MachineSender) => {
+
+    // const handleExampleChanged = (exampleData: ExampleData | null) => {
+    //   if (ownUser) {
+    //     send({
+    //       type: {{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated,
+    //       externalInfo: {
+    //         something: exampleData.something
+    //       },
+    //     });
+    //   }
+    // };
+
+    // onExampleChanged.on(
+    //   handleExampleChanged,
+    //   data.emitLastValue ?? false      
+    // );
+    
+    return () => {
+      // onExampleChanged.off(handleExampleChanged);
+    };
+  };

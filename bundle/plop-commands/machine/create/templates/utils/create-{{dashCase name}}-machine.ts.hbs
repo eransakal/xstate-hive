@@ -1,0 +1,22 @@
+import { createMachine } from 'xstate';
+import {
+  {{pascalCase name}}MachineContext,
+  {{pascalCase name}}MachineEvents,
+  {{pascalCase name}}MachineEventsTypes,
+  {{pascalCase name}}MachineId,  
+} from '../types';
+
+export const create{{pascalCase name}}Machine = () => {
+  return createMachine<{{pascalCase name}}MachineContext, {{pascalCase name}}MachineEvents>({
+    id: {{pascalCase name}}MachineId,
+    predictableActionArguments: true,
+    preserveActionOrder: true,
+    type: 'parallel',
+     on: {
+        [{{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated]: {
+          actions: 'updateExternalInfo',        
+        },
+      },
+    states: {},
+  });
+};
