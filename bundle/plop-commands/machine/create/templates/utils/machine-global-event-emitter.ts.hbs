@@ -55,8 +55,16 @@ export function MachineGlobalEventEmitter<T>(props: Props<T>) {
   ]);
 
   useEffect(() => {
+    const event = props.event;
+    const context = props.emitWithContext;
+    
+    if (!event) {
+      return;
+    }
+
     return () => {
-      props.event.resetLastValue(props.emitWithContext);
+      // make sure the event is cleaned up before unmounting the component
+      event(context);
     };
   }, [props.event, props.emitWithContext]);
 
