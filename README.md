@@ -23,7 +23,7 @@ $ npm install -g xstate-hive
 $ xstate-hive COMMAND
 running command...
 $ xstate-hive (--version)
-xstate-hive/1.0.0 darwin-arm64 node-v16.15.1
+xstate-hive/1.0.1 darwin-arm64 node-v16.15.1
 $ xstate-hive --help [COMMAND]
 USAGE
   $ xstate-hive COMMAND
@@ -73,7 +73,7 @@ EXAMPLES
   $ xstate-hive init
 ```
 
-_See code: [dist/commands/init/index.ts](https://github.com/eransakal/xstate-hive/blob/v1.0.0/dist/commands/init/index.ts)_
+_See code: [dist/commands/init/index.ts](https://github.com/eransakal/xstate-hive/blob/v1.0.1/dist/commands/init/index.ts)_
 
 ## `xstate-hive machine create DEST MACHINE`
 
