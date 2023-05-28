@@ -1,6 +1,6 @@
 import {Args, Command, Flags} from '@oclif/core'
 import {Configuration} from '../../../configuration.js'
-import {join, resolve} from 'path'
+import {join} from 'path'
 import {createMachine} from '../../../modifiers/create-machine.js'
 import {createBootupToOperatingState} from '../../../modifiers/create-bootup-to-operating-state.js'
 import {addChildState} from '../../../modifiers/add-child-state.js'
@@ -74,7 +74,7 @@ export default class Machine extends Command {
         machineName: args.machine,
         parents: [],
         stateName: 'core',
-        stateImportPath: resolve(machinePath, '../machine-states/core'),
+        stateImportPath: '../machine-states/core',
       })
 
       projectConfiguration.save()

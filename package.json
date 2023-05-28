@@ -1,10 +1,10 @@
 {
   "name": "xstate-hive",
-  "version": "0.0.0",
-  "description": "An opinionated application state with XState for React application",
+  "version": "1.0.0",
+  "description": "An opinionated application state generator with XState for React application",
   "author": "Eran Sakal @eransakal",
   "bin": {
-    "xstatehive": "./bin/run.js"
+    "xstate-hive": "./bin/run.js"
   },
   "homepage": "https://github.com/eransakal/xstate-hive",
   "license": "MIT",
@@ -46,12 +46,11 @@
     "typescript": "^4.9.5"
   },
   "oclif": {
-    "bin": "xstatehive",
-    "dirname": "xstatehive",
+    "bin": "xstate-hive",
+    "dirname": "xstate-hive",
     "commands": "./dist/commands",
     "plugins": [
-      "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
+      "@oclif/plugin-help"
     ],
     "topicSeparator": " ",
     "topics": {
@@ -74,8 +73,13 @@
   },
   "bugs": "https://github.com/eransakal/xstate-hive/issues",
   "keywords": [
-    "oclif"
+    "React", "XState", "Generator"
   ],
   "types": "dist/index.d.ts",
-  "type": "module"
+  "type": "module",
+  "private": false,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }

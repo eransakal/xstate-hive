@@ -11,21 +11,32 @@ const isStatesProperty = nodePath => {
 }
 
 const transform: Transform = (fileInfo, api, options) => {
-  const jscodeshift = api.jscodeshift
-  return jscodeshift(fileInfo.source)
+  const j = api.jscodeshift
+  const source = j(fileInfo.source)
+
   // eslint-disable-next-line unicorn/no-array-callback-reference
-  .find(jscodeshift.ObjectExpression)
+  source.find(j.ObjectExpression)
   .filter(x => isStatesProperty(x))
   .replaceWith(() => {
-    return jscodeshift.objectExpression([
-      jscodeshift.property(
+    return j.objectExpression([
+      j.property(
         'init',
-        jscodeshift.identifier(options.stateName),
-        jscodeshift.identifier(options.stateImportName),
+        j.identifier(options.stateName),
+        j.identifier(options.stateImportName),
       ),
     ])
   })
-  .toSource()
+
+  // Build a new import
+  const newImport = j.importDeclaration(
+    [j.importSpecifier(j.identifier(options.stateImportName))],
+    j.stringLiteral(options.stateImportPath),
+  )
+
+  // Insert it at the top of the document
+  source.get().node.program.body.unshift(newImport)
+
+  return source.toSource()
 }
 
 export default transform

@@ -1,4 +1,4 @@
-import {Args, Command, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import {Configuration} from '../../configuration.js'
 
 export default class Init extends Command {
