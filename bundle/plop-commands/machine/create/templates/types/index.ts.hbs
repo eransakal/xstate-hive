@@ -1,0 +1,32 @@
+import { InterpreterFrom, Sender, State, StateMachine } from 'xstate';  
+import { StateNodeConfig } from 'xstate/lib/types';  
+import { {{pascalCase name}}MachineContext } from './context';
+import { {{pascalCase name}}MachineEvents } from './events';
+
+export * from './events';
+export * from './context';
+
+export const {{pascalCase name}}MachineId = '{{titleCase name}}';
+
+// Notice: Those types are always the same, don't manually modify the declarations.
+export type {{pascalCase name}}Machine = StateMachine<
+  {{pascalCase name}}MachineContext,
+  any,
+  {{pascalCase name}}MachineEvents,
+  any
+>;
+export type {{pascalCase name}}MachineService = InterpreterFrom<{{pascalCase name}}Machine>;
+export type {{pascalCase name}}MachineSender = Sender<{{pascalCase name}}MachineEvents>;
+export type {{pascalCase name}}MachineState = State<
+  {{pascalCase name}}MachineContext,
+  {{pascalCase name}}MachineEvents,
+  any,
+  any,
+  any
+>;
+export type {{pascalCase name}}MachineStateConfig = StateNodeConfig<
+  {{pascalCase name}}MachineContext,
+  any,
+  {{pascalCase name}}MachineEvents,
+  any
+>;

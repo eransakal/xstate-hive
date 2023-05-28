@@ -1,0 +1,45 @@
+import { useContext } from 'react';
+import { useSelector } from '@xstate/react';
+import { {{pascalCase name}}MachineState } from './types';
+import { {{pascalCase name}}Context } from './utils/{{dashCase name}}-context';
+
+// Notice: This file was auto-generated, don't manually modify its content.
+type {{pascalCase name}}Selectors<
+  T extends
+    | Record<string, (state: {{pascalCase name}}MachineState) => any>
+    | ((state: {{pascalCase name}}MachineState) => any)
+> = T extends Record<string, (state: {{pascalCase name}}MachineState) => any>
+  ? { [K in keyof T]: ReturnType<T[K]> }
+  : T extends (state: {{pascalCase name}}MachineState) => any
+  ? ReturnType<T>
+  : unknown;
+
+export const use{{pascalCase name}}Updates = <
+  T extends
+    | Record<string, (state: {{pascalCase name}}MachineState) => any>
+    | ((state: {{pascalCase name}}MachineState) => any)
+>(
+  selectors: T
+): {{pascalCase name}}Selectors<T> => {  
+  const { {{lowerCase name}}MachineService } = useContext({{pascalCase name}}Context);
+
+  let selector: (state: {{pascalCase name}}MachineState) => any = () => {};
+
+  if (typeof selectors === 'function') {
+    selector = selectors;
+  } else if (typeof selectors === 'object') {
+    selector = (state: {{pascalCase name}}MachineState) => {
+      const result: Partial<{{pascalCase name}}Selectors<T>> = {};
+
+      for (const key in selectors) {
+        if (Object.prototype.hasOwnProperty.call(selectors, key)) {
+          result[key] = (selectors[key] as any)(state);
+        }
+      }
+
+      return result as {{pascalCase name}}Selectors<T>;
+    };
+  }
+
+  return useSelector({{lowerCase name}}MachineService, selector) as {{pascalCase name}}Selectors<T>;
+};

@@ -1,0 +1,33 @@
+import { {{pascalCase name}}MachineId } from './types';
+{{#if isKME}}
+import {
+  XStateMachineLogger,
+  XStateMachineLogSenderTypes,
+} from '@kme/room-diagnostics-utils-diagnostics';
+import { ModuleLogger } from '@kme/room-utils-logger';
+
+export const create{{pascalCase name}}MachineLogger = (
+  sender: string,
+  senderType: XStateMachineLogSenderTypes
+) =>
+  new XStateMachineLogger({
+    machineId: {{pascalCase name}}MachineId,
+    sender,
+    senderType,
+  });
+{{else}}
+import { {{pascalCase name}}MachineId } from '../types';
+export const create{{pascalCase name}}MachineLogger = (
+  sender: string
+) => ({
+  log: (message: string, ...optionalParams: any[]) =>{
+    console.log(`[${{pascalCase name}}MachineId}:${sender}] ${message}`, ...optionalParams)
+  },
+  warn: (message: string, ...optionalParams: any[]) =>{
+    console.warn(`[${{pascalCase name}}MachineId}:${sender}] ${message}`, ...optionalParams)
+  },
+  error: (message: string, ...optionalParams: any[]) =>{
+    console.error(`[${{pascalCase name}}MachineId}:${sender}] ${message}`, ...optionalParams)
+  }
+})
+{{/if}}
