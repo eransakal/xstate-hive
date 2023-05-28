@@ -64,9 +64,9 @@
     "build": "shx rm -rf dist && tsc -b",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "postinstall": "patch-package",
-    "postpack": "shx rm -f oclif.manifest.json",
+    "postpack": "shx rm -f oclif.manifest.json && git checkout -- package.json",
     "posttest": "npm run lint",
-    "prepack": "npm run build && oclif manifest && oclif readme",
+    "prepack": "./tools/pre-pack/no-uncommits.sh && npm run build && oclif manifest && oclif readme && node ./tools/pre-pack/prepare-package-json.js",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif readme && git add README.md"
   },
