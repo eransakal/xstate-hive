@@ -1,6 +1,6 @@
 {
   "name": "xstate-hive",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "An opinionated application state generator with XState for React application",
   "author": "Eran Sakal @eransakal",
   "bin": {
