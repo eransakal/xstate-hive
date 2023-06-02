@@ -21,7 +21,7 @@ export const use{{pascalCase name}}Updates = <
 >(
   selectors: T
 ): {{pascalCase name}}Selectors<T> => {  
-  const { {{lowerCase name}}MachineService } = useContext({{pascalCase name}}Context);
+  const { {{camelCase name}}MachineService } = useContext({{pascalCase name}}Context);
 
   let selector: (state: {{pascalCase name}}MachineState) => any = () => {};
 
@@ -41,5 +41,5 @@ export const use{{pascalCase name}}Updates = <
     };
   }
 
-  return useSelector({{lowerCase name}}MachineService, selector) as {{pascalCase name}}Selectors<T>;
+  return useSelector({{camelCase name}}MachineService, selector) as {{pascalCase name}}Selectors<T>;
 };

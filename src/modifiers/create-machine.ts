@@ -13,7 +13,7 @@ export const createMachine = async ({
   const projectConfiguration = Configuration.get()
 
   return executePlopJSCommand({
-    commandPath: ['machine', 'create'],
+    commandPath: 'machine/create',
     destPath: machinePath,
     options: {
       name: machineName,

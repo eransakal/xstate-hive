@@ -3,13 +3,13 @@ import {executePlopJSCommand} from '../utils/execute-plopljs-command.js'
 import {join} from 'path'
 
 interface ModifierOptions {
-    machinePath: string,
-    machineName: string,
-    parents: string[];
-    stateName: string;
+  machinePath: string
+  machineName: string
+  parents: string[]
+  stateName: string
 }
 
-export const createBootupToOperatingState = async ({
+export const createBootupToOperationalState = async ({
   parents,
   machinePath,
   machineName,
@@ -17,13 +17,13 @@ export const createBootupToOperatingState = async ({
 }: ModifierOptions): Promise<void> => {
   const projectConfiguration = Configuration.get()
 
-  const basePath = join(machinePath, parents?.length ?
-    `machine-states/${parents.join('/')}` :
-    'machine-states')
+  const basePath = join(
+    machinePath,
+    parents?.length ? `machine-states/${parents.join('/')}` : 'machine-states',
+  )
 
-  console.log(basePath)
   return executePlopJSCommand({
-    commandPath: ['state', 'create', 'bootup-to-operating'],
+    commandPath: 'state/create/bootup-to-operational',
     destPath: basePath,
     options: {
       stateName,

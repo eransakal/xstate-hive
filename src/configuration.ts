@@ -24,9 +24,7 @@ export interface ProjectConfiguration {
 const projectConfigurationFileName = '.xstate-hive.json'
 
 export class Configuration {
-  hasMachine(machine: string): boolean {
-    return Boolean(this.config.machines[machine])
-  }
+ 
 
   // eslint-disable-next-line no-useless-constructor
   private constructor(
@@ -74,6 +72,10 @@ export class Configuration {
     throw new Error(`missing configuration file "${projectConfigurationFileName}"`)
   }
 
+  hasMachine(machine: string): boolean {
+    return Boolean(this.config.machines[machine])
+  }
+  
   public save(): void {
     const filePath = path.resolve(this.root, projectConfigurationFileName)
     const content = JSON.stringify(this.config, null, 2)

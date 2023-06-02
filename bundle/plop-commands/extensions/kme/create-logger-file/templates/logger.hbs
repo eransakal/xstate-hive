@@ -1,0 +1,16 @@
+import { {{pascalCase name}}MachineId } from '../types';
+import {
+  XStateMachineLogger,
+  XStateMachineLogLevels,
+  XStateMachineLogSenderTypes,
+} from '@kme/room-diagnostics-utils-diagnostics';
+
+export const create{{pascalCase name}}MachineLogger = (
+  sender: string,
+  senderType: XStateMachineLogSenderTypes
+) =>
+  new XStateMachineLogger({
+    machineId: {{pascalCase name}}MachineId,
+    sender,
+    senderType,
+  });

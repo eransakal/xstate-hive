@@ -1,42 +1,58 @@
-import {Transform} from 'jscodeshift'
+import {JSCodeshift, Transform, VariableDeclarator} from 'jscodeshift'
+import {toLowerCamelCase, toPascalCase} from '../../utils'
 
-const isStatesProperty = nodePath => {
-  return (
-    nodePath?.parent?.value?.key?.name === 'states' &&
-    nodePath?.parent?.parent?.parent?.parent?.value?.expressions?.length ===
-      2 &&
-    nodePath?.parent?.parent?.parent?.parent?.value?.expressions[0]?.left
-    ?.name === 'createMachine'
-  )
+function findCreateMachine(j: JSCodeshift, ast: Collection<any>) {
+  const assignment = ast.find(j.CallExpression, {
+    callee: {
+      name: 'createMachine',
+    },
+  })
+  .filter(path => {
+    const statesProperty = path.node.arguments[0]?.properties.find(
+      property => property.key.name === 'states',
+    )
+    return statesProperty !== undefined
+  })
+
+  if (assignment.length === 0) {
+    // If assignment is not found, return null or handle the case accordingly
+    return null
+  }
+
+  return assignment.at(0).get()
 }
 
 const transform: Transform = (fileInfo, api, options) => {
   const j = api.jscodeshift
-  const source = j(fileInfo.source)
+  const ast = j(fileInfo.source)
 
-  // eslint-disable-next-line unicorn/no-array-callback-reference
-  source.find(j.ObjectExpression)
-  .filter(x => isStatesProperty(x))
-  .replaceWith(() => {
-    return j.objectExpression([
-      j.property(
-        'init',
-        j.identifier(options.stateName),
-        j.identifier(options.stateImportName),
-      ),
-    ])
-  })
+  const path = findCreateMachine(j, ast)
+
+  if (!path) {
+    throw new Error('failed to find createMachine call or states property')
+  }
+
+  const statesProperty = path.node.arguments[0].properties.find(
+    property => property.key.name === 'states',
+  )
+
+  statesProperty.value.properties.push(
+    j.property(
+      'init',
+      j.identifier(options.stateName),
+      j.identifier(options.stateImportName),
+    ),
+  )
 
   // Build a new import
   const newImport = j.importDeclaration(
     [j.importSpecifier(j.identifier(options.stateImportName))],
     j.stringLiteral(options.stateImportPath),
   )
-
   // Insert it at the top of the document
-  source.get().node.program.body.unshift(newImport)
+  ast.get().node.program.body.unshift(newImport)
 
-  return source.toSource()
+  return ast.toSource()
 }
 
 export default transform

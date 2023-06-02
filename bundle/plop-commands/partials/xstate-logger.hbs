@@ -1,0 +1,15 @@
+{{#if commented}}/*{{/if}}
+{{#if isKME}}
+import { create{{pascalCase name}}MachineLogger } from '{{loggerPath}}logger';
+import { XStateMachineLogSenderTypes } from '@kme/room-diagnostics-utils-diagnostics';
+
+const logger = create{{pascalCase name}}MachineLogger(
+  '{{loggerName}}',
+  XStateMachineLogSenderTypes.{{loggerType}}
+);
+{{else}}
+const logger =  create{{pascalCase name}}MachineLogger(
+    '{{pascalCase name}}Provider'
+  );
+{{/if}}
+{{#if commented}}*/{{/if}}

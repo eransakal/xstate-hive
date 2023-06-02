@@ -2,8 +2,7 @@ import {
   {{pascalCase name}}MachineContext,
   {{pascalCase name}}MachineSender,
 } from '../types';
-
-// const logger = create{{pascalCase name}}MachineLogger('onExternalInfoChanged');
+{{> xstateLogger isKME=isKME loggerName='onExternalInfoChanged' loggerType='MachineService' commented=false loggerPath='../utils/'}}
 
 // TODO add link to reference
 export const onExternalInfoChanged =

@@ -5,7 +5,7 @@ import nodePlop from 'node-plop'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 interface CommandOptions {
-  commandPath: string[],
+  commandPath: string,
   destPath: string;
   options: Record<string, unknown>;
 }
@@ -16,7 +16,7 @@ export const executePlopJSCommand = async ({
 }: CommandOptions): Promise<void> => {
   const plopCommandPath = resolve(
     __dirname,
-    `../../bundle/plop-commands/${commandPath.join('/')}/plopfile.js`,
+    `../../bundle/plop-commands/${commandPath}/plopfile.js`,
   )
 
   const plop = await nodePlop(plopCommandPath, {
@@ -29,6 +29,6 @@ export const executePlopJSCommand = async ({
   const {failures} =  await generator.runActions(options)
 
   if (failures.length > 0) {
-    throw new Error([`failed to run command '${commandPath.join('.')}`, ...failures].join('\n'))
+    throw new Error([`failed to run command '${commandPath}`, JSON.stringify(failures)].join('\n'))
   }
 }

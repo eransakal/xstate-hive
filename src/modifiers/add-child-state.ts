@@ -1,4 +1,5 @@
 import {Configuration} from '../configuration.js'
+import { toDashCase } from '../utils.js';
 import {executeJSCodeshiftTransformer} from '../utils/execute-jscodeshift-transformer.js'
 import {join} from 'path'
 
@@ -19,7 +20,7 @@ export const addChildState = async ({
 
   const parentStateFilePath = parents.length > 0 ?
     `machine-states/${parents.join('/')}` :
-    `utils/create-${machineName.toLowerCase()}-machine.ts`
+    `utils/create-${toDashCase(machineName)}-machine.ts`
 
   const createMachineFilePath = join(
     machine.getAbsolutePath(),
@@ -27,7 +28,7 @@ export const addChildState = async ({
   )
 
   return executeJSCodeshiftTransformer({
-    transformerPath: ['states', 'add-state-to-machine.ts'],
+    transformerPath: 'states/add-state-to-machine.ts',
     destFilePath: createMachineFilePath,
     options: {
       stateName,

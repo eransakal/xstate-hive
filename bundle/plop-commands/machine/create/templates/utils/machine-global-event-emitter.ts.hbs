@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef } from 'react';
-import { {{pascalCase name}}Context } from './{{lowerCase name}}-context';
-import { create{{pascalCase name}}MachineLogger } from './logger';
+import { {{pascalCase name}}Context } from './{{camelCase name}}-context';
 import { {{pascalCase name}}MachineState } from '../types';
 import { GlobalEvent } from '../../../shared/pubsub/global-event';
 import { useSelector } from '@xstate/react';
+{{> xstateLogger isKME=isKME loggerName='MachineGlobalEventEmitter' loggerType='Util' loggerPath='./'}}
 
 export interface Props<TValue> {
   name: string;
@@ -11,16 +11,15 @@ export interface Props<TValue> {
   event: GlobalEvent<TValue>;
   emitWithContext?: string;
 }
-const logger = create{{pascalCase name}}MachineLogger('MachineGlobalEventEmitter');
 
 export function MachineGlobalEventEmitter<T>(props: Props<T>) {
   
-  const { {{lowerCase name}}MachineService } = useContext({{pascalCase name}}Context);
+  const { {{camelCase name}}MachineService } = useContext({{pascalCase name}}Context);
 
   const eventRef = useRef(props.event);
   eventRef.current = props.event;
   
-  const value = useSelector({{lowerCase name}}MachineService, props.selector);
+  const value = useSelector({{camelCase name}}MachineService, props.selector);
   useEffect(() => {
     logger.log(`emitting global event update for '${props.name}'`);    
     if (props.emitWithContext) {
@@ -28,7 +27,7 @@ export function MachineGlobalEventEmitter<T>(props: Props<T>) {
     } else {
       props.event.emit(value);
     }
-  }, [value, {{lowerCase name}}MachineService, props.name, props.emitWithContext, props.event]);
+  }, [value, {{camelCase name}}MachineService, props.name, props.emitWithContext, props.event]);
 
   useEffect(() => {
     return () => {
