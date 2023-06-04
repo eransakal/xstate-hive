@@ -8,8 +8,8 @@ import {
 
 export const create{{pascalCase name}}Machine = () => {
   return createMachine<{{pascalCase name}}MachineContext, {{pascalCase name}}MachineEvents>({
-    id: {{pascalCase name}}MachineId,
-    predictableActionArguments: true,
+    id: {{pascalCase name}}MachineId,{{#if isKME}}{{else}}
+    predictableActionArguments: true,{{/if}}
     preserveActionOrder: true,
     type: 'parallel',
      on: {

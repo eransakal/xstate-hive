@@ -13,7 +13,7 @@ export interface Machine {
 }
 
 interface ProjectGlobals {
-  isKME?: boolean;
+  presets?: string[];
 }
 
 export interface ProjectConfiguration {
@@ -87,6 +87,10 @@ export class Configuration {
 
   getGlobal<T extends keyof ProjectGlobals>(key: T, defaultValue: ProjectGlobals[T]): ProjectGlobals[T] {
     return this.config.globals[key] || defaultValue
+  }
+
+  isPresetActive: (preset: string) => boolean = (preset: string) => {
+    return this.config.globals.presets?.includes(preset) || false
   }
 
   updateMachineConfig(

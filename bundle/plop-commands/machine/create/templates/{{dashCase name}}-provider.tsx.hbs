@@ -1,7 +1,14 @@
 import React, { useState, useMemo, PropsWithChildren } from 'react';
+{{#if isKME}}
+import {
+  {{pascalCase name}}MachineContext,  
+  {{pascalCase name}}MachineEvents
+} from './types';
+{{else}}
 import {
   {{pascalCase name}}Machine
 } from './types';
+{{/if}}
 import { create{{pascalCase name}}Machine } from './utils/create-{{dashCase name}}-machine';
 import { useMachine } from '@xstate/react';
 import { {{pascalCase name}}Context } from './utils/{{dashCase name}}-context';
@@ -9,11 +16,11 @@ import { updateExternalInfo } from './machine-actions/context/update-external-in
 import { onExternalInfoChanged } from './machine-services/on-external-info-changed';
 {{> xstateLogger loggerName=(dynamicParam name 'Provider') isKME=isKME loggerType='Machine' loggerPath='./utils/'}}
 
-export const {{pascalCase name}}Provider: React.FC<PropsWithChildren> = ({ children }) => {
+export const {{pascalCase name}}Provider: React.FC{{#if isKME}}{{else}}<PropsWithChildren>{{/if}} = ({ children }) => {
  
  const [machine] = useState(() => create{{pascalCase name}}Machine());
 
-  const [, , {{camelCase name}}MachineService] = useMachine<{{pascalCase name}}Machine>(machine, {
+  const [, , {{camelCase name}}MachineService] = useMachine<{{#if isKME}}{{pascalCase name}}MachineContext, {{pascalCase name}}MachineEvents{{else}}{{pascalCase name}}Machine{{/if}}>(machine, {
     actions: {
       updateExternalInfo 
     },

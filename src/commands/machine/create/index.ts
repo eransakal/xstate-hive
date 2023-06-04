@@ -86,7 +86,7 @@ export default class Machine extends Command {
         })
       }
 
-      if (projectConfiguration.getGlobal('isKME', false)) {
+      if (projectConfiguration.isPresetActive('kme')) {
         this.log(`add kme extensions to machine '${args.machine}'`)
         await injectDiagnosticHook({machineName: args.machine})
         await createLoggerFile({machineName: args.machine})

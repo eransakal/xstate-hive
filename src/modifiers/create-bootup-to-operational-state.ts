@@ -29,7 +29,7 @@ export const createBootupToOperationalState = async ({
       stateName,
       machineName,
       relativePathToMachine: '',
-      isKME: projectConfiguration?.getGlobal('isKME', false) ?? false,
+      isKME: projectConfiguration.isPresetActive('kme'),
     },
   })
 }

@@ -17,7 +17,7 @@ export const createMachine = async ({
     destPath: machinePath,
     options: {
       name: machineName,
-      isKME: projectConfiguration?.getGlobal('isKME', false) ?? false,
+      isKME: projectConfiguration.isPresetActive('kme'),
     },
   })
 }

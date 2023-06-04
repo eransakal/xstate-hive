@@ -25,7 +25,7 @@ export default class Init extends Command {
 
     try {
       const projectConfiguration = Configuration.create({
-        isKME: flags.kme ? true : undefined,
+        presets: flags.kme ? ['kme'] : [],
       })
 
       this.log(`A configuration file was created at ${projectConfiguration.root}`)
