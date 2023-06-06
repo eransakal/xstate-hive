@@ -37,6 +37,12 @@ export default class Machine extends Command {
     setCommandLogger(this)
     const {args, flags} = await this.parse(Machine)
 
+    // get is focusing in a single feature or a container of sub-features
+    // are the sub-features require a shared boot-up phase?
+    // is this feature (or sub-features) can trigger toasts (notifications) to the user?
+    
+    
+
     try {
       const projectConfiguration = Configuration.get()
 

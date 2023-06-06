@@ -1,7 +1,7 @@
 export default function (plop) {
   // controller generator
   plop.setGenerator('run', {
-    description: 'application controller logic',
+    description: '',
     actions: [
       {
         type: 'add',

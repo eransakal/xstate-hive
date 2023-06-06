@@ -1,4 +1,4 @@
-import {JSCodeshift, Transform, VariableDeclarator} from 'jscodeshift'
+import {JSCodeshift, Transform, VariableDeclarator} from 'evcodeshift'
 import {toLowerCamelCase, toPascalCase} from '../../utils'
 
 function findCreateMachine(j: JSCodeshift, ast: Collection<any>) {

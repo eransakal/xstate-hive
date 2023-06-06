@@ -14,7 +14,7 @@ export default async function (plop) {
 
   // controller generator
   plop.setGenerator('run', {
-    description: 'application controller logic',
+    description: '',
     actions: [
       {
         type: 'addMany',

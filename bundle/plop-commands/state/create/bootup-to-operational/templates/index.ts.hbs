@@ -8,5 +8,8 @@ export const coreState: {{pascalCase machineName}}MachineStateConfig = {
   states: {
     bootUp: bootUpState,
     operational: operationalState,
+    nonOperational: {
+      type: 'final', // This is a permanant (final) state. To support temporary disabled state that might be existed, use `operational.disabled` state instead.
+    }
   },
 };
