@@ -5,10 +5,41 @@ import * as acorn from 'acorn'
 import tsPlugin from 'acorn-typescript'
 import {getCommandLogger, Logger} from '../command-logger.js'
 
-interface State {
+interface InnerMachineState {
   name: string;
-  filePath?: string;
-  children: State[];
+  filePath: string;
+  children: InnerMachineState[];
+  hasContent: boolean,
+  parents: string[]
+  fileParents: string[]
+}
+
+export interface MachineState {
+  id: string,
+  name: string;
+  filePath: string;
+  fileParents: string[],
+  hasContent: boolean,
+}
+
+function flattenStates(states: InnerMachineState[]): MachineState[] {
+  const flattenedStates: MachineState[] = []
+
+  function flatten(state: InnerMachineState) {
+    const id = state.parents.length > 0 ? `${state.parents.join('.')}.${state.name}` : state.name
+    flattenedStates.push({
+      id,
+      name: state.name,
+      filePath: state.filePath,
+      hasContent: state.hasContent,
+      fileParents: state.fileParents,
+    })
+    state.children.forEach(flatten)
+  }
+
+  states.forEach(flatten)
+
+  return flattenedStates
 }
 
 const isMachineStates = (node: any, ancestors: any): boolean => {
@@ -25,8 +56,8 @@ const isStateChildren = (node: any, ancestors: any): boolean => {
   return node.key.name === 'states' && exportIndex > 0 && ancestors[exportIndex].type === 'ExportNamedDeclaration'
 }
 
-const getStatesFromFile = (filePath: string, isMachineFile: boolean, logger: Logger): State[] => {
-  let result: State[] = []
+const getStatesFromFile = ({filePath, isMachineFile, logger, parents}: { filePath: string; isMachineFile: boolean; logger: Logger, parents: string[] }): InnerMachineState[] => {
+  let result: InnerMachineState[] = []
   logger.log(`extract states from '${filePath}' (isMachineFile: ${isMachineFile}))`)
   const fileContent = fs.readFileSync(filePath, 'utf-8')
   const ast = acorn.Parser.extend(tsPlugin()).parse(fileContent, {
@@ -63,7 +94,8 @@ const getStatesFromFile = (filePath: string, isMachineFile: boolean, logger: Log
           node,
           filePath,
           logger,
-          fileImports})
+          fileImports,
+          parents: [...parents]})
       }
     },
   })
@@ -71,22 +103,26 @@ const getStatesFromFile = (filePath: string, isMachineFile: boolean, logger: Log
   return result
 }
 
-const getStatesFromNode = ({node, filePath, fileImports, logger}: {
+const getStatesFromNode = ({node, filePath, fileImports, logger, parents}: {
     node: any,
     filePath: string,
     logger: Logger,
-    fileImports: Record<string, string>}): State[]  => {
-  const  result: State[] = []
+    parents: string[],
+    fileImports: Record<string, string>}): InnerMachineState[]  => {
+  const  result: InnerMachineState[] = []
   node.value.properties.forEach((property: any) => {
     const {key: {name: stateName}, value: {type: stateValueType, name: stateValueName}} = property
 
     if (stateValueType === 'ObjectExpression') {
       const childrenStates = property.value?.properties?.find((property: any) => property.key.name === 'states')
 
-      const value: State = {
+      const value: InnerMachineState = {
         name: stateName,
         children: [],
         filePath,
+        hasContent: true, // TODO
+        parents: [...parents],
+        fileParents: [],
       }
       result.push(value)
 
@@ -95,7 +131,8 @@ const getStatesFromNode = ({node, filePath, fileImports, logger}: {
           node: childrenStates,
           filePath,
           logger,
-          fileImports})
+          fileImports,
+          parents: [...parents, stateName]})
       }
     } else if (stateValueType === 'Identifier') {
       const stateValuePath = fileImports[stateValueName]
@@ -114,11 +151,14 @@ const getStatesFromNode = ({node, filePath, fileImports, logger}: {
         throw new Error(`state '${stateValueName}' not found in ${stateFilePath}'`)
       }
 
-      const children = getStatesFromFile(stateFilePath, false, logger)
+      const children = getStatesFromFile({filePath: stateFilePath, isMachineFile: false, logger, parents: [...parents, stateName]})
       result.push({
         name: stateName,
         children,
         filePath: stateFilePath,
+        hasContent: true,  // TODO
+        parents: [...parents],
+        fileParents: [],
       })
     }
   })
@@ -126,9 +166,8 @@ const getStatesFromNode = ({node, filePath, fileImports, logger}: {
   return result
 }
 
-export const extractInfoFromFile = (filePath: string): State[] => {
+export const extractStatesOfMachine = (filePath: string): MachineState[] => {
   const logger = getCommandLogger()
-  const states = getStatesFromFile(filePath, true, logger)
-  console.dir(states, {depth: null})
-  return states
+  const states = getStatesFromFile({filePath, isMachineFile: true, logger, parents: []})
+  return flattenStates(states)
 }
