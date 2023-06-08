@@ -7,6 +7,7 @@ import {addChildState} from '../../../modifiers/add-child-state.js'
 import {injectDiagnosticHook} from '../../../modifiers/extensions/kme/inject-diagnostic-hook.js'
 import {createLoggerFile} from '../../../modifiers/extensions/kme/create-logger-file.js'
 import {setCommandLogger} from '../../../command-logger.js'
+import {toDashCase} from '../../../utils.js'
 
 export default class Machine extends Command {
   static description = 'Create a new machine to manage a new feature'
@@ -40,8 +41,6 @@ export default class Machine extends Command {
     // get is focusing in a single feature or a container of sub-features
     // are the sub-features require a shared boot-up phase?
     // is this feature (or sub-features) can trigger toasts (notifications) to the user?
-    
-    
 
     try {
       const projectConfiguration = Configuration.get()
@@ -86,9 +85,10 @@ export default class Machine extends Command {
         this.log('add core state to machine creator function')
         await addChildState({
           machineName: args.machine,
-          parents: [],
+          pathToParentStateInFile: '',
           stateName: 'core',
           stateImportPath: '../machine-states/core',
+          stateFilePath: `utils/create-${toDashCase(args.machine)}-machine.ts`,
         })
       }
 

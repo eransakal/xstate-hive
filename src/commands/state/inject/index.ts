@@ -110,41 +110,6 @@ async function getUserInput({prefilled, machineStates} : {prefilled: unknown, ma
     newStateName,
     stateType,
   })
-
-  // const modifyAnswer = await inquirer.prompt([
-  //   {
-  //     type: 'confirm',
-  //     name: 'modify',
-  //     message: 'Do you want to modify an existing state?',
-  //     default: false,
-  //   },
-  // ]);
-
-  // if (modifyAnswer.modify) {
-  //   const confirmationAnswer = await inquirer.prompt([
-  //     {
-  //       type: 'confirm',
-  //       name: 'confirmModify',
-  //       message: 'Are you sure you want to modify the selected node?',
-  //       default: false,
-  //     },
-  //   ]);
-
-  //   if (!confirmationAnswer.confirmModify) {
-  //     console.log('Modification aborted.');
-  //     return;
-  //   }
-
-  //   // Handle modify logic here
-
-  // } else {
-  //   const newStateAnswer = await inquirer.prompt([
-  //     {
-  //       type: 'input',
-  //       name: 'newState',
-  //       message: 'Enter the name of the new state:',
-  //     },
-  //   ]);
 }
 
 export default class State extends Command {
@@ -176,70 +141,57 @@ export default class State extends Command {
     setCommandLogger(this)
     const {args, flags} = await this.parse(State)
 
-    // get is focusing in a single feature or a container of sub-features
-    // are the sub-features require a shared boot-up phase?
-    // is this feature (or sub-features) can trigger toasts (notifications) to the user?
-
     try {
       const projectConfiguration = Configuration.get()
 
       const machineStates = await getMachineStates(args.machine)
 
-      await getUserInput({
-        prefilled: {},
-        machineStates,
-      })
+      // await getUserInput({
+      //   prefilled: {},
+      //   machineStates,
+      // })
 
       this.log(`inject state '${args.targetStatePath}' in '${args.machine}'`)
 
       const machineConfig = projectConfiguration.getMachine(args.machine)
 
       // this.log(`create machine '${args.machine}' in ${machinePath}`)
-      // await createMachine({
-      //   machinePath,
-      //   machineName: args.machine,
-      // })
 
-      // projectConfiguration.addMachineConfig(
-      //   args.machine,
-      //   {
-      //     path: machineRelativePath,
-      //   },
-      //   false,
-      // )
+      await addChildState({
+        stateFilePath: 'machine-states/core/operational-state.ts',
+        // stateFilePath: `machine-states/core/operational-state.ts`,
+        machineName: args.machine,
+        pathToParentStateInFile: '',
+        stateName: 'home',
+        stateImportPath: './home',
+      })
 
-      // if (flags.coreState) {
-      //   this.log(`add core state '${flags.coreState}' to machine '${args.machine}'`)
-      //   switch (flags.coreState) {
-      //   case 'bootup-to-operational':
-      //     await createBootupToOperationalState({
-      //       machinePath,
-      //       machineName: args.machine,
-      //       parents: [],
-      //       stateName: 'core',
-      //     })
-      //     break
-      //   default:
-      //     break
-      //   }
+      await addChildState({
+        stateFilePath: 'machine-states/core/operational-state.ts',
+        // stateFilePath: `machine-states/core/operational-state.ts`,
+        machineName: args.machine,
+        pathToParentStateInFile: 'allowed',
+        stateName: 'home1',
+        stateImportPath: './home1',
+      })
 
-      //   this.log('add core state to machine creator function')
-      //   await addChildState({
-      //     machineName: args.machine,
-      //     parents: [],
-      //     stateName: 'core',
-      //     stateImportPath: '../machine-states/core',
-      //   })
-      // }
+      await addChildState({
+        stateFilePath: 'machine-states/core/operational-state.ts',
+        // stateFilePath: `machine-states/core/operational-state.ts`,
+        machineName: args.machine,
+        pathToParentStateInFile: 'allowed.doSomething',
+        stateName: 'home2',
+        stateImportPath: './home2',
+      })
 
-      // if (projectConfiguration.isPresetActive('kme')) {
-      //   this.log(`add kme extensions to machine '${args.machine}'`)
-      //   await injectDiagnosticHook({machineName: args.machine})
-      //   await createLoggerFile({machineName: args.machine})
-      // }
-
-      // this.log('add new machine to configuration file')
-      // projectConfiguration.save()
+      await addChildState({
+        stateFilePath: 'machine-states/core/operational-state.ts',
+        // stateFilePath: `machine-states/core/operational-state.ts`,
+        machineName: args.machine,
+        pathToParentStateInFile: 'allowed.doSomething.not.exists',
+        stateName: 'home3',
+        stateImportPath: './home3',
+      })
 
       // this.log(`machine '${args.machine}' created successfully`)
     } catch (error: any) {

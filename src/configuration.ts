@@ -17,6 +17,7 @@ interface ProjectGlobals {
 }
 
 export interface ProjectConfiguration {
+  version: string,
   globals: ProjectGlobals
   machines: Record<string, MachineConfiguration>;
 }
@@ -24,8 +25,6 @@ export interface ProjectConfiguration {
 const projectConfigurationFileName = '.xstate-hive.json'
 
 export class Configuration {
- 
-
   // eslint-disable-next-line no-useless-constructor
   private constructor(
     public root: string,
@@ -37,6 +36,7 @@ export class Configuration {
     const configFilePath = path.resolve(root, projectConfigurationFileName)
 
     const config: ProjectConfiguration = {
+      version: '1.0.0',
       globals,
       machines: {},
     }
@@ -75,7 +75,7 @@ export class Configuration {
   hasMachine(machine: string): boolean {
     return Boolean(this.config.machines[machine])
   }
-  
+
   public save(): void {
     const filePath = path.resolve(this.root, projectConfigurationFileName)
     const content = JSON.stringify(this.config, null, 2)
