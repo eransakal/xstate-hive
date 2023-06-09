@@ -22,7 +22,7 @@ const getMachineStates = async (machineName: string, statePath?: string) => {
   return extractStatesOfMachine(resolvedStateFilePath)
 }
 
-async function getUserInput({prefilled, machineStates} : {prefilled: unknown, machineStates: MachineState[] }) {
+async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, machineStates: MachineState[] }) {
   const {stateType} = await inquirer.prompt([
     {
       type: 'list',
@@ -104,12 +104,12 @@ async function getUserInput({prefilled, machineStates} : {prefilled: unknown, ma
     },
   ])
 
-  console.dir({
+  return {
     actionType,
     selectedNode,
     newStateName,
     stateType,
-  })
+  }
 }
 
 export default class State extends Command {
@@ -144,54 +144,27 @@ export default class State extends Command {
     try {
       const projectConfiguration = Configuration.get()
 
-      const machineStates = await getMachineStates(args.machine)
-
-      // await getUserInput({
-      //   prefilled: {},
-      //   machineStates,
-      // })
-
-      this.log(`inject state '${args.targetStatePath}' in '${args.machine}'`)
-
       const machineConfig = projectConfiguration.getMachine(args.machine)
+      const machineStates = await getMachineStates(machineConfig.machineName)
 
-      // this.log(`create machine '${args.machine}' in ${machinePath}`)
-
-      await addChildState({
-        // stateFilePath: 'machine-states/core/operational-state.ts',
-        stateFilePath: 'utils/create-eran-sakal-machine.ts',
-        machineName: args.machine,
-        pathToParentStateInFile: '',
-        stateName: 'home',
-        stateImportPath: './home',
+      const userInputs = await getUserInputs({
+        prefilled: {},
+        machineStates,
       })
 
-      await addChildState({
-        // stateFilePath: 'machine-states/core/operational-state.ts',
-        stateFilePath: 'utils/create-eran-sakal-machine.ts',
-        machineName: args.machine,
-        pathToParentStateInFile: 'allowed',
-        stateName: 'home1',
-        stateImportPath: './home1',
-      })
+      this.log(`inject state '${args.targetStatePath}' in '${machineConfig.machineName}'`)
 
-      await addChildState({
-        // stateFilePath: 'machine-states/core/operational-state.ts',
-        stateFilePath: 'utils/create-eran-sakal-machine.ts',
-        machineName: args.machine,
-        pathToParentStateInFile: 'allowed.doSomething',
-        stateName: 'home2',
-        stateImportPath: './home2',
-      })
-
-      await addChildState({
-        // stateFilePath: 'machine-states/core/operational-state.ts',
-        stateFilePath: 'utils/create-eran-sakal-machine.ts',
-        machineName: args.machine,
-        pathToParentStateInFile: 'allowed.doSomething.not.exists',
-        stateName: 'home3',
-        stateImportPath: './home3',
-      })
+      switch (userInputs.actionType) {
+      case 'root':
+        await addChildState({
+          stateFilePath: `utils/create-${machineConfig.machineName}-machine.ts`,
+          machineName: machineConfig.machineName,
+          pathToParentStateInFile: '',
+          stateName: userInputs.newStateName,
+          stateImportPath: `../machine-states/${userInputs.newStateName}`,
+        })
+        break
+      }
 
       // this.log(`machine '${args.machine}' created successfully`)
     } catch (error: any) {
