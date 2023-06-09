@@ -44,23 +44,24 @@ export default class Machine extends Command {
 
     try {
       const projectConfiguration = Configuration.get()
+      const resolvedMachineName = toDashCase(args.machine)
 
-      this.log(`create machine '${args.machine}' in ${args.dest} (flags: ${JSON.stringify(flags)})`)
+      this.log(`create machine '${resolvedMachineName}' in ${args.dest} (flags: ${JSON.stringify(flags)})`)
 
-      if (projectConfiguration.hasMachine(args.machine)) {
+      if (projectConfiguration.hasMachine(resolvedMachineName)) {
         throw new Error('machine already exists')
       }
 
-      const machineRelativePath = join(args.dest, `${args.machine}-machine`)
+      const machineRelativePath = join(args.dest, `${resolvedMachineName}-machine`)
       const machinePath = join(projectConfiguration.root, machineRelativePath)
-      this.log(`create machine '${args.machine}' in ${machinePath}`)
+      this.log(`create machine '${resolvedMachineName}' in ${machinePath}`)
       await createMachine({
         machinePath,
-        machineName: args.machine,
+        machineName: resolvedMachineName,
       })
 
       projectConfiguration.addMachineConfig(
-        args.machine,
+        resolvedMachineName,
         {
           path: machineRelativePath,
         },
@@ -68,12 +69,12 @@ export default class Machine extends Command {
       )
 
       if (flags.coreState) {
-        this.log(`add core state '${flags.coreState}' to machine '${args.machine}'`)
+        this.log(`add core state '${flags.coreState}' to machine '${resolvedMachineName}'`)
         switch (flags.coreState) {
         case 'bootup-to-operational':
           await createBootupToOperationalState({
             machinePath,
-            machineName: args.machine,
+            machineName: resolvedMachineName,
             parents: [],
             stateName: 'core',
           })
@@ -84,24 +85,24 @@ export default class Machine extends Command {
 
         this.log('add core state to machine creator function')
         await addChildState({
-          machineName: args.machine,
+          machineName: resolvedMachineName,
           pathToParentStateInFile: '',
           stateName: 'core',
           stateImportPath: '../machine-states/core',
-          stateFilePath: `utils/create-${toDashCase(args.machine)}-machine.ts`,
+          stateFilePath: `utils/create-${toDashCase(resolvedMachineName)}-machine.ts`,
         })
       }
 
       if (projectConfiguration.isPresetActive('kme')) {
-        this.log(`add kme extensions to machine '${args.machine}'`)
-        await injectDiagnosticHook({machineName: args.machine})
-        await createLoggerFile({machineName: args.machine})
+        this.log(`add kme extensions to machine '${resolvedMachineName}'`)
+        await injectDiagnosticHook({machineName: resolvedMachineName})
+        await createLoggerFile({machineName: resolvedMachineName})
       }
 
       this.log('add new machine to configuration file')
       projectConfiguration.save()
 
-      this.log(`machine '${args.machine}' created successfully`)
+      this.log(`machine '${resolvedMachineName}' created successfully`)
     } catch (error: any) {
       this.error(error instanceof Error ? error : error.message, {exit: 1})
     }

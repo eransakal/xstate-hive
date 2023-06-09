@@ -1,5 +1,6 @@
 import * as path from 'node:path'
 import {readFileSync, existsSync, writeFileSync} from 'fs'
+import {toDashCase} from './utils.js'
 
 let sharedConfiguration : Configuration | null = null
 
@@ -116,14 +117,15 @@ export class Configuration {
   }
 
   getMachine(machineName: string): Machine {
-    const machineConfig = this.config.machines[machineName]
+    const resolvedMachineName = toDashCase(machineName)
+    const machineConfig = this.config.machines[resolvedMachineName]
 
     if (!machineConfig) {
-      throw new Error(`machine '${machineName}' does not exist`)
+      throw new Error(`machine '${resolvedMachineName}' does not exist`)
     }
 
     return {
-      machineName,
+      machineName: resolvedMachineName,
       config: machineConfig,
       getAbsolutePath: () => path.resolve(this.root, machineConfig.path),
     }

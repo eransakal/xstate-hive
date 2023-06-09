@@ -4,22 +4,26 @@ import fs from 'fs'
 function duplicateAndStripLoc(obj: Record<string, any>): Record<string, any> {
   const duplicatedObj: Record<string, any> = {}
 
-  for (const prop in obj) {
-    if (obj.hasOwnProperty(prop)) {
-      if (prop === 'loc') {
-        continue // Skip the "loc" property
-      }
+  try {
+    for (const prop in obj) {
+      if (obj.hasOwnProperty(prop)) {
+        if (prop === 'loc') {
+          continue // Skip the "loc" property
+        }
 
-      const value = obj[prop]
-      if (typeof value === 'object' && value !== null) {
-        duplicatedObj[prop] = duplicateAndStripLoc(value) // Recursively process nested objects
-      } else {
-        duplicatedObj[prop] = value
+        const value = obj[prop]
+        if (typeof value === 'object' && value !== null) {
+          duplicatedObj[prop] = duplicateAndStripLoc(value) // Recursively process nested objects
+        } else {
+          duplicatedObj[prop] = value
+        }
       }
     }
-  }
 
-  return duplicatedObj
+    return duplicatedObj
+  } catch {
+    return {failed: true}
+  }
 }
 
 function saveDiagnostic(path: string, raw: any) {
@@ -27,25 +31,24 @@ function saveDiagnostic(path: string, raw: any) {
   fs.writeFileSync(path, JSON.stringify(content, null, 2))
 }
 
-function findCreateMachine(j: JSCodeshift, ast: Collection<any>) {
-  const assignment = ast.find(j.CallExpression, {
+function findMachineStates(j: JSCodeshift, ast: Collection<any>) {
+  const machineStatesPath = ast.find(j.CallExpression, {
     callee: {
       name: 'createMachine',
     },
   })
-  .filter(path => {
-    const statesProperty = path.node.arguments[0]?.properties.find(
-      property => property.key.name === 'states',
-    )
-    return statesProperty !== undefined
-  })
 
-  if (assignment.length === 0) {
-    // If assignment is not found, return null or handle the case accordingly
+  const statesProperty = machineStatesPath?.at(0)?.get()?.value?.arguments?.[0]?.properties?.find(
+    property => {
+      return property.key.name === 'states'
+    },
+  )
+
+  if (!statesProperty) {
     return null
   }
 
-  return assignment.at(0).get()
+  return statesProperty.value
 }
 
 function findStateChildStates(j: JSCodeshift, ast: Collection<any>) {
@@ -70,7 +73,7 @@ const transform: Transform = (fileInfo, api, options) => {
   const j = api.jscodeshift
   const ast = j(fileInfo.source)
 
-  let parentStatesPath = findCreateMachine(j, ast) || findStateChildStates(j, ast)
+  let parentStatesPath = findMachineStates(j, ast) || findStateChildStates(j, ast)
 
   if (!parentStatesPath) {
     throw new Error('failed to find createMachine call or states property')

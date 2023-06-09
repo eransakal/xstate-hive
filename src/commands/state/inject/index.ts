@@ -158,8 +158,8 @@ export default class State extends Command {
       // this.log(`create machine '${args.machine}' in ${machinePath}`)
 
       await addChildState({
-        stateFilePath: 'machine-states/core/operational-state.ts',
-        // stateFilePath: `machine-states/core/operational-state.ts`,
+        // stateFilePath: 'machine-states/core/operational-state.ts',
+        stateFilePath: 'utils/create-eran-sakal-machine.ts',
         machineName: args.machine,
         pathToParentStateInFile: '',
         stateName: 'home',
@@ -167,8 +167,8 @@ export default class State extends Command {
       })
 
       await addChildState({
-        stateFilePath: 'machine-states/core/operational-state.ts',
-        // stateFilePath: `machine-states/core/operational-state.ts`,
+        // stateFilePath: 'machine-states/core/operational-state.ts',
+        stateFilePath: 'utils/create-eran-sakal-machine.ts',
         machineName: args.machine,
         pathToParentStateInFile: 'allowed',
         stateName: 'home1',
@@ -176,8 +176,8 @@ export default class State extends Command {
       })
 
       await addChildState({
-        stateFilePath: 'machine-states/core/operational-state.ts',
-        // stateFilePath: `machine-states/core/operational-state.ts`,
+        // stateFilePath: 'machine-states/core/operational-state.ts',
+        stateFilePath: 'utils/create-eran-sakal-machine.ts',
         machineName: args.machine,
         pathToParentStateInFile: 'allowed.doSomething',
         stateName: 'home2',
@@ -185,8 +185,8 @@ export default class State extends Command {
       })
 
       await addChildState({
-        stateFilePath: 'machine-states/core/operational-state.ts',
-        // stateFilePath: `machine-states/core/operational-state.ts`,
+        // stateFilePath: 'machine-states/core/operational-state.ts',
+        stateFilePath: 'utils/create-eran-sakal-machine.ts',
         machineName: args.machine,
         pathToParentStateInFile: 'allowed.doSomething.not.exists',
         stateName: 'home3',
