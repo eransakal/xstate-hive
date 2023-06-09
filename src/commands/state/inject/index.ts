@@ -1,15 +1,12 @@
 import {Args, Command, Flags} from '@oclif/core'
 import {Configuration} from '../../../configuration.js'
 import {join} from 'path'
-import {createMachine} from '../../../modifiers/create-machine.js'
-import {createBootupToOperationalState} from '../../../modifiers/create-bootup-to-operational-state.js'
-import {addChildState} from '../../../modifiers/add-child-state.js'
-import {injectDiagnosticHook} from '../../../modifiers/extensions/kme/inject-diagnostic-hook.js'
-import {createLoggerFile} from '../../../modifiers/extensions/kme/create-logger-file.js'
+import {injectMachineState} from '../../../modifiers/inject-machine-state.js'
 import {setCommandLogger} from '../../../command-logger.js'
 import {toDashCase} from '../../../utils.js'
 import {extractStatesOfMachine, MachineState} from '../../../utils/extract-states-of-machine.js'
 import inquirer from 'inquirer'
+import {StateTypes} from '../../../data.js'
 
 const getMachineStates = async (machineName: string, statePath?: string) => {
   let resolvedStateFilePath = statePath
@@ -31,7 +28,7 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
       choices: [
         {
           name: 'Manage a feature that can be temporarily allowed or not allowed (allowed-not-allowed)',
-          value: 'allowed-not-allowed',
+          value: StateTypes.AllowedNotAllowed,
           short: 'Temporary allowed or not allowed',
         },
         {
@@ -120,9 +117,8 @@ export default class State extends Command {
   static flags = {
     state: Flags.string({
       description: 'add core state of specified type',
-      options: ['allowed-disallowed'],
+      options: [StateTypes.AllowedNotAllowed, StateTypes.OperationalNotOperational],
       required: false,
-      default: 'allowed-disallowed',
     }),
   }
 
@@ -156,17 +152,17 @@ export default class State extends Command {
 
       switch (userInputs.actionType) {
       case 'root':
-        await addChildState({
+        await injectMachineState({
+          stateType: userInputs.stateType,
           stateFilePath: `utils/create-${machineConfig.machineName}-machine.ts`,
           machineName: machineConfig.machineName,
           pathToParentStateInFile: '',
           stateName: userInputs.newStateName,
           stateImportPath: `../machine-states/${userInputs.newStateName}`,
         })
+        this.log(`injected new root state '${userInputs.newStateName}' in '${machineConfig.machineName}'`)
         break
       }
-
-      // this.log(`machine '${args.machine}' created successfully`)
     } catch (error: any) {
       this.error(error instanceof Error ? error : error.message, {exit: 1})
     }

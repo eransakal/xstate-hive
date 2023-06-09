@@ -2,12 +2,12 @@ import {Args, Command, Flags} from '@oclif/core'
 import {Configuration} from '../../../configuration.js'
 import {join} from 'path'
 import {createMachine} from '../../../modifiers/create-machine.js'
-import {createBootupToOperationalState} from '../../../modifiers/create-bootup-to-operational-state.js'
-import {addChildState} from '../../../modifiers/add-child-state.js'
+import {injectMachineState} from '../../../modifiers/inject-machine-state.js'
 import {injectDiagnosticHook} from '../../../modifiers/extensions/kme/inject-diagnostic-hook.js'
 import {createLoggerFile} from '../../../modifiers/extensions/kme/create-logger-file.js'
 import {setCommandLogger} from '../../../command-logger.js'
 import {toDashCase} from '../../../utils.js'
+import {StateTypes} from '../../../data.js'
 
 export default class Machine extends Command {
   static description = 'Create a new machine to manage a new feature'
@@ -17,9 +17,9 @@ export default class Machine extends Command {
   static flags = {
     coreState: Flags.string({
       description: 'add core state of specified type',
-      options: ['bootup-to-operational'],
+      options: [StateTypes.AllowedNotAllowed, StateTypes.OperationalNotOperational],
       required: false,
-      default: 'bootup-to-operational',
+      default: StateTypes.OperationalNotOperational,
     }),
   }
 
@@ -69,22 +69,10 @@ export default class Machine extends Command {
       )
 
       if (flags.coreState) {
-        this.log(`add core state '${flags.coreState}' to machine '${resolvedMachineName}'`)
-        switch (flags.coreState) {
-        case 'bootup-to-operational':
-          await createBootupToOperationalState({
-            machinePath,
-            machineName: resolvedMachineName,
-            parents: [],
-            stateName: 'core',
-          })
-          break
-        default:
-          break
-        }
+        this.log(`add core state of type '${flags.coreState}' to machine '${resolvedMachineName}'`)
 
-        this.log('add core state to machine creator function')
-        await addChildState({
+        await injectMachineState({
+          stateType: flags.coreState as StateTypes,
           machineName: resolvedMachineName,
           pathToParentStateInFile: '',
           stateName: 'core',

@@ -6,8 +6,7 @@ export default function (plop) {
       {
         type: 'add',
         path: './',
-        force: true,
-        templateFile: './templates/state.hbs',
+        templateFile: './templates/state.ts.hbs',
       },
     ],
   })

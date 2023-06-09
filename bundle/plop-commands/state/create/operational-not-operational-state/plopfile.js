@@ -6,7 +6,7 @@ export default function (plop) {
     actions: [
       {
         type: 'addMany',
-        destination: '{{dashCase stateName}}',
+        destination: './',
         base: './templates',
         templateFiles: './templates/**/*.hbs',
       },
