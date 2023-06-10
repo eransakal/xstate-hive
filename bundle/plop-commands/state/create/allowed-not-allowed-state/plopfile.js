@@ -4,9 +4,10 @@ export default function (plop) {
     description: '',
     actions: [
       {
-        type: 'add',
-        path: './',
-        templateFile: './templates/state.ts.hbs',
+        type: 'addMany',
+        destination: './',
+        base: './templates',
+        templateFiles: './templates/**/*.hbs',
       },
     ],
   })

@@ -158,7 +158,7 @@ export default class State extends Command {
           machineName: machineConfig.machineName,
           pathToParentStateInFile: '',
           stateName: userInputs.newStateName,
-          stateImportPath: `../machine-states/${userInputs.newStateName}`,
+          stateImportPath: `../machine-states/${toDashCase(userInputs.newStateName)}`,
         })
         this.log(`injected new root state '${userInputs.newStateName}' in '${machineConfig.machineName}'`)
         break

@@ -1,0 +1,24 @@
+import {allowedState} from './allowed-state';
+import {notAllowedState} from './not-allowed-state';
+import {
+  {{pascalCase machineName}}MachineStateConfig,
+} from '{{relativePathToMachine}}../../types';
+
+export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
+  initial: 'unknown',
+  states: {
+    unknown: {
+      always: [
+        {
+          cond: (context) => true,
+          target: 'allowed',
+        },
+        {
+          target: 'notAllowed',
+        },
+      ],
+    },
+    allowed: allowedState,
+    notAllowed: notAllowedState,
+  },
+};

@@ -1,6 +1,7 @@
 import {dirname, resolve} from 'path'
 import {fileURLToPath} from 'url'
 import nodePlop from 'node-plop'
+import {getCommandLogger} from '../command-logger.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -18,7 +19,8 @@ export const executePlopJSCommand = async ({
     __dirname,
     `../../bundle/plop-commands/${commandPath}/plopfile.js`,
   )
-
+  getCommandLogger().log(`execute plopjs '${commandPath}' on '${basePath}'`)
+  console.dir(options)
   const plop = await nodePlop(plopCommandPath, {
     force: false,
     destBasePath: basePath,

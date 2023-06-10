@@ -32,6 +32,7 @@ export const executeJSCodeshiftTransformer = async ({
   getCommandLogger().log(`execute jscodeshift transformer ${transformerPath} on ${destFilePath} (parser ${parser})`)
 
   const jscodemodOptions = Object.entries(options).map(([key, value]) => `--${key}=${value}`)
+  console.dir(jscodemodOptions)
   const {stderr, stdout} = spawnSync(
     'node',
     [jscodemodCMD, '--parser', parser, '-t', resolvedTransformerPath, destFilePath, ...jscodemodOptions],
