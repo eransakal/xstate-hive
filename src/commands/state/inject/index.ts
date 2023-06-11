@@ -29,10 +29,10 @@ const formatStateName = (stateName: string) => {
 }
 
 async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, machineStates: MachineState[] }) {
-  let {stateType} = await inquirer.prompt([
+  let {newStateType} = await inquirer.prompt([
     {
       type: 'list',
-      name: 'stateType',
+      name: 'newStateType',
       message: 'What if the purpose of the state?',
       choices: [
         {
@@ -59,13 +59,13 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
     },
   ])
 
-  if (stateType === 'help') {
+  if (newStateType === 'help') {
     // TODO
   }
 
-  if (stateType === 'operational-non-operational' ||
-  stateType === 'allowed-not-allowed') {
-    const actionLabel = stateType === 'operational-non-operational' ? 'operational' : 'allowed'
+  if (newStateType === 'operational-non-operational' ||
+  newStateType === 'allowed-not-allowed') {
+    const actionLabel = newStateType === 'operational-non-operational' ? 'operational' : 'allowed'
     const {withLoading} = await inquirer.prompt([
       {
         type: 'list',
@@ -92,7 +92,7 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
     ])
 
     if (withLoading === 'yes') {
-      stateType += '-with-loading'
+      newStateType += '-with-loading'
     }
 
     if (withLoading === 'help') {
@@ -116,19 +116,19 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
         short: 'Add Child State',
       },
       {
-        name: 'Change a child state content',
+        name: 'Change an existing state type',
         value: 'change',
-        short: 'Change State',
+        short: 'Change Existing State Type',
       }],
     },
   ])
 
-  const {selectedNode} = actionType === 'root' ?
-    {selectedNode: null} :
+  const {selectedState} = actionType === 'root' ?
+    {selectedState: null} :
     await inquirer.prompt([
       {
         type: 'list',
-        name: 'selectedNode',
+        name: 'selectedState',
         message: actionType === 'child' ?
           'Select the parent state to add a new state to' :
           'Select the state to change',
@@ -136,23 +136,31 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
       },
     ])
 
+  const isNewStateNameRequired =  actionType !== 'change'
+  console.dir({actionType})
   if (actionType === 'change') {
-    // TODO verify that can change the content of the selected state
+    const selectedStateConfig = machineStates.find(state => state.id === selectedState)
+
+    if (selectedStateConfig?.hasContent) {
+      throw new Error('The selected state already has content, a support for that will be added in the future. For now you can remove the content manually and try again.')
+    }
   }
 
-  const {newStateName} = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'newStateName',
-      message: 'Enter the name of the new state',
-    },
-  ])
+  const {newStateName} = isNewStateNameRequired   ?
+    await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'newStateName',
+        message: 'Enter the name of the new state',
+      },
+    ]) :
+    {newStateName: ''}
 
   return {
     actionType,
-    selectedNode,
-    newStateName: formatStateName(newStateName),
-    stateType,
+    selectedState,
+    newStateName: isNewStateNameRequired ? formatStateName(newStateName) : '',
+    newStateType,
   }
 }
 
@@ -175,7 +183,7 @@ export default class State extends Command {
       required: true,
     }),
     targetStatePath: Args.string({
-      description: 'The path to the machine state to inject into (e.g. "core", "core.oper)',
+      description: 'The path to the machine state to inject into (e.g. "core", "core.operational")',
       required: false,
     }),
   }
@@ -195,9 +203,6 @@ export default class State extends Command {
         machineStates,
       })
 
-      this.log(`inject state '${args.targetStatePath}' in '${machineConfig.machineName}'`)
-
-      ux.info(`inject state '${args.targetStatePath}' in '${machineConfig.machineName}'`)
       ux.action.start('injecting the state into the machine')
 
       switch (userInputs.actionType) {
@@ -207,20 +212,21 @@ export default class State extends Command {
           selectedStateFilePath: `utils/create-${machineConfig.machineName}-machine.ts`,
           selectedStateInnerFileParents: [],
           newStateName: userInputs.newStateName,
-          newStateType: userInputs.stateType,
+          newStateType: userInputs.newStateType,
           newStateDirPath: `../machine-states/${toDashCase(userInputs.newStateName)}-state`,
         })
         this.log(`injected new root state '${userInputs.newStateName}' in '${machineConfig.machineName}'`)
         break
       case 'child':
       {
-        const stateConfig = machineStates.find(state => state.id === userInputs.selectedNode)
+        const stateConfig = machineStates.find(state => state.id === userInputs.selectedState)
+
         if (!stateConfig) {
-          throw new Error(`state '${userInputs.selectedNode}' not found in '${machineConfig.machineName}'`)
+          throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
         }
 
         await injectMachineState({
-          newStateType: userInputs.stateType,
+          newStateType: userInputs.newStateType,
           selectedStateFilePath: stateConfig.filePath,
           selectedStateInnerFileParents: stateConfig.innerFileParentStates,
           machineName: machineConfig.machineName,
@@ -228,6 +234,26 @@ export default class State extends Command {
           newStateDirPath: `./${toDashCase(userInputs.newStateName)}-state`,
         })
         this.log(`injected state '${userInputs.newStateName}' of '${machineConfig.machineName}' into '${stateConfig.id}'`)
+        break
+      }
+
+      case 'change':
+      {
+        const stateConfig = machineStates.find(state => state.id === userInputs.selectedState)
+
+        if (!stateConfig) {
+          throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
+        }
+
+        await injectMachineState({
+          newStateType: userInputs.newStateType,
+          selectedStateFilePath: stateConfig.filePath,
+          selectedStateInnerFileParents: stateConfig.innerFileParentStates,
+          machineName: machineConfig.machineName,
+          newStateName: stateConfig.name,
+          newStateDirPath: `./${toDashCase(stateConfig.name)}-state`,
+        })
+        this.log(`change type of state '${stateConfig.name}' into '${userInputs.newStateType}'`)
         break
       }
       }

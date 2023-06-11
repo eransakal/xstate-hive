@@ -48,7 +48,7 @@ export const injectMachineState = async ({
   const plopCommandPath = getFileByStateType(stateType)
 
   await executeJSCodeshiftTransformer({
-    transformerPath: 'states/add-state-to-machine.ts',
+    transformerPath: 'states/inject-state-to-machine.ts',
     destFilePath: resolvedStateFilePath,
     options: {
       stateName: newStateName,

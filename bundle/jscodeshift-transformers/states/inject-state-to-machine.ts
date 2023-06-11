@@ -1,35 +1,4 @@
 import {JSCodeshift, Transform, VariableDeclarator} from 'evcodeshift'
-import fs from 'fs'
-
-function duplicateAndStripLoc(obj: Record<string, any>): Record<string, any> {
-  const duplicatedObj: Record<string, any> = {}
-
-  try {
-    for (const prop in obj) {
-      if (obj.hasOwnProperty(prop)) {
-        if (prop === 'loc') {
-          continue // Skip the "loc" property
-        }
-
-        const value = obj[prop]
-        if (typeof value === 'object' && value !== null) {
-          duplicatedObj[prop] = duplicateAndStripLoc(value) // Recursively process nested objects
-        } else {
-          duplicatedObj[prop] = value
-        }
-      }
-    }
-
-    return duplicatedObj
-  } catch {
-    return {failed: true}
-  }
-}
-
-function saveDiagnostic(path: string, raw: any) {
-  const content = duplicateAndStripLoc(raw)
-  fs.writeFileSync(path, JSON.stringify(content, null, 2))
-}
 
 function findMachineStates(j: JSCodeshift, ast: Collection<any>) {
   const machineStatesPath = ast.find(j.CallExpression, {
@@ -128,13 +97,19 @@ const transform: Transform = (fileInfo, api, options) => {
     }
   }
 
-  parentStatesPath.properties.push(
-    j.property(
-      'init',
-      j.identifier(options.stateName),
-      j.identifier(options.stateImportName),
-    ),
-  )
+  const existingStatePath = parentStatesPath.properties.find(path => path.key.name === options.stateName)
+
+  if (existingStatePath) {
+    existingStatePath.value = j.identifier(options.stateImportName)
+  } else {
+    parentStatesPath.properties.push(
+      j.property(
+        'init',
+        j.identifier(options.stateName),
+        j.identifier(options.stateImportName),
+      ),
+    )
+  }
 
   // Build a new import
   const newImport = j.importDeclaration(
