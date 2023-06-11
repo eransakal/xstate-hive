@@ -1,16 +1,18 @@
 import { {{pascalCase machineName}}MachineStateConfig } from '{{relativePathToMachine}}../../types';
-export const bootUpState: {{pascalCase machineName}}MachineStateConfig = {
+export const loadingState: {{pascalCase machineName}}MachineStateConfig = {
   type: 'parallel',
-  onDone: {      
-      target: 'operational',
-  },  
-  always: {
-    target: 'operational',
-  },
+  onDone: [
+    {
+      cond: context => true,
+      target: 'allowed',
+    },
+    {
+      target: 'notAllowed',
+    }
+  ],   
   states: {    
     /*
-    // Example of a parallel state that loads multiple resources in parallel.
-    // If used, remove the always target above.
+    // Example of a parallel state that loads multiple resources in parallel.    
     loadXXX: {
       initial: 'loading',
       states: {        

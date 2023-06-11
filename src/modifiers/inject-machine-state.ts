@@ -4,6 +4,7 @@ import {executeJSCodeshiftTransformer} from '../utils/execute-jscodeshift-transf
 import {join} from 'path'
 import {executePlopJSCommand} from '../utils/execute-plopljs-command.js'
 import {StateTypes} from '../data.js'
+import {toDashCase, toLowerCamelCase} from '../utils.js'
 
 interface ModifierOptions {
   machineName: string,
@@ -18,8 +19,12 @@ const getFileByStateType = (stateType: StateTypes): string => {
   switch (stateType) {
   case StateTypes.AllowedNotAllowed:
     return 'state/create/allowed-not-allowed-state'
+  case StateTypes.AllowedNotAllowedWithLoading:
+    return 'state/create/allowed-not-allowed-with-loading-state'
   case StateTypes.OperationalNotOperational:
     return 'state/create/operational-not-operational-state'
+  case StateTypes.OperationalNotOperationalWithLoading:
+    return 'state/create/operational-not-operational-with-loading-state'
   default:
     throw new Error(`unknown state type '${stateType}'`)
   }
@@ -47,10 +52,10 @@ export const injectMachineState = async ({
     transformerPath: 'states/add-state-to-machine.ts',
     destFilePath: resolvedStateFilePath,
     options: {
-      stateName,
+      stateName: stateName,
       pathToParentStateInFile,
       stateImportName: `${stateName}State`,
-      stateImportPath,
+      stateImportPath: `${toDashCase(stateImportPath)}`,
     },
   })
 

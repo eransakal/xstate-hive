@@ -16,10 +16,15 @@ export default class Machine extends Command {
 
   static flags = {
     coreState: Flags.string({
-      description: 'add core state of specified type',
+      description: 'inject core state of specified type',
       options: [StateTypes.AllowedNotAllowed, StateTypes.OperationalNotOperational],
       required: false,
       default: StateTypes.OperationalNotOperational,
+    }),
+    withLoading: Flags.boolean({
+      description: 'decide if the core state should include a loading state',
+      required: false,
+      default: true,
     }),
   }
 
@@ -69,10 +74,12 @@ export default class Machine extends Command {
       )
 
       if (flags.coreState) {
-        this.log(`add core state of type '${flags.coreState}' to machine '${resolvedMachineName}'`)
+        const resolvedCoreState = flags.withLoading ? `${flags.coreState}-with-loading` : flags.coreState
+
+        this.log(`add core state of type '${resolvedCoreState}'${flags.withLoading ? ' (with loading state)' : ''} to machine '${resolvedMachineName}'`)
 
         await injectMachineState({
-          stateType: flags.coreState as StateTypes,
+          stateType: resolvedCoreState as StateTypes,
           machineName: resolvedMachineName,
           pathToParentStateInFile: '',
           stateName: 'core',

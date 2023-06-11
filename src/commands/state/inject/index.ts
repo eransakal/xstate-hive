@@ -1,9 +1,9 @@
-import {Args, Command, Flags} from '@oclif/core'
+import {ux, Args, Command, Flags} from '@oclif/core'
 import {Configuration} from '../../../configuration.js'
 import {join} from 'path'
 import {injectMachineState} from '../../../modifiers/inject-machine-state.js'
 import {setCommandLogger} from '../../../command-logger.js'
-import {toDashCase} from '../../../utils.js'
+import {toDashCase, toLowerCamelCase} from '../../../utils.js'
 import {extractStatesOfMachine, MachineState} from '../../../utils/extract-states-of-machine.js'
 import inquirer from 'inquirer'
 import {StateTypes} from '../../../data.js'
@@ -19,8 +19,17 @@ const getMachineStates = async (machineName: string, statePath?: string) => {
   return extractStatesOfMachine(resolvedStateFilePath)
 }
 
+const formatStateName = (stateName: string) => {
+  const resolvedStateName = stateName.trim()
+  if (!resolvedStateName) {
+    throw new Error('state name cannot be empty')
+  }
+
+  return  toLowerCamelCase(resolvedStateName).endsWith('State') ? toLowerCamelCase(resolvedStateName).slice(0, -5)  : toLowerCamelCase(resolvedStateName)
+}
+
 async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, machineStates: MachineState[] }) {
-  const {stateType} = await inquirer.prompt([
+  let {stateType} = await inquirer.prompt([
     {
       type: 'list',
       name: 'stateType',
@@ -41,6 +50,7 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
           value: 'async-optimistic-action',
           short: 'Asynchronously optimistic user action',
         },
+        new inquirer.Separator(),
         {
           name: 'I\'m not sure what to choose, please assist me',
           value: 'help',
@@ -51,6 +61,43 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
 
   if (stateType === 'help') {
     // TODO
+  }
+
+  if (stateType === 'operational-not-operational' ||
+  stateType === 'allowed-not-allowed') {
+    const actionLabel = stateType === 'operational-not-operational' ? 'operational' : 'allowed'
+    const {withLoading} = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'withLoading',
+        message: 'Do you need to gather data from the server or other machines before the feature can be used?',
+        choices: [
+          {
+            name: `Yes, I don't always know immediately if the feature is ${actionLabel} or not`,
+            value: 'yes',
+            short: 'Yes I do',
+          },
+          {
+            name: `No, I have all the information I need to determine immediately if the feature is ${actionLabel} or not`,
+            value: 'no',
+            short: 'No I don\'t need to',
+          },
+          new inquirer.Separator(),
+          {
+            name: 'I\'m not sure what to choose, please assist me',
+            value: 'help',
+          },
+        ],
+      },
+    ])
+
+    if (withLoading === 'yes') {
+      stateType += '-with-loading'
+    }
+
+    if (withLoading === 'help') {
+    // TODO
+    }
   }
 
   const {actionType} = await inquirer.prompt([
@@ -104,7 +151,7 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
   return {
     actionType,
     selectedNode,
-    newStateName,
+    newStateName: formatStateName(newStateName),
     stateType,
   }
 }
@@ -133,6 +180,8 @@ export default class State extends Command {
     }),
   }
 
+  static enableJsonFlag = true
+
   async run(): Promise<void> {
     setCommandLogger(this)
     const {args, flags} = await this.parse(State)
@@ -150,6 +199,9 @@ export default class State extends Command {
 
       this.log(`inject state '${args.targetStatePath}' in '${machineConfig.machineName}'`)
 
+      ux.info(`inject state '${args.targetStatePath}' in '${machineConfig.machineName}'`)
+      ux.action.start('injecting the state into the machine')
+
       switch (userInputs.actionType) {
       case 'root':
         await injectMachineState({
@@ -158,12 +210,15 @@ export default class State extends Command {
           machineName: machineConfig.machineName,
           pathToParentStateInFile: '',
           stateName: userInputs.newStateName,
-          stateImportPath: `../machine-states/${toDashCase(userInputs.newStateName)}`,
+          stateImportPath: `../machine-states/${toDashCase(userInputs.newStateName)}-state`,
         })
         this.log(`injected new root state '${userInputs.newStateName}' in '${machineConfig.machineName}'`)
         break
       }
+
+      ux.action.stop()
     } catch (error: any) {
+      ux.action.stop()
       this.error(error instanceof Error ? error : error.message, {exit: 1})
     }
   }
