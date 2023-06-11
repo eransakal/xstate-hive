@@ -11,6 +11,7 @@ export interface Machine {
   machineName: string;
   config: MachineConfiguration,
   getAbsolutePath: () => string;
+  getRoot: () => string;
 }
 
 interface ProjectGlobals {
@@ -128,6 +129,10 @@ export class Configuration {
       machineName: resolvedMachineName,
       config: machineConfig,
       getAbsolutePath: () => path.resolve(this.root, machineConfig.path),
+      getRoot: ()  => {
+        return this.root
+      },
+
     }
   }
 }

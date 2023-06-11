@@ -1,4 +1,4 @@
-import {ux, Args, Command, Flags} from '@oclif/core'
+import {Args, Command, Flags} from '@oclif/core'
 import {Configuration, Machine} from '../../../configuration.js'
 import {join} from 'path'
 import {injectMachineState} from '../../../modifiers/inject-machine-state.js'
@@ -231,8 +231,6 @@ export default class State extends Command {
         return
       }
 
-      ux.action.start('injecting the state into the machine')
-
       switch (userInputs.actionType) {
       case 'root':
         await injectMachineState({
@@ -243,7 +241,6 @@ export default class State extends Command {
           newStateType: userInputs.newStateType,
           newStateDirPath: `../machine-states/${toDashCase(userInputs.newStateName)}-state`,
         })
-        this.log(`injected new root state '${userInputs.newStateName}' in '${machineConfig.machineName}'`)
         break
       case 'child':
       {
@@ -261,7 +258,6 @@ export default class State extends Command {
           newStateName: userInputs.newStateName,
           newStateDirPath: `./${toDashCase(userInputs.newStateName)}-state`,
         })
-        this.log(`injected state '${userInputs.newStateName}' of '${machineConfig.machineName}' into '${stateConfig.id}'`)
         break
       }
 
@@ -281,20 +277,15 @@ export default class State extends Command {
           newStateName: stateConfig.name,
           newStateDirPath: `./${toDashCase(stateConfig.name)}-state`,
         })
-        this.log(`change type of state '${stateConfig.name}' into '${userInputs.newStateType}'`)
         break
       }
       }
-
-      ux.action.stop()
     } catch (error: any) {
-      ux.action.stop('failed')
-
-      if (!(error instanceof CLIError)) {
+      if (error instanceof CLIError) {
+        this.error(error.message, {exit: 1})
+      } else {
         this.debug(error)
         this.error('Something wrong happened. Please remove partially created files and try again.', {exit: 1})
-      } else {
-        this.error(error.message, {exit: 1})
       }
     }
   }

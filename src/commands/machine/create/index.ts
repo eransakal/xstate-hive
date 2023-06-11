@@ -50,7 +50,7 @@ export default class Machine extends Command {
     try {
       const projectConfiguration = Configuration.get()
       const resolvedMachineName = toDashCase(args.machine)
-    
+
       if (projectConfiguration.hasMachine(resolvedMachineName)) {
         throw new Error('machine already exists')
       }
