@@ -41,8 +41,8 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
           short: 'Temporary allowed or not allowed',
         },
         {
-          name: 'Manage a feature that can be permanently operational or not operational (operational-not-operational)',
-          value: 'operational-not-operational',
+          name: 'Manage a feature that can be permanently operational or not operational (operational-non-operational)',
+          value: 'operational-non-operational',
           short: 'Permanently operational or not operational',
         },
         {
@@ -63,9 +63,9 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
     // TODO
   }
 
-  if (stateType === 'operational-not-operational' ||
+  if (stateType === 'operational-non-operational' ||
   stateType === 'allowed-not-allowed') {
-    const actionLabel = stateType === 'operational-not-operational' ? 'operational' : 'allowed'
+    const actionLabel = stateType === 'operational-non-operational' ? 'operational' : 'allowed'
     const {withLoading} = await inquirer.prompt([
       {
         type: 'list',
@@ -180,8 +180,6 @@ export default class State extends Command {
     }),
   }
 
-  static enableJsonFlag = true
-
   async run(): Promise<void> {
     setCommandLogger(this)
     const {args, flags} = await this.parse(State)
@@ -205,15 +203,33 @@ export default class State extends Command {
       switch (userInputs.actionType) {
       case 'root':
         await injectMachineState({
-          stateType: userInputs.stateType,
-          stateFilePath: `utils/create-${machineConfig.machineName}-machine.ts`,
           machineName: machineConfig.machineName,
-          pathToParentStateInFile: '',
-          stateName: userInputs.newStateName,
-          stateImportPath: `../machine-states/${toDashCase(userInputs.newStateName)}-state`,
+          selectedStateFilePath: `utils/create-${machineConfig.machineName}-machine.ts`,
+          selectedStateInnerFileParents: [],
+          newStateName: userInputs.newStateName,
+          newStateType: userInputs.stateType,
+          newStateDirPath: `../machine-states/${toDashCase(userInputs.newStateName)}-state`,
         })
         this.log(`injected new root state '${userInputs.newStateName}' in '${machineConfig.machineName}'`)
         break
+      case 'child':
+      {
+        const stateConfig = machineStates.find(state => state.id === userInputs.selectedNode)
+        if (!stateConfig) {
+          throw new Error(`state '${userInputs.selectedNode}' not found in '${machineConfig.machineName}'`)
+        }
+
+        await injectMachineState({
+          newStateType: userInputs.stateType,
+          selectedStateFilePath: stateConfig.filePath,
+          selectedStateInnerFileParents: stateConfig.innerFileParentStates,
+          machineName: machineConfig.machineName,
+          newStateName: userInputs.newStateName,
+          newStateDirPath: `./${toDashCase(userInputs.newStateName)}-state`,
+        })
+        this.log(`injected state '${userInputs.newStateName}' of '${machineConfig.machineName}' into '${stateConfig.id}'`)
+        break
+      }
       }
 
       ux.action.stop()

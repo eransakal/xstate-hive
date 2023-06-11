@@ -79,12 +79,12 @@ export default class Machine extends Command {
         this.log(`add core state of type '${resolvedCoreState}'${flags.withLoading ? ' (with loading state)' : ''} to machine '${resolvedMachineName}'`)
 
         await injectMachineState({
-          stateType: resolvedCoreState as StateTypes,
+          newStateType: resolvedCoreState as StateTypes,
           machineName: resolvedMachineName,
-          pathToParentStateInFile: '',
-          stateName: 'core',
-          stateImportPath: '../machine-states/core',
-          stateFilePath: `utils/create-${toDashCase(resolvedMachineName)}-machine.ts`,
+          newStateName: 'core',
+          newStateDirPath: '../machine-states/core',
+          selectedStateInnerFileParents: [],
+          selectedStateFilePath: `utils/create-${toDashCase(resolvedMachineName)}-machine.ts`,
         })
       }
 

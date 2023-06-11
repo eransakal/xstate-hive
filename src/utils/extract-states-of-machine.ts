@@ -11,20 +11,19 @@ interface InnerMachineState {
   children: InnerMachineState[];
   hasContent: boolean,
   parents: string[]
-  fileParents: string[]
+  innerFileParentStates: string[]
 }
 
 export interface MachineState {
   id: string,
   name: string;
   filePath: string;
-  fileParents: string[],
+  innerFileParentStates: string[],
   hasContent: boolean,
 }
 
 function flattenStates(states: InnerMachineState[]): MachineState[] {
   const flattenedStates: MachineState[] = []
-
   function flatten(state: InnerMachineState) {
     const id = state.parents.length > 0 ? `${state.parents.join('.')}.${state.name}` : state.name
     flattenedStates.push({
@@ -32,7 +31,7 @@ function flattenStates(states: InnerMachineState[]): MachineState[] {
       name: state.name,
       filePath: state.filePath,
       hasContent: state.hasContent,
-      fileParents: state.fileParents,
+      innerFileParentStates: state.innerFileParentStates,
     })
     state.children.forEach(flatten)
   }
@@ -95,6 +94,7 @@ const getStatesFromFile = ({filePath, isMachineFile, logger, parents}: { filePat
           filePath,
           logger,
           fileImports,
+          fileParents: [],
           parents: [...parents]})
       }
     },
@@ -103,11 +103,12 @@ const getStatesFromFile = ({filePath, isMachineFile, logger, parents}: { filePat
   return result
 }
 
-const getStatesFromNode = ({node, filePath, fileImports, logger, parents}: {
+const getStatesFromNode = ({node, filePath, fileImports, logger, parents, fileParents}: {
     node: any,
     filePath: string,
     logger: Logger,
     parents: string[],
+    fileParents: string[],
     fileImports: Record<string, string>}): InnerMachineState[]  => {
   const  result: InnerMachineState[] = []
   node.value.properties.forEach((property: any) => {
@@ -120,9 +121,9 @@ const getStatesFromNode = ({node, filePath, fileImports, logger, parents}: {
         name: stateName,
         children: [],
         filePath,
-        hasContent: true, // TODO
+        hasContent: property.value?.properties?.length > 0,
         parents: [...parents],
-        fileParents: [],
+        innerFileParentStates: [...fileParents],
       }
       result.push(value)
 
@@ -132,6 +133,7 @@ const getStatesFromNode = ({node, filePath, fileImports, logger, parents}: {
           filePath,
           logger,
           fileImports,
+          fileParents: [...fileParents, stateName],
           parents: [...parents, stateName]})
       }
     } else if (stateValueType === 'Identifier') {
@@ -156,9 +158,9 @@ const getStatesFromNode = ({node, filePath, fileImports, logger, parents}: {
         name: stateName,
         children,
         filePath: stateFilePath,
-        hasContent: true,  // TODO
+        hasContent: true,
         parents: [...parents],
-        fileParents: [],
+        innerFileParentStates: [...fileParents],
       })
     }
   })

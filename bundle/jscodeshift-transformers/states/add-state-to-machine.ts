@@ -38,6 +38,10 @@ function findMachineStates(j: JSCodeshift, ast: Collection<any>) {
     },
   })
 
+  if (machineStatesPath.length === 0) {
+    return null
+  }
+
   const statesProperty = machineStatesPath?.at(0)?.get()?.value?.arguments?.[0]?.properties?.find(
     property => {
       return property.key.name === 'states'
