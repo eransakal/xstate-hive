@@ -10,17 +10,20 @@ interface CommandOptions {
   destPath: string;
   options: Record<string, unknown>;
 }
+
 export const executePlopJSCommand = async ({
   commandPath,
   destPath: basePath,
   options,
 }: CommandOptions): Promise<void> => {
+  const logger = getCommandLogger()
+  
   const plopCommandPath = resolve(
     __dirname,
     `../../bundle/plop-commands/${commandPath}/plopfile.js`,
   )
-  getCommandLogger().log(`execute plopjs '${commandPath}' on '${basePath}'`)
-  console.dir(options)
+  logger.debug(`execute plopjs '${commandPath}' on '${basePath}'`)
+  logger.debug(options)
   const plop = await nodePlop(plopCommandPath, {
     force: false,
     destBasePath: basePath,

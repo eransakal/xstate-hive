@@ -2,6 +2,7 @@
 import {PrettyPrintableError} from '@oclif/core/lib/interfaces'
 
 export interface Logger {
+    debug: (...args: any[]) => void;
     exit(code?: number): void;
     warn(input: string | Error): string | Error;
     error(input: string | Error, options: {
@@ -17,7 +18,7 @@ export interface Logger {
 
 let _logger: Logger
 
-export const setCommandLogger = (logger: Logger): void => {
+export const setCommandLogger = (logger: any): void => {
   _logger = logger
 }
 

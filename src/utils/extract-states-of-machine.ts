@@ -57,7 +57,7 @@ const isStateChildren = (node: any, ancestors: any): boolean => {
 
 const getStatesFromFile = ({filePath, isMachineFile, logger, parents}: { filePath: string; isMachineFile: boolean; logger: Logger, parents: string[] }): InnerMachineState[] => {
   let result: InnerMachineState[] = []
-  logger.log(`extract states from '${filePath}' (isMachineFile: ${isMachineFile}))`)
+  // logger.debug(`extract states from '${filePath}' (isMachineFile: ${isMachineFile}))`)
   const fileContent = fs.readFileSync(filePath, 'utf-8')
   const ast = acorn.Parser.extend(tsPlugin()).parse(fileContent, {
     sourceType: 'module',
@@ -88,7 +88,7 @@ const getStatesFromFile = ({filePath, isMachineFile, logger, parents}: { filePat
       const statesNode = isMachineFile ? isMachineStates(node, ancestors) : isStateChildren(node, ancestors)
 
       if (statesNode) {
-        logger.log(`found states node of ${isMachineFile ? 'root state' : 'child state'}`)
+        // logger.log(`found states node of ${isMachineFile ? 'root state' : 'child state'}`)
         result =  getStatesFromNode({
           node,
           filePath,

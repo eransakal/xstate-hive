@@ -17,6 +17,8 @@ export const executeJSCodeshiftTransformer = async ({
   destFilePath,
   options,
 }: TransformOptions): Promise<void> => {
+  const logger = getCommandLogger()
+
   const resolvedTransformerPath = resolve(
     __dirname,
     `../../bundle/jscodeshift-transformers/${transformerPath}`,
@@ -29,10 +31,10 @@ export const executeJSCodeshiftTransformer = async ({
 
   const parser = extname(destFilePath) === '.tsx' ? 'tsx' : 'ts'
 
-  getCommandLogger().log(`execute jscodeshift transformer ${transformerPath} on ${destFilePath} (parser ${parser})`)
+  logger.debug(`execute jscodeshift transformer ${transformerPath} on ${destFilePath} (parser ${parser})`)
 
   const jscodemodOptions = Object.entries(options).map(([key, value]) => `--${key}=${value}`)
-  console.dir(jscodemodOptions)
+  logger.debug(jscodemodOptions)
   const {stderr, stdout} = spawnSync(
     'node',
     [jscodemodCMD, '--parser', parser, '-t', resolvedTransformerPath, destFilePath, ...jscodemodOptions],
@@ -42,6 +44,6 @@ export const executeJSCodeshiftTransformer = async ({
   if (stderr) {
     throw new Error(stderr)
   } else {
-    console.log(stdout)
+    logger.debug(stdout)
   }
 }

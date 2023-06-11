@@ -1,5 +1,5 @@
 import {ux, Args, Command, Flags} from '@oclif/core'
-import {Configuration} from '../../../configuration.js'
+import {Configuration, Machine} from '../../../configuration.js'
 import {join} from 'path'
 import {injectMachineState} from '../../../modifiers/inject-machine-state.js'
 import {setCommandLogger} from '../../../command-logger.js'
@@ -7,8 +7,9 @@ import {toDashCase, toLowerCamelCase} from '../../../utils.js'
 import {extractStatesOfMachine, MachineState} from '../../../utils/extract-states-of-machine.js'
 import inquirer from 'inquirer'
 import {StateTypes} from '../../../data.js'
+import {CLIError} from '@oclif/core/lib/errors/index.js'
 
-const getMachineStates = async (machineName: string, statePath?: string) => {
+const getMachineStates = async (machineName: string, statePath?: string): Promise<MachineState[]> => {
   let resolvedStateFilePath = statePath
   if (!resolvedStateFilePath) {
     resolvedStateFilePath =  `utils/create-${toDashCase(machineName)}-machine.ts`
@@ -20,9 +21,9 @@ const getMachineStates = async (machineName: string, statePath?: string) => {
 }
 
 const formatStateName = (stateName: string) => {
-  const resolvedStateName = stateName.trim()
+  const resolvedStateName = (stateName || '').trim()
   if (!resolvedStateName) {
-    throw new Error('state name cannot be empty')
+    return ''
   }
 
   return  toLowerCamelCase(resolvedStateName).endsWith('State') ? toLowerCamelCase(resolvedStateName).slice(0, -5)  : toLowerCamelCase(resolvedStateName)
@@ -137,7 +138,7 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
     ])
 
   const isNewStateNameRequired =  actionType !== 'change'
-  console.dir({actionType})
+
   if (actionType === 'change') {
     const selectedStateConfig = machineStates.find(state => state.id === selectedState)
 
@@ -146,20 +147,23 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
     }
   }
 
-  const {newStateName} = isNewStateNameRequired   ?
-    await inquirer.prompt([
+  let newStateName = ''
+  if (isNewStateNameRequired) {
+    newStateName = (await inquirer.prompt([
       {
         type: 'input',
         name: 'newStateName',
         message: 'Enter the name of the new state',
       },
-    ]) :
-    {newStateName: ''}
+    ])).newStateName
+
+    newStateName = formatStateName(newStateName)
+  }
 
   return {
     actionType,
     selectedState,
-    newStateName: isNewStateNameRequired ? formatStateName(newStateName) : '',
+    newStateName,
     newStateType,
   }
 }
@@ -167,7 +171,7 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
 export default class State extends Command {
   static description = 'Inject a state into the machine'
 
-  static examples = ['$ xstate-hive state inject ']
+  static examples = ['$ xstate-hive state inject [machine-name]']
 
   static flags = {
     state: Flags.string({
@@ -190,18 +194,42 @@ export default class State extends Command {
 
   async run(): Promise<void> {
     setCommandLogger(this)
+
     const {args, flags} = await this.parse(State)
+    let machineConfig: Machine | null = null
+    let machineStates: MachineState[] | null = null
 
     try {
       const projectConfiguration = Configuration.get()
+      try {
+        machineConfig = projectConfiguration.getMachine(args.machine)
+      } catch (error: any) {
+        this.debug(error)
+      }
 
-      const machineConfig = projectConfiguration.getMachine(args.machine)
-      const machineStates = await getMachineStates(machineConfig.machineName)
+      if (!machineConfig) {
+        this.error(`machine '${args.machine}' not found, please verify that the machine is registered in '.xstate-hive.json' file.`, {exit: 1})
+      }
+
+      try {
+        machineStates = await getMachineStates(machineConfig.machineName)
+      } catch (error: any) {
+        this.debug(error)
+      }
+
+      if (!machineStates) {
+        this.error(`failed to extract the machine '${args.machine}' states, please verify that there are no compile issues and try again.`, {exit: 1})
+      }
 
       const userInputs = await getUserInputs({
         prefilled: {},
         machineStates,
       })
+
+      if (userInputs.actionType !== 'change' && userInputs.newStateName === '') {
+        this.log('No state name was provided, aborting')
+        return
+      }
 
       ux.action.start('injecting the state into the machine')
 
@@ -260,8 +288,14 @@ export default class State extends Command {
 
       ux.action.stop()
     } catch (error: any) {
-      ux.action.stop()
-      this.error(error instanceof Error ? error : error.message, {exit: 1})
+      ux.action.stop('failed')
+
+      if (!(error instanceof CLIError)) {
+        this.debug(error)
+        this.error('Something wrong happened. Please remove partially created files and try again.', {exit: 1})
+      } else {
+        this.error(error.message, {exit: 1})
+      }
     }
   }
 }
