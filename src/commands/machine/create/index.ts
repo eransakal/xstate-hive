@@ -35,7 +35,7 @@ async function getUserInputs(prefilled:  Partial<{
       {
         type: 'input',
         name: 'value',
-        message: 'What is the name of the new machine',
+        message: 'Enter the name of the new machine:',
       },
     ])).value)
 
@@ -45,7 +45,7 @@ async function getUserInputs(prefilled:  Partial<{
     {
       type: 'input',
       name: 'value',
-      message: `Where do you want to store the machine files? Note that a new folder named '${machineName}-machine') will be created under the specified path.`,
+      message: `Enter the directory path to create the '${machineName}-machine' folder in:`,
     },
   ])).value
 

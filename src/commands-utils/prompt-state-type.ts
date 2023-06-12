@@ -7,8 +7,8 @@ export enum PromptStateTypeModes {
 }
 export const promptStateType = async (mode: PromptStateTypeModes): Promise<StateTypes> => {
   const message = mode === PromptStateTypeModes.CreateMachine ?
-    'What is the availabilty of the machine?' :
-    'Which type fit best the purpose of the new state?'
+    'Choose the machine availability:' :
+    'Choose the state type that best fits the purpose:'
 
   let newStateType = (await inquirer.prompt([
     {
@@ -17,18 +17,16 @@ export const promptStateType = async (mode: PromptStateTypeModes): Promise<State
       message,
       choices: [
         ...(mode === PromptStateTypeModes.CreateMachine ? [{
-          name: 'Always operational (always-operatonal)',
+          name: 'Always operational',
           value: StateTypes.Operational,
         }] : []),
         {
-          name: 'Can change at runtime between allowed or not allowed based on some conditions (allowed-not-allowed)',
+          name: 'Dynamically toggle between allowed and not allowed statuses based on conditions',
           value: StateTypes.AllowedNotAllowed,
-          short: 'Temporary allowed or not allowed',
         },
         {
-          name: 'Can be either permanently operational or permanently non-operational based on some conditions (operational-non-operational)',
+          name: 'Maintain a fixed state of either operational or non-operational statuses based on conditions',
           value: 'operational-non-operational',
-          short: 'Permanently operational or non-operational',
         },
         // ...(mode === PromptStateTypeModes.CreateMachine ? [
         //   new inquirer.Separator(),
@@ -56,17 +54,17 @@ export const promptStateType = async (mode: PromptStateTypeModes): Promise<State
       {
         type: 'list',
         name: 'withLoading',
-        message: 'Do you need to gather data from the server or other machines before the feature can be used?',
+        message: `Select data gathering strategy before deciding if the feature is ${actionLabel} or not:`,
         choices: [
           {
-            name: `Yes, I don't always know immediately if the feature is ${actionLabel} or not`,
+            name: 'Data gathering required. Feature\'s status not always immediately known',
             value: 'yes',
-            short: 'Yes I do',
+            short: 'Require data gathering',
           },
           {
-            name: `No, I have all the information I need to determine immediately if the feature is ${actionLabel} or not`,
+            name: 'No data gathering required. machine\'s status always immediately known',
             value: 'no',
-            short: 'No I don\'t need to',
+            short: 'No data gathering required',
           },
           new inquirer.Separator(),
           {

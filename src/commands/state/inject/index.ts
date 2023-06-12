@@ -37,7 +37,7 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
     {
       type: 'list',
       name: 'value',
-      message: 'What do you want to do?',
+      message: 'Select the action to perform:',
       choices: [{
         name: 'Add a new state to the machine root',
         value: 'root',
@@ -63,8 +63,8 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
         type: 'list',
         name: 'value',
         message: actionType === 'child' ?
-          'Select the parent state to add a new state to' :
-          'Select the state to change',
+          'Select the parent state to add a new state to:' :
+          'Select the state to change:',
         choices: machineStates.map(state => state.id),
       },
     ])).value
@@ -75,7 +75,7 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
     const selectedStateConfig = machineStates.find(state => state.id === selectedState)
 
     if (selectedStateConfig?.hasContent) {
-      throw new Error('The selected state already has content, a support for that will be added in the future. For now you can remove the content manually and try again.')
+      throw new Error('The selected state already has content. Support for changing existing state types with content will be added in the future. For now, you can remove the content manually and try again.')
     }
   }
 
@@ -83,7 +83,7 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
     {
       type: 'input',
       name: 'value',
-      message: 'Enter the name of the new state',
+      message: 'Enter the name of the new state:',
     },
   ])).value) : ''
 
