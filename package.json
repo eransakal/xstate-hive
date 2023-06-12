@@ -62,9 +62,7 @@
     ],
     "topicSeparator": " ",
     "topics": {
-      "machine": {
-        "description": "Generate a new XState machine"
-      }
+    
     }
   },
   "scripts": {

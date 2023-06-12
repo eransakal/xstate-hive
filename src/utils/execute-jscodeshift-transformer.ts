@@ -2,7 +2,7 @@ import {dirname, resolve} from 'path'
 import {fileURLToPath} from 'url'
 import {spawnSync} from 'child_process'
 import {extname} from 'path'
-import {getCommandLogger} from '../command-logger.js'
+import {getCommandLogger} from '../commands-utils/command-logger.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 

@@ -2,12 +2,13 @@ import {Args, Command, Flags} from '@oclif/core'
 import {Configuration, Machine} from '../../../configuration.js'
 import {join} from 'path'
 import {injectMachineState} from '../../../modifiers/inject-machine-state.js'
-import {setCommandLogger} from '../../../command-logger.js'
+import {setCommandLogger} from '../../../commands-utils/command-logger.js'
 import {toDashCase, toLowerCamelCase} from '../../../utils.js'
 import {extractStatesOfMachine, MachineState} from '../../../utils/extract-states-of-machine.js'
 import inquirer from 'inquirer'
 import {StateTypes} from '../../../data.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
+import {PromptStateTypeModes, promptStateType} from '../../../commands-utils/prompt-state-type.js'
 
 const getMachineStates = async (machineName: string, statePath?: string): Promise<MachineState[]> => {
   let resolvedStateFilePath = statePath
@@ -30,81 +31,12 @@ const formatStateName = (stateName: string) => {
 }
 
 async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, machineStates: MachineState[] }) {
-  let {newStateType} = await inquirer.prompt([
+  const newStateType = await promptStateType(PromptStateTypeModes.InjectState)
+
+  const actionType = (await inquirer.prompt([
     {
       type: 'list',
-      name: 'newStateType',
-      message: 'What if the purpose of the state?',
-      choices: [
-        {
-          name: 'Manage a feature that can be temporarily allowed or not allowed (allowed-not-allowed)',
-          value: StateTypes.AllowedNotAllowed,
-          short: 'Temporary allowed or not allowed',
-        },
-        {
-          name: 'Manage a feature that can be permanently operational or not operational (operational-non-operational)',
-          value: 'operational-non-operational',
-          short: 'Permanently operational or not operational',
-        },
-        {
-          name: 'Manage an asynchronously optimistic action performed by the user',
-          value: 'async-optimistic-action',
-          short: 'Asynchronously optimistic user action',
-        },
-        new inquirer.Separator(),
-        {
-          name: 'I\'m not sure what to choose, please assist me',
-          value: 'help',
-        },
-      ],
-    },
-  ])
-
-  if (newStateType === 'help') {
-    // TODO
-  }
-
-  if (newStateType === 'operational-non-operational' ||
-  newStateType === 'allowed-not-allowed') {
-    const actionLabel = newStateType === 'operational-non-operational' ? 'operational' : 'allowed'
-    const {withLoading} = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'withLoading',
-        message: 'Do you need to gather data from the server or other machines before the feature can be used?',
-        choices: [
-          {
-            name: `Yes, I don't always know immediately if the feature is ${actionLabel} or not`,
-            value: 'yes',
-            short: 'Yes I do',
-          },
-          {
-            name: `No, I have all the information I need to determine immediately if the feature is ${actionLabel} or not`,
-            value: 'no',
-            short: 'No I don\'t need to',
-          },
-          new inquirer.Separator(),
-          {
-            name: 'I\'m not sure what to choose, please assist me',
-            value: 'help',
-          },
-        ],
-      },
-    ])
-
-    if (withLoading === 'yes') {
-      newStateType += '-with-loading'
-    }
-
-    if (withLoading === 'help') {
-    // TODO
-    }
-  }
-
-  const {actionType} = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'actionType',
+      name: 'value',
       message: 'What do you want to do?',
       choices: [{
         name: 'Add a new state to the machine root',
@@ -122,20 +54,20 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
         short: 'Change Existing State Type',
       }],
     },
-  ])
+  ])).value
 
-  const {selectedState} = actionType === 'root' ?
-    {selectedState: null} :
-    await inquirer.prompt([
+  const selectedState = actionType === 'root' ?
+    null :
+    (await inquirer.prompt([
       {
         type: 'list',
-        name: 'selectedState',
+        name: 'value',
         message: actionType === 'child' ?
           'Select the parent state to add a new state to' :
           'Select the state to change',
         choices: machineStates.map(state => state.id),
       },
-    ])
+    ])).value
 
   const isNewStateNameRequired =  actionType !== 'change'
 
@@ -147,18 +79,13 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
     }
   }
 
-  let newStateName = ''
-  if (isNewStateNameRequired) {
-    newStateName = (await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'newStateName',
-        message: 'Enter the name of the new state',
-      },
-    ])).newStateName
-
-    newStateName = formatStateName(newStateName)
-  }
+  const newStateName = isNewStateNameRequired ? formatStateName((await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'value',
+      message: 'Enter the name of the new state',
+    },
+  ])).value) : ''
 
   return {
     actionType,

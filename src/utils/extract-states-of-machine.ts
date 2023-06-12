@@ -3,7 +3,7 @@ import {dirname, resolve} from 'path'
 import * as walk from 'acorn-walk'
 import * as acorn from 'acorn'
 import tsPlugin from 'acorn-typescript'
-import {getCommandLogger, Logger} from '../command-logger.js'
+import {getCommandLogger, Logger} from '../commands-utils/command-logger.js'
 
 interface InnerMachineState {
   name: string;
