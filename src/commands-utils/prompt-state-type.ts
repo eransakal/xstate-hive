@@ -6,33 +6,36 @@ export enum PromptStateTypeModes {
     InjectState
 }
 export const promptStateType = async (mode: PromptStateTypeModes): Promise<StateTypes> => {
-  const label = mode ? 'machine' : 'state'
+  const message = mode === PromptStateTypeModes.CreateMachine ?
+    'What is the availabilty of the machine?' :
+    'Which type fit best the purpose of the new state?'
 
   let newStateType = (await inquirer.prompt([
     {
       type: 'list',
       name: 'value',
-      message: `What if the purpose of the ${label}?`,
+      message,
       choices: [
         ...(mode === PromptStateTypeModes.CreateMachine ? [{
-          name: 'Manage a feature that is always allowed (operational)',
+          name: 'Always operational (always-operatonal)',
           value: StateTypes.Operational,
-          short: 'Temporary allowed or not allowed',
         }] : []),
         {
-          name: 'Manage a feature that can be temporarily allowed or not allowed (allowed-not-allowed)',
+          name: 'Can change at runtime between allowed or not allowed based on some conditions (allowed-not-allowed)',
           value: StateTypes.AllowedNotAllowed,
           short: 'Temporary allowed or not allowed',
         },
         {
-          name: 'Manage a feature that can be permanently operational or not operational (operational-non-operational)',
+          name: 'Can be either permanently operational or permanently non-operational based on some conditions (operational-non-operational)',
           value: 'operational-non-operational',
-          short: 'Permanently operational or not operational',
+          short: 'Permanently operational or non-operational',
         },
-        ...(mode === PromptStateTypeModes.InjectState ? [{
-          name: 'Manage an asynchronously optimistic action performed by the user',
-          value: 'async-optimistic-action',
-        }] : []),
+        // ...(mode === PromptStateTypeModes.CreateMachine ? [
+        //   new inquirer.Separator(),
+        //   {
+        //   name: 'Manage an asynchronously optimistic action performed by the user',
+        //   value: StateTypes.Operational,
+        // }] : []),
         new inquirer.Separator(),
         {
           name: 'I\'m not sure what to choose, please assist me',
