@@ -9,6 +9,7 @@ import inquirer from 'inquirer'
 import {StateTypes} from '../../../data.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
 import {PromptStateTypeModes, promptStateType} from '../../../commands-utils/prompt-state-type.js'
+import {formatMachineName} from '../../../commands-utils/formatters.js'
 
 const getMachineStates = async (machineName: string, statePath?: string): Promise<MachineState[]> => {
   let resolvedStateFilePath = statePath
@@ -75,7 +76,7 @@ async function getUserInputs({prefilled, machineStates} : {prefilled: unknown, m
     const selectedStateConfig = machineStates.find(state => state.id === selectedState)
 
     if (selectedStateConfig?.hasContent) {
-      throw new Error('The selected state already has content. Support for changing existing state types with content will be added in the future. For now, you can remove the content manually and try again.')
+      throw new CLIError('The selected state already has content. Support for changing existing state types with content will be added in the future. For now, you can remove the content manually and try again.')
     }
   }
 
@@ -109,9 +110,9 @@ export default class State extends Command {
   }
 
   static args = {
-    machine: Args.string({
+    machineName: Args.string({
       description: 'A machine name',
-      required: true,
+      required: false,
     }),
     targetStatePath: Args.string({
       description: 'The path to the machine state to inject into (e.g. "core", "core.operational")',
@@ -126,16 +127,24 @@ export default class State extends Command {
     let machineConfig: Machine | null = null
     let machineStates: MachineState[] | null = null
 
+    const machineName = formatMachineName(
+      args.machineName || (await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'value',
+          message: 'Enter the name of the new machine:',
+        },
+      ])).value)
     try {
       const projectConfiguration = Configuration.get()
       try {
-        machineConfig = projectConfiguration.getMachine(args.machine)
+        machineConfig = projectConfiguration.getMachine(machineName)
       } catch (error: any) {
         this.debug(error)
       }
 
       if (!machineConfig) {
-        this.error(`machine '${args.machine}' not found, please verify that the machine is registered in '.xstate-hive.json' file.`, {exit: 1})
+        this.error(`machine '${machineName}' not found, please verify that the machine is registered in '.xstate-hive.json' file.`, {exit: 1})
       }
 
       try {
@@ -145,7 +154,7 @@ export default class State extends Command {
       }
 
       if (!machineStates) {
-        this.error(`failed to extract the machine '${args.machine}' states, please verify that there are no compile issues and try again.`, {exit: 1})
+        this.error(`failed to extract the machine '${machineName}' states, please verify that there are no compile issues and try again.`, {exit: 1})
       }
 
       const userInputs = await getUserInputs({
@@ -217,3 +226,4 @@ export default class State extends Command {
     }
   }
 }
+

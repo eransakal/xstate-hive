@@ -48,6 +48,7 @@ export const promptStateType = async (mode: PromptStateTypeModes): Promise<State
   }
 
   if (newStateType === 'operational-non-operational' ||
+      newStateType === 'operational' ||
       newStateType === 'allowed-not-allowed') {
     const actionLabel = newStateType === 'operational-non-operational' ? 'operational' : 'allowed'
     const {withLoading} = await inquirer.prompt([

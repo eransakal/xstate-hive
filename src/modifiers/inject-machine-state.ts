@@ -25,8 +25,12 @@ const getFileByStateType = (stateType: StateTypes): string => {
     return 'state/create/operational-non-operational-state'
   case StateTypes.OperationalNotOperationalWithLoading:
     return 'state/create/operational-non-operational-with-loading-state'
+  case StateTypes.OperationalWithLoading:
+    return 'state/create/operational-with-loading-state'
+  case StateTypes.Operational:
+    return 'state/create/operational-state'
   default:
-    throw new Error(`unknown state type '${stateType}'`)
+    throw new Error(`cannot find plopjs command for state type '${stateType}'`)
   }
 }
 

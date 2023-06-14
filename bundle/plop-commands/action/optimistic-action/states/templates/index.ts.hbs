@@ -1,0 +1,77 @@
+import { actions } from 'xstate';
+import { {{pascalCase machineName}}MachineEventsTypes , {{pascalCase machineName}}MachineStateConfig } from '../../types';
+import { canManage{pascalCase actionName} } from '../../machine-guards';
+
+export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
+  initial: 'idle',
+  on: {
+    [{{pascalCase machineName}}MachineEventsTypes.{pascalCase actionName}StatusWasUpdated]: [
+      {
+        actions: ['set{pascalCase actionName}Status', 'cleanIntermediateIsActive'],
+        target: '.idle',
+      },
+    ],
+  },
+  states: {
+    idle: {
+      on: {
+        [{{pascalCase machineName}}MachineEventsTypes.Enable{pascalCase actionName}]: [
+          {
+            cond: (context) => canManage{pascalCase actionName}(context) && !context.lowerThird.isActive,
+            actions: ['set{pascalCase actionName}StatusIntermediate'],
+            target: 'inProgress',
+          },
+        ],
+        [{{pascalCase machineName}}MachineEventsTypes.Disable{pascalCase actionName}]: [
+          {
+            cond: 'canManage{pascalCase actionName}',
+            actions: ['set{pascalCase actionName}StatusIntermediate'],
+            target: 'inProgress',
+          },
+        ],
+      },
+    },
+    inProgress: {
+      invoke: {
+        src: 'change{pascalCase actionName}Status',
+        onDone: {
+          target: 'pendingWebsocket',
+        },
+        onError: {
+          actions: [
+            'cleanIntermediateIsActive',
+            actions.send((context) => ({
+              type: {{pascalCase machineName}}MachineEventsTypes.AddNotification,
+              payload: {
+                variant: 'error',
+                message: context.lowerThird.isActive
+                  ? 'room.{{pascalCase machineName}}.failedToDisable{pascalCase actionName}'
+                  : 'room.{{pascalCase machineName}}.failedToEnable{pascalCase actionName}',
+              },
+            })),
+          ],
+          target: 'idle',
+        },
+      },
+    },
+    pendingWebsocket: {
+      after: {
+        5000: {
+          actions: [
+            'cleanIntermediateIsActive',
+            actions.send((context) => ({
+              type: {{pascalCase machineName}}MachineEventsTypes.AddNotification,
+              payload: {
+                variant: 'error',
+                message: context.lowerThird.isActive
+                  ? 'room.{{pascalCase machineName}}.failedToDisable{pascalCase actionName}'
+                  : 'room.{{pascalCase machineName}}.failedToEnable{pascalCase actionName}',
+              },
+            })),
+          ],
+          target: 'idle',
+        },
+      },
+    },
+  },
+};

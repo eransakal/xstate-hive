@@ -4,20 +4,8 @@ import {
 } from '{{relativePathToMachine}}types';
 
 export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
-  initial: 'unknown',
+  initial: 'operational',
   states: {
-    unknown: {
-      always: [
-        {
-          cond: (context) => true,
-          target: 'operational',
-        },
-        {
-          target: 'nonOperational',
-        },
-      ],
-    },
     operational: operationalState,
-    nonOperational: {},
-  },
+  }  
 };

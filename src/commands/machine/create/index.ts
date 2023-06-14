@@ -10,15 +10,8 @@ import {toDashCase, toLowerCamelCase} from '../../../utils.js'
 import {StateTypes, isStatesType} from '../../../data.js'
 import inquirer from 'inquirer'
 import {PromptStateTypeModes, promptStateType} from '../../../commands-utils/prompt-state-type.js'
-
-const formatMachineName = (name: string) => {
-  const result = (name || '').trim()
-  if (!result) {
-    return ''
-  }
-
-  return  toLowerCamelCase(result).endsWith('Machine') ? toLowerCamelCase(result).slice(0, -7)  : toLowerCamelCase(result)
-}
+import {CLIError} from '@oclif/core/lib/errors/index.js'
+import {formatMachineName} from '../../../commands-utils/formatters.js'
 
 async function getUserInputs(prefilled:  Partial<{
   machineName: string,
@@ -96,7 +89,9 @@ async function getUserInputs(prefilled:  Partial<{
 export default class Machine extends Command {
   static description = 'Create a new machine to manage a new feature'
 
-  static examples = ['$ xstate-hive machine create ./src/machines quick-polls']
+  static examples = ['$ xstate-hive machine create quick-polls ./src/machines',
+    '$ xstate-hive machine create quick-polls',
+    '$ xstate-hive machine create']
 
   static flags = {
     // coreState: Flags.string({
@@ -107,12 +102,12 @@ export default class Machine extends Command {
   }
 
   static args = {
-    machinePath: Args.string({
-      description: 'Destination path',
-      required: false,
-    }),
     machineName: Args.string({
       description: 'A machine name',
+      required: false,
+    }),
+    machinePath: Args.string({
+      description: 'Destination path',
       required: false,
     }),
   }
@@ -179,7 +174,12 @@ export default class Machine extends Command {
 
       this.log(`machine '${resolvedMachineName}' created successfully`)
     } catch (error: any) {
-      this.error(error instanceof Error ? error : error.message, {exit: 1})
+      if (error instanceof CLIError) {
+        this.error(error.message, {exit: 1})
+      } else {
+        this.debug(error)
+        this.error('Something wrong happened. Please remove partially created files and try again.', {exit: 1})
+      }
     }
   }
 }

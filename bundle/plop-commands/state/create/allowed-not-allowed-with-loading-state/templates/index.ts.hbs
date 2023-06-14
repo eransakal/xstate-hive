@@ -1,22 +1,13 @@
 import {allowedState} from './allowed-state';
+import {loadingState} from './loading-state';
 import {
   {{pascalCase machineName}}MachineStateConfig,
 } from '{{relativePathToMachine}}types';
 
 export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
-  initial: 'unknown',
+  initial: 'loading',
   states: {
-    unknown: {
-      always: [
-        {
-          cond: (context) => true,
-          target: 'allowed',
-        },
-        {
-          target: 'notAllowed',
-        },
-      ],
-    },
+    loading: loadingState,
     allowed: allowedState,
     notAllowed: {},
   },
