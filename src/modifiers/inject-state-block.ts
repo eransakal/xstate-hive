@@ -4,44 +4,41 @@ import * as path from 'path'
 import {executeJSCodeshiftTransformer} from '../utils/execute-jscodeshift-transformer.js'
 import {join, relative} from 'path'
 import {executePlopJSCommand} from '../utils/execute-plopljs-command.js'
-import {StateTypes} from '../data.js'
+import {StateBlockTypes} from '../data.js'
+import {StateBlockOptions} from '../commands-src/prompt-state-block-options.js'
 
-interface ModifierOptions {
+export type InjectStateBlockOptions = {
   machineName: string,
   selectedStateFilePath: string;
-  selectedStateInnerFileParents: string[]
+  selectedStateParentsInFile: string[]
   newStateName: string;
-  newStateType: StateTypes,
   newStateDirPath: string;
+  newStateOptions: StateBlockOptions
 }
 
-const getFileByStateType = (stateType: StateTypes): string => {
+const getFileByStateType = (stateType: StateBlockTypes): string => {
   switch (stateType) {
-  case StateTypes.AllowedNotAllowed:
-    return 'state/create/allowed-not-allowed-state'
-  case StateTypes.AllowedNotAllowedWithLoading:
+  case StateBlockTypes.AlwaysOn:
+    return 'block/always-on-state'
+  case StateBlockTypes.TemporaryOnOff:
     return 'state/create/allowed-not-allowed-with-loading-state'
-  case StateTypes.OperationalNotOperational:
+  case StateBlockTypes.PermanentOnOff:
     return 'state/create/operational-non-operational-state'
-  case StateTypes.OperationalNotOperationalWithLoading:
-    return 'state/create/operational-non-operational-with-loading-state'
-  case StateTypes.OperationalWithLoading:
-    return 'state/create/operational-with-loading-state'
-  case StateTypes.Operational:
-    return 'state/create/operational-state'
   default:
     throw new Error(`cannot find plopjs command for state type '${stateType}'`)
   }
 }
 
-export const injectMachineState = async ({
-  machineName,
-  newStateType: stateType,
-  selectedStateFilePath,
-  selectedStateInnerFileParents,
-  newStateName,
-  newStateDirPath,
-}: ModifierOptions): Promise<void> => {
+export const injectStateBlock = async (
+  options : InjectStateBlockOptions): Promise<void> => {
+  const {
+    machineName,
+    newStateOptions,
+    selectedStateFilePath,
+    selectedStateParentsInFile,
+    newStateName,
+    newStateDirPath,
+  } = options
   const projectConfiguration = Configuration.get()
   const machineConfig = projectConfiguration.getMachine(machineName)
 
@@ -50,7 +47,16 @@ export const injectMachineState = async ({
     selectedStateFilePath,
   )
 
-  const plopCommandPath = getFileByStateType(stateType)
+  const plopCommandPath = getFileByStateType(newStateOptions.type)
+  let plopOptions: Record<string, any> = {}
+  switch (options.newStateOptions.type) {
+  case StateBlockTypes.AlwaysOn:
+    plopOptions = {
+      stateOnName: newStateOptions.stateOnName,
+      includeLoadingState: newStateOptions.withLoading,
+    }
+    break
+  }
 
   const absoluteNewStatePath = path.resolve(path.dirname(absoluteStateFilePath), newStateDirPath)
   const newStatePathForUX = path.relative(machineConfig.getRoot(), absoluteNewStatePath)
@@ -61,6 +67,7 @@ export const injectMachineState = async ({
     commandPath: plopCommandPath,
     destPath: absoluteNewStatePath,
     options: {
+      ...plopOptions,
       stateName: newStateName,
       machineName,
       relativePathToMachine: pathToParentStateInFile.split('/').map(() => '../').join(''),
@@ -75,7 +82,7 @@ export const injectMachineState = async ({
     destFilePath: absoluteStateFilePath,
     options: {
       stateName: newStateName,
-      pathToParentStateInFile: selectedStateInnerFileParents.join('.'),
+      pathToParentStateInFile: selectedStateParentsInFile.join('.'),
       stateImportName: `${newStateName}State`,
       stateImportPath: newStateDirPath,
     },

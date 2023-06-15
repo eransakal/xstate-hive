@@ -3,7 +3,7 @@ export const loadingState: {{pascalCase machineName}}MachineStateConfig = {
   type: 'parallel',
   onDone: [
     {      
-      target: 'operational',
+      target: '{{lowerCase stateOnName}}',
     }    
   ],   
   states: {    

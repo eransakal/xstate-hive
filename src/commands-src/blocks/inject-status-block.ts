@@ -1,13 +1,13 @@
 import {Configuration, MachineConfig} from '../../configuration.js'
 import {join} from 'path'
-import {injectMachineState} from '../../modifiers/inject-machine-state.js'
 import {getActiveCommand, getActiveCommandDebug} from '../../active-command.js'
-import {formatStateName, toDashCase, toLowerCamelCase} from '../../utils.js'
+import {formatStateName, toDashCase} from '../../utils.js'
 import {extractStatesOfMachine, MachineState} from '../../utils/extract-states-of-machine.js'
 import inquirer from 'inquirer'
 
 import {CLIError} from '@oclif/core/lib/errors/index.js'
-import {PromptStateTypeModes, promptStateType} from '../prompt-state-type.js'
+import {PromptStateTypeModes, promptStateBlockOptions} from '../prompt-state-block-options.js'
+import {injectStateBlock} from '../../modifiers/inject-state-block.js'
 
 const getMachineStates = async (machineName: string, statePath?: string): Promise<MachineState[]> => {
   let resolvedStateFilePath = statePath
@@ -21,7 +21,7 @@ const getMachineStates = async (machineName: string, statePath?: string): Promis
 }
 
 async function getUserInputs({machineStates} : {prefilled: unknown, machineStates: MachineState[] }) {
-  const newStateType = await promptStateType(PromptStateTypeModes.InjectState)
+  const stateBlockOptions = await promptStateBlockOptions(PromptStateTypeModes.InjectState)
 
   const actionType = (await inquirer.prompt([
     {
@@ -81,7 +81,7 @@ async function getUserInputs({machineStates} : {prefilled: unknown, machineState
     actionType,
     selectedState,
     newStateName,
-    newStateType,
+    newStateBlockOptions: stateBlockOptions,
   }
 }
 
@@ -106,13 +106,13 @@ export const injectStatusBlock = async ({machineConfig} :  { machineConfig: Mach
 
     switch (userInputs.actionType) {
     case 'root':
-      await injectMachineState({
+      await injectStateBlock({
         machineName: machineConfig.machineName,
         selectedStateFilePath: `utils/create-${machineConfig.machineName}-machine.ts`,
-        selectedStateInnerFileParents: [],
+        selectedStateParentsInFile: [],
         newStateName: userInputs.newStateName,
-        newStateType: userInputs.newStateType,
         newStateDirPath: `../machine-states/${toDashCase(userInputs.newStateName)}-state`,
+        newStateOptions: userInputs.newStateBlockOptions,
       })
       break
     case 'child':
@@ -123,10 +123,10 @@ export const injectStatusBlock = async ({machineConfig} :  { machineConfig: Mach
         throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
       }
 
-      await injectMachineState({
-        newStateType: userInputs.newStateType,
+      await injectStateBlock({
+        newStateOptions: userInputs.newStateBlockOptions,
         selectedStateFilePath: stateConfig.filePath,
-        selectedStateInnerFileParents: stateConfig.innerFileParentStates,
+        selectedStateParentsInFile: stateConfig.innerFileParentStates,
         machineName: machineConfig.machineName,
         newStateName: userInputs.newStateName,
         newStateDirPath: `./${toDashCase(userInputs.newStateName)}-state`,
@@ -142,10 +142,10 @@ export const injectStatusBlock = async ({machineConfig} :  { machineConfig: Mach
         throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
       }
 
-      await injectMachineState({
-        newStateType: userInputs.newStateType,
+      await injectStateBlock({
+        newStateOptions: userInputs.newStateBlockOptions,
         selectedStateFilePath: stateConfig.filePath,
-        selectedStateInnerFileParents: stateConfig.innerFileParentStates,
+        selectedStateParentsInFile: stateConfig.innerFileParentStates,
         machineName: machineConfig.machineName,
         newStateName: stateConfig.name,
         newStateDirPath: `./${toDashCase(stateConfig.name)}-state`,

@@ -2,25 +2,25 @@ import {Args, Command} from '@oclif/core'
 import {Configuration} from '../../../configuration.js'
 import {join} from 'path'
 import {createMachine} from '../../../modifiers/create-machine.js'
-import {injectMachineState} from '../../../modifiers/inject-machine-state.js'
 import {injectDiagnosticHook} from '../../../modifiers/extensions/kme/inject-diagnostic-hook.js'
 import {createLoggerFile} from '../../../modifiers/extensions/kme/create-logger-file.js'
 import {setActiveCommand} from '../../../active-command.js'
 import {formatMachineName, toDashCase} from '../../../utils.js'
-import {StateTypes, isStatesType} from '../../../data.js'
+import {StateBlockTypes, isStateBlockType} from '../../../data.js'
 import inquirer from 'inquirer'
-import {PromptStateTypeModes, promptStateType} from '../../../commands-src/prompt-state-type.js'
+import {PromptStateTypeModes, StateBlockOptions, promptStateBlockOptions} from '../../../commands-src/prompt-state-block-options.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
+import {injectStateBlock} from '../../../modifiers/inject-state-block.js'
 
 async function getUserInputs(prefilled:  Partial<{
   machineName: string,
   machinePath: string,
-  coreStateType: StateTypes,
+  coreStateType: StateBlockTypes,
   isContainer: boolean,
 }>): Promise<{
   machineName: string,
   machinePath: string,
-  coreStateType?: StateTypes,
+  coreStateOptions: StateBlockOptions
 }> {
   const projectConfiguration = Configuration.get()
   const machineName = formatMachineName(
@@ -83,12 +83,13 @@ async function getUserInputs(prefilled:  Partial<{
   // TODO if container check if the sub-features require a shared boot-up phase
   // TODO create notifications if needed
 
-  const coreStateType = prefilled.coreStateType || await promptStateType(PromptStateTypeModes.CreateMachine)
+  const coreStateOptions = await promptStateBlockOptions(PromptStateTypeModes.CreateMachine)
 
   return {
     machineName,
     machinePath,
-    coreStateType,
+    coreStateOptions,
+
   }
 }
 
@@ -123,7 +124,7 @@ export default class Machine extends Command {
     const {args, flags} = await this.parse(Machine)
 
     try {
-      if (flags.coreState && isStatesType(flags.coreState) === false) {
+      if (flags.coreState && isStateBlockType(flags.coreState) === false) {
         this.error(`invalid core state type '${flags.coreState}'`, {exit: 1})
       }
 
@@ -156,18 +157,16 @@ export default class Machine extends Command {
         false,
       )
 
-      if (userInputs.coreStateType) {
-        this.log(`add core state of type '${userInputs.coreStateType}'`)
+      this.log(`add core state of type '${userInputs.coreStateOptions.type}'`)
 
-        await injectMachineState({
-          newStateType: userInputs.coreStateType,
-          machineName: resolvedMachineName,
-          newStateName: 'core',
-          newStateDirPath: '../machine-states/core',
-          selectedStateInnerFileParents: [],
-          selectedStateFilePath: `utils/create-${toDashCase(resolvedMachineName)}-machine.ts`,
-        })
-      }
+      await injectStateBlock({
+        newStateOptions: userInputs.coreStateOptions,
+        machineName: resolvedMachineName,
+        newStateName: 'core',
+        newStateDirPath: '../machine-states/core',
+        selectedStateParentsInFile: [],
+        selectedStateFilePath: `utils/create-${toDashCase(resolvedMachineName)}-machine.ts`,
+      })
 
       if (projectConfiguration.isPresetActive('kme')) {
         this.log(`add kme extensions to machine '${resolvedMachineName}'`)
@@ -189,3 +188,4 @@ export default class Machine extends Command {
     }
   }
 }
+

@@ -1,0 +1,13 @@
+{{#if includeLoadingState}}import { loadingState } from './loading-state';
+{{/if}}import {
+  {{pascalCase machineName}}MachineStateConfig,
+} from '{{relativePathToMachine}}types';
+import { {{lowerCase stateOnName}}State } from './{{lowerCase stateOnName}}-state';
+
+export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
+  initial: '{{#if includeLoadingState}}loading{{else}}{{lowerCase stateOnName}}{{/if}}',
+  states: {
+    {{#if includeLoadingState}}loading: loadingState,
+    {{/if}}{{lowerCase stateOnName}}: {{lowerCase stateOnName}}State,
+  }  
+};
