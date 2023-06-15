@@ -2,7 +2,7 @@ import {dirname, resolve} from 'path'
 import {fileURLToPath} from 'url'
 import {spawnSync} from 'child_process'
 import {extname} from 'path'
-import {getCommandLogger} from '../commands-utils/command-logger.js'
+import {getActiveCommand, getActiveCommandDebug} from '../active-command.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -17,7 +17,7 @@ export const executeJSCodeshiftTransformer = async ({
   destFilePath,
   options,
 }: TransformOptions): Promise<void> => {
-  const logger = getCommandLogger()
+  const debug = getActiveCommandDebug()
 
   const resolvedTransformerPath = resolve(
     __dirname,
@@ -31,10 +31,10 @@ export const executeJSCodeshiftTransformer = async ({
 
   const parser = extname(destFilePath) === '.tsx' ? 'tsx' : 'ts'
 
-  logger.debug(`execute jscodeshift transformer ${transformerPath} on ${destFilePath} (parser ${parser})`)
+  debug(`execute jscodeshift transformer ${transformerPath} on ${destFilePath} (parser ${parser})`)
 
   const jscodemodOptions = Object.entries(options).map(([key, value]) => `--${key}=${value}`)
-  logger.debug(jscodemodOptions)
+  debug(jscodemodOptions)
   const {stderr, stdout} = spawnSync(
     'node',
     [jscodemodCMD, '--parser', parser, '-t', resolvedTransformerPath, destFilePath, ...jscodemodOptions],
@@ -44,6 +44,6 @@ export const executeJSCodeshiftTransformer = async ({
   if (stderr) {
     throw new Error(stderr)
   } else {
-    logger.debug(stdout)
+    debug(stdout)
   }
 }

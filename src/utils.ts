@@ -22,3 +22,12 @@ export function toDashCase(input: string): string {
   const dashCase = input.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
   return dashCase
 }
+
+export function formatStateName(stateName: string): string {
+  const resolvedStateName = (stateName || '').trim()
+  if (!resolvedStateName) {
+    return ''
+  }
+
+  return  toLowerCamelCase(resolvedStateName).endsWith('State') ? toLowerCamelCase(resolvedStateName).slice(0, -5)  : toLowerCamelCase(resolvedStateName)
+}

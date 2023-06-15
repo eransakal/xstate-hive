@@ -1,12 +1,12 @@
-import {Args, Command, Flags} from '@oclif/core'
+import {Args, Command} from '@oclif/core'
 import {Configuration} from '../../../configuration.js'
 import {join} from 'path'
 import {createMachine} from '../../../modifiers/create-machine.js'
 import {injectMachineState} from '../../../modifiers/inject-machine-state.js'
 import {injectDiagnosticHook} from '../../../modifiers/extensions/kme/inject-diagnostic-hook.js'
 import {createLoggerFile} from '../../../modifiers/extensions/kme/create-logger-file.js'
-import {setCommandLogger} from '../../../commands-utils/command-logger.js'
-import {toDashCase, toLowerCamelCase} from '../../../utils.js'
+import {setActiveCommand} from '../../../active-command.js'
+import {toDashCase} from '../../../utils.js'
 import {StateTypes, isStatesType} from '../../../data.js'
 import inquirer from 'inquirer'
 import {PromptStateTypeModes, promptStateType} from '../../../commands-utils/prompt-state-type.js'
@@ -23,6 +23,7 @@ async function getUserInputs(prefilled:  Partial<{
   machinePath: string,
   coreStateType?: StateTypes,
 }> {
+  const projectConfiguration = Configuration.get()
   const machineName = formatMachineName(
     prefilled.machineName || (await inquirer.prompt([
       {
@@ -32,7 +33,13 @@ async function getUserInputs(prefilled:  Partial<{
       },
     ])).value)
 
-  // TODO validate machine name, avoid duplications
+  if (!machineName) {
+    throw new CLIError('machine name is required')
+  }
+
+  if (projectConfiguration.hasMachine(machineName)) {
+    throw new CLIError(`machine '${machineName}' already exists`)
+  }
 
   const machinePath = prefilled.machinePath || (await inquirer.prompt([
     {
@@ -113,7 +120,7 @@ export default class Machine extends Command {
   }
 
   async run(): Promise<void> {
-    setCommandLogger(this)
+    setActiveCommand(this, this.debug)
     const {args, flags} = await this.parse(Machine)
 
     try {
