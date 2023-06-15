@@ -74,7 +74,7 @@ export const promptStateBlockOptions = async (mode: PromptStateTypeModes): Promi
         },
       ],
     },
-  ])).value : {on: 'operational', off: 'nonOperational'}
+  ])).value : {on: 'operational', off: newStateType === 'alwaysOn' ? '' : 'nonOperational'}
 
   const withLoading = (await inquirer.prompt([
     {

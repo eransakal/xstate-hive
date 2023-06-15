@@ -20,7 +20,7 @@ export const executePlopJSCommand = async ({
 
   const plopCommandPath = resolve(
     __dirname,
-    `../../bundle/plop-commands/${commandPath}/plopfile.js`,
+    `../../../bundle/plop-commands/${commandPath}/plopfile.js`,
   )
   debug(`execute plopjs '${commandPath}' on '${basePath}'`)
   debug(options)

@@ -1,5 +1,5 @@
 import {Command, Flags} from '@oclif/core'
-import {Configuration} from '../../configuration.js'
+import {Configuration} from '../../lib/configuration.js'
 
 export default class Init extends Command {
   static description = '';

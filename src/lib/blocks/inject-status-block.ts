@@ -1,13 +1,13 @@
-import {Configuration, MachineConfig} from '../../configuration.js'
+import {Configuration, MachineConfig} from '../../lib/configuration.js'
 import {join} from 'path'
-import {getActiveCommand, getActiveCommandDebug} from '../../active-command.js'
-import {formatStateName, toDashCase} from '../../utils.js'
-import {extractStatesOfMachine, MachineState} from '../../utils/extract-states-of-machine.js'
+import {getActiveCommand, getActiveCommandDebug} from '../active-command.js'
+import {formatStateName, toDashCase} from '../../lib/utils.js'
+import {extractStatesOfMachine, MachineState} from '../utils/extract-states-of-machine.js'
 import inquirer from 'inquirer'
 
 import {CLIError} from '@oclif/core/lib/errors/index.js'
 import {PromptStateTypeModes, promptStateBlockOptions} from '../prompt-state-block-options.js'
-import {injectStateBlock} from '../../modifiers/inject-state-block.js'
+import {injectStateBlock} from '../modifiers/inject-state-block.js'
 
 const getMachineStates = async (machineName: string, statePath?: string): Promise<MachineState[]> => {
   let resolvedStateFilePath = statePath

@@ -1,15 +1,15 @@
 import {Args, Command} from '@oclif/core'
-import {Configuration} from '../../../configuration.js'
+import {Configuration} from '../../../lib/configuration.js'
 import {join} from 'path'
-import {createMachine} from '../../../modifiers/create-machine.js'
-import {injectDiagnosticHook} from '../../../modifiers/extensions/kme/inject-diagnostic-hook.js'
-import {createLoggerFile} from '../../../modifiers/extensions/kme/create-logger-file.js'
-import {setActiveCommand} from '../../../active-command.js'
-import {formatMachineName, toDashCase} from '../../../utils.js'
+import {createMachine} from '../../../lib/modifiers/create-machine.js'
+import {injectDiagnosticHook} from '../../../lib/modifiers/extensions/kme/inject-diagnostic-hook.js'
+import {createLoggerFile} from '../../../lib/modifiers/extensions/kme/create-logger-file.js'
+import {setActiveCommand} from '../../../lib/active-command.js'
+import {formatMachineName, toDashCase} from '../../../lib/utils.js'
 import inquirer from 'inquirer'
-import {PromptStateTypeModes, StateBlockOptions, promptStateBlockOptions} from '../../../commands-src/prompt-state-block-options.js'
+import {PromptStateTypeModes, StateBlockOptions, promptStateBlockOptions} from '../../../lib/prompt-state-block-options.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
-import {injectStateBlock} from '../../../modifiers/inject-state-block.js'
+import {injectStateBlock} from '../../../lib/modifiers/inject-state-block.js'
 
 async function getUserInputs(prefilled:  Partial<{
   machineName: string,

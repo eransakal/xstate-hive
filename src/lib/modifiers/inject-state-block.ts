@@ -1,10 +1,10 @@
 import {ux} from '@oclif/core'
-import {Configuration} from '../configuration.js'
+import {Configuration} from '../../lib/configuration.js'
 import * as path from 'path'
 import {executeJSCodeshiftTransformer} from '../utils/execute-jscodeshift-transformer.js'
 import {join, relative} from 'path'
 import {executePlopJSCommand} from '../utils/execute-plopljs-command.js'
-import {StateBlockOptions} from '../commands-src/prompt-state-block-options.js'
+import {StateBlockOptions} from '../prompt-state-block-options.js'
 
 export type InjectStateBlockOptions = {
   machineName: string,

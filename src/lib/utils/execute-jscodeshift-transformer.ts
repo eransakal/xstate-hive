@@ -21,12 +21,12 @@ export const executeJSCodeshiftTransformer = async ({
 
   const resolvedTransformerPath = resolve(
     __dirname,
-    `../../bundle/jscodeshift-transformers/${transformerPath}`,
+    `../../../bundle/jscodeshift-transformers/${transformerPath}`,
   )
 
   const jscodemodCMD = resolve(
     __dirname,
-    '../../node_modules/.bin/evcodeshift',
+    '../../../node_modules/.bin/evcodeshift',
   )
 
   const parser = extname(destFilePath) === '.tsx' ? 'tsx' : 'ts'
