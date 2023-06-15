@@ -14,7 +14,6 @@ export default class Init extends Command {
 
   async run(): Promise<void> {
     const projectConfiguration = Configuration.get()
-
     this.logJson({
       env: process.env.NODE_ENV,
       libraries: projectConfiguration.getCoreLibrariesVersions(),

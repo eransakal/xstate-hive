@@ -57,12 +57,12 @@ export const promptStateBlockOptions = async (mode: PromptStateTypeModes): Promi
       message: 'Choose the statuses names that best describe the purpose of the state:',
       choices: [
         {
-          name: 'Allowed / Not allowed',
-          value: {on: 'allowed', off: 'notAllowed'},
-        },
-        {
           name: 'Active / Inactive',
           value: {on: 'active', off: 'inactive'},
+        },
+        {
+          name: 'Allowed / Not allowed',
+          value: {on: 'allowed', off: 'notAllowed'},
         },
         {
           name: 'Visible / Hidden',
