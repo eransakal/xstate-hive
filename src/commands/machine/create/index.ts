@@ -6,12 +6,11 @@ import {injectMachineState} from '../../../modifiers/inject-machine-state.js'
 import {injectDiagnosticHook} from '../../../modifiers/extensions/kme/inject-diagnostic-hook.js'
 import {createLoggerFile} from '../../../modifiers/extensions/kme/create-logger-file.js'
 import {setActiveCommand} from '../../../active-command.js'
-import {toDashCase} from '../../../utils.js'
+import {formatMachineName, toDashCase} from '../../../utils.js'
 import {StateTypes, isStatesType} from '../../../data.js'
 import inquirer from 'inquirer'
-import {PromptStateTypeModes, promptStateType} from '../../../commands-utils/prompt-state-type.js'
+import {PromptStateTypeModes, promptStateType} from '../../../commands-src/prompt-state-type.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
-import {formatMachineName} from '../../../commands-utils/formatters.js'
 
 async function getUserInputs(prefilled:  Partial<{
   machineName: string,

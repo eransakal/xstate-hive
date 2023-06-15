@@ -2,7 +2,7 @@ import {Configuration} from '../../configuration.js'
 import {getActiveCommand, getActiveCommandDebug} from '../../active-command.js'
 import {injectStatusBlock} from './inject-status-block.js'
 import inquirer from 'inquirer'
-import {formatMachineName} from '../../commands-utils/formatters.js'
+import {formatMachineName} from '../../utils.js'
 
 export  const generateBlock = async (prefilled :  { machineName: string | undefined }): Promise<void> => {
   const projectConfiguration = Configuration.get()

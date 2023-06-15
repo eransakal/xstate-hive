@@ -2,12 +2,12 @@ import {Configuration, MachineConfig} from '../../configuration.js'
 import {join} from 'path'
 import {injectMachineState} from '../../modifiers/inject-machine-state.js'
 import {getActiveCommand, getActiveCommandDebug} from '../../active-command.js'
-import {toDashCase, toLowerCamelCase} from '../../utils.js'
+import {formatStateName, toDashCase, toLowerCamelCase} from '../../utils.js'
 import {extractStatesOfMachine, MachineState} from '../../utils/extract-states-of-machine.js'
 import inquirer from 'inquirer'
 
 import {CLIError} from '@oclif/core/lib/errors/index.js'
-import {PromptStateTypeModes, promptStateType} from '../../commands-utils/prompt-state-type.js'
+import {PromptStateTypeModes, promptStateType} from '../prompt-state-type.js'
 
 const getMachineStates = async (machineName: string, statePath?: string): Promise<MachineState[]> => {
   let resolvedStateFilePath = statePath
@@ -18,15 +18,6 @@ const getMachineStates = async (machineName: string, statePath?: string): Promis
   resolvedStateFilePath = join(Configuration.get().getMachine(machineName).getAbsolutePath(), resolvedStateFilePath)
 
   return extractStatesOfMachine(resolvedStateFilePath)
-}
-
-const formatStateName = (stateName: string) => {
-  const resolvedStateName = (stateName || '').trim()
-  if (!resolvedStateName) {
-    return ''
-  }
-
-  return  toLowerCamelCase(resolvedStateName).endsWith('State') ? toLowerCamelCase(resolvedStateName).slice(0, -5)  : toLowerCamelCase(resolvedStateName)
 }
 
 async function getUserInputs({machineStates} : {prefilled: unknown, machineStates: MachineState[] }) {

@@ -1,7 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 import {setActiveCommand} from '../../active-command.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
-import {generateBlock} from '../../blocks/prompts/generate-block.js'
+import {generateBlock} from '../../commands-src/blocks/generate-block.js'
 
 export default class State extends Command {
   static description = 'Inject a block of funcionality into the machine'
