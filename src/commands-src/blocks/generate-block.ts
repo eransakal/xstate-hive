@@ -9,24 +9,18 @@ export  const generateBlock = async (prefilled :  { machineName: string | undefi
   const activeCommand = getActiveCommand()
   const debug = getActiveCommandDebug()
 
-  let machineName = prefilled.machineName
-  try {
-    machineName = formatMachineName(
-      machineName || (await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'value',
-          message: 'Enter the name of the new machine:',
-        },
-      ])).value)
+  const machineName = formatMachineName(
+    prefilled.machineName || (await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'value',
+        message: 'Enter the name of the new machine:',
+      },
+    ])).value)
 
-    const machineConfig = projectConfiguration.getMachine(machineName)
+  const machineConfig = projectConfiguration.getMachine(machineName)
 
-    await injectStatusBlock({
-      machineConfig,
-    })
-  } catch (error: any) {
-    debug(error)
-    activeCommand.error(`machine '${machineName}' not found, please verify that the machine is registered in '.xstate-hive.json' file.`, {exit: 1})
-  }
+  await injectStatusBlock({
+    machineConfig,
+  })
 }

@@ -4,7 +4,6 @@ import * as path from 'path'
 import {executeJSCodeshiftTransformer} from '../utils/execute-jscodeshift-transformer.js'
 import {join, relative} from 'path'
 import {executePlopJSCommand} from '../utils/execute-plopljs-command.js'
-import {StateBlockTypes} from '../data.js'
 import {StateBlockOptions} from '../commands-src/prompt-state-block-options.js'
 
 export type InjectStateBlockOptions = {
@@ -14,19 +13,6 @@ export type InjectStateBlockOptions = {
   newStateName: string;
   newStateDirPath: string;
   newStateOptions: StateBlockOptions
-}
-
-const getFileByStateType = (stateType: StateBlockTypes): string => {
-  switch (stateType) {
-  case StateBlockTypes.AlwaysOn:
-    return 'block/always-on-state'
-  case StateBlockTypes.TemporaryOnOff:
-    return 'state/create/allowed-not-allowed-with-loading-state'
-  case StateBlockTypes.PermanentOnOff:
-    return 'state/create/operational-non-operational-state'
-  default:
-    throw new Error(`cannot find plopjs command for state type '${stateType}'`)
-  }
 }
 
 export const injectStateBlock = async (
@@ -47,16 +33,7 @@ export const injectStateBlock = async (
     selectedStateFilePath,
   )
 
-  const plopCommandPath = getFileByStateType(newStateOptions.type)
-  let plopOptions: Record<string, any> = {}
-  switch (options.newStateOptions.type) {
-  case StateBlockTypes.AlwaysOn:
-    plopOptions = {
-      stateOnName: newStateOptions.stateOnName,
-      includeLoadingState: newStateOptions.withLoading,
-    }
-    break
-  }
+  const plopCommandPath = 'block/state'
 
   const absoluteNewStatePath = path.resolve(path.dirname(absoluteStateFilePath), newStateDirPath)
   const newStatePathForUX = path.relative(machineConfig.getRoot(), absoluteNewStatePath)
@@ -67,7 +44,7 @@ export const injectStateBlock = async (
     commandPath: plopCommandPath,
     destPath: absoluteNewStatePath,
     options: {
-      ...plopOptions,
+      ...newStateOptions,
       stateName: newStateName,
       machineName,
       relativePathToMachine: pathToParentStateInFile.split('/').map(() => '../').join(''),

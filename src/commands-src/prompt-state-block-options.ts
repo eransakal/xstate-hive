@@ -1,5 +1,4 @@
 import inquirer from 'inquirer'
-import {StateBlockTypes} from '../data.js'
 
 export enum PromptStateTypeModes {
     CreateMachine,
@@ -7,8 +6,8 @@ export enum PromptStateTypeModes {
 }
 
 export interface StateBlockOptions {
-  type: StateBlockTypes,
   withLoading: boolean,
+  stateOffFinal: boolean,
   stateOnName: string,
   stateOffName: string,
 }
@@ -26,22 +25,16 @@ export const promptStateBlockOptions = async (mode: PromptStateTypeModes): Promi
       choices: [
         ...(mode === PromptStateTypeModes.CreateMachine ? [{
           name: 'Always operational',
-          value: StateBlockTypes.AlwaysOn,
+          value: 'alwaysOn',
         }] : []),
         {
           name: 'Dynamically toggle between on and off statuses based on conditions',
-          value: StateBlockTypes.TemporaryOnOff,
+          value: 'temporaryOnOff',
         },
         {
           name: 'Maintain a fixed state of either operational or non-operational statuses based on conditions',
-          value: StateBlockTypes.PermanentOnOff,
+          value: 'permanentOnOff',
         },
-        // ...(mode === PromptStateTypeModes.CreateMachine ? [
-        //   new inquirer.Separator(),
-        //   {
-        //   name: 'Manage an asynchronously optimistic action performed by the user',
-        //   value: StateTypes.Operational,
-        // }] : []),
         new inquirer.Separator(),
         {
           name: 'I\'m not sure what to choose, please assist me',
@@ -55,8 +48,9 @@ export const promptStateBlockOptions = async (mode: PromptStateTypeModes): Promi
     // TODO
   }
 
+  const stateOffFinal = newStateType === 'permanentOnOff'
   const statusesNames: {on: string, off: string} =
-  newStateType === StateBlockTypes.TemporaryOnOff ? (await inquirer.prompt([
+  newStateType === 'temporaryOnOff' ? (await inquirer.prompt([
     {
       type: 'list',
       name: 'value',
@@ -108,7 +102,7 @@ export const promptStateBlockOptions = async (mode: PromptStateTypeModes): Promi
   ])).value
 
   return {
-    type: newStateType,
+    stateOffFinal,
     withLoading,
     stateOnName: statusesNames.on,
     stateOffName: statusesNames.off,

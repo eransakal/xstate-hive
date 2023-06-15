@@ -2,6 +2,7 @@ import * as path from 'node:path'
 import {readFileSync, existsSync, writeFileSync} from 'fs'
 import {toDashCase} from './utils.js'
 import * as fs from 'fs'
+import {CLIError} from '@oclif/core/lib/errors/index.js'
 
 let sharedConfiguration : Configuration | null = null
 
@@ -154,7 +155,7 @@ export class Configuration {
     const machineConfig = this.config.machines[resolvedMachineName]
 
     if (!machineConfig) {
-      throw new Error(`machine '${resolvedMachineName}' does not exist`)
+      throw new CLIError(`machine '${resolvedMachineName}' not registered, please verify that the machine is registered in '.xstate-hive.json' file.`)
     }
 
     return {

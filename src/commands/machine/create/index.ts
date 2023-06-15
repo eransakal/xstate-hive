@@ -6,7 +6,6 @@ import {injectDiagnosticHook} from '../../../modifiers/extensions/kme/inject-dia
 import {createLoggerFile} from '../../../modifiers/extensions/kme/create-logger-file.js'
 import {setActiveCommand} from '../../../active-command.js'
 import {formatMachineName, toDashCase} from '../../../utils.js'
-import {StateBlockTypes, isStateBlockType} from '../../../data.js'
 import inquirer from 'inquirer'
 import {PromptStateTypeModes, StateBlockOptions, promptStateBlockOptions} from '../../../commands-src/prompt-state-block-options.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
@@ -15,7 +14,6 @@ import {injectStateBlock} from '../../../modifiers/inject-state-block.js'
 async function getUserInputs(prefilled:  Partial<{
   machineName: string,
   machinePath: string,
-  coreStateType: StateBlockTypes,
   isContainer: boolean,
 }>): Promise<{
   machineName: string,
@@ -100,13 +98,7 @@ export default class Machine extends Command {
     '$ xstate-hive machine create quick-polls',
     '$ xstate-hive machine create']
 
-  static flags = {
-    // coreState: Flags.string({
-    //   description: 'inject core state of specified type',
-    //   options: [StateTypes.AllowedNotAllowed, StateTypes.OperationalNotOperational],
-    //   required: false,
-    // }),
-  }
+  static flags = {}
 
   static args = {
     machineName: Args.string({
@@ -124,14 +116,9 @@ export default class Machine extends Command {
     const {args, flags} = await this.parse(Machine)
 
     try {
-      if (flags.coreState && isStateBlockType(flags.coreState) === false) {
-        this.error(`invalid core state type '${flags.coreState}'`, {exit: 1})
-      }
-
       const userInputs = await getUserInputs({
         machineName: args.machineName,
         machinePath: args.machinePath,
-        coreStateType: flags.coreState,
       })
 
       const projectConfiguration = Configuration.get()
@@ -157,7 +144,7 @@ export default class Machine extends Command {
         false,
       )
 
-      this.log(`add core state of type '${userInputs.coreStateOptions.type}'`)
+      this.log('add core state')
 
       await injectStateBlock({
         newStateOptions: userInputs.coreStateOptions,
