@@ -1,0 +1,125 @@
+import {JSCodeshift, Transform, VariableDeclarator} from 'evcodeshift'
+
+function findMachineStates(j: JSCodeshift, ast: Collection<any>) {
+  const machineStatesPath = ast.find(j.CallExpression, {
+    callee: {
+      name: 'createMachine',
+    },
+  })
+
+  if (machineStatesPath.length === 0) {
+    return null
+  }
+
+  const statesProperty = machineStatesPath?.at(0)?.get()?.value?.arguments?.[0]?.properties?.find(
+    property => {
+      return property.key.name === 'states'
+    },
+  )
+
+  if (!statesProperty) {
+    return null
+  }
+
+  return statesProperty.value
+}
+
+function findStateChildStates(j: JSCodeshift, ast: Collection<any>) {
+  const statesPath = ast
+  .find(j.Identifier)
+  .filter(path => {
+    return path.value.name === 'states' &&
+    path.parentPath.parentPath.parentPath.parentPath.value.type === 'VariableDeclarator'
+  })
+  .map(path => {
+    return path.parentPath
+  })
+
+  if (statesPath.length === 0) {
+    return null
+  }
+
+  return statesPath.at(0).get().value.value
+}
+
+const transform: Transform = (fileInfo, api, options) => {
+  const j = api.jscodeshift
+  const ast = j(fileInfo.source)
+
+  let parentStatesPath = findMachineStates(j, ast) || findStateChildStates(j, ast)
+
+  if (!parentStatesPath) {
+    throw new Error('failed to find createMachine call or states property')
+  }
+
+  const {pathToParentStateInFile} = options
+
+  if (pathToParentStateInFile) {
+    console.log(`resolving the path to the parent state '${pathToParentStateInFile}'`)
+
+    for (const pathPart of pathToParentStateInFile.split('.')) {
+      console.log(`looking for state '${pathPart}'`)
+
+      let childPath = parentStatesPath.properties.find(path => path.key.name === pathPart)
+
+      if (childPath) {
+        console.log('found state')
+      } else {
+        console.log('state is missing, adding it')
+        childPath = j.property(
+          'init',
+          j.identifier(pathPart),
+          j.objectExpression([]),
+        )
+        parentStatesPath.properties.push(childPath)
+      }
+
+      console.log('looking for states property')
+      const childPropertiesPath = childPath.value.properties
+
+      parentStatesPath =  childPropertiesPath?.find(item => item.key.name === 'states')
+
+      if (parentStatesPath) {
+        console.log('found states property')
+      } else {
+        console.log('property states is missing, adding it')
+        parentStatesPath = j.property(
+          'init',
+          j.identifier('states'),
+          j.objectExpression([]),
+        )
+        childPropertiesPath.push(
+          parentStatesPath,
+        )
+      }
+
+      parentStatesPath = parentStatesPath.value
+    }
+  }
+
+  const existingStatePath = parentStatesPath.properties.find(path => path.key.name === options.stateName)
+
+  if (existingStatePath) {
+    existingStatePath.value = j.identifier(options.stateImportName)
+  } else {
+    parentStatesPath.properties.push(
+      j.property(
+        'init',
+        j.identifier(options.stateName),
+        j.identifier(options.stateImportName),
+      ),
+    )
+  }
+
+  // Build a new import
+  const newImport = j.importDeclaration(
+    [j.importSpecifier(j.identifier(options.stateImportName))],
+    j.stringLiteral(options.stateImportPath),
+  )
+  // Insert it at the top of the document
+  ast.get().node.program.body.unshift(newImport)
+
+  return ast.toSource()
+}
+
+export default transform

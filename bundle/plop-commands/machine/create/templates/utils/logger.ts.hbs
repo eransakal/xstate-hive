@@ -1,22 +1,3 @@
-
-{{#if isKME}}
-import {
-  XStateMachineLogger,
-  XStateMachineLogSenderTypes,
-} from '@kme/room-diagnostics-utils-diagnostics';
-import { ModuleLogger } from '@kme/room-utils-logger';
-import { {{pascalCase name}}MachineId } from './types';
-
-export const create{{pascalCase name}}MachineLogger = (
-  sender: string,
-  senderType: XStateMachineLogSenderTypes
-) =>
-  new XStateMachineLogger({
-    machineId: {{pascalCase name}}MachineId,
-    sender,
-    senderType,
-  });
-{{else}}
 import { {{pascalCase name}}MachineId } from '../types';
 export const create{{pascalCase name}}MachineLogger = (
   sender: string
@@ -31,4 +12,3 @@ export const create{{pascalCase name}}MachineLogger = (
     console.error(`[${ {{pascalCase name}}MachineId }:${sender}] ${message}`, ...optionalParams)
   }
 })
-{{/if}}

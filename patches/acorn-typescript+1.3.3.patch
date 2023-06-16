@@ -1,0 +1,21 @@
+diff --git a/node_modules/acorn-typescript/lib/index.d.ts b/node_modules/acorn-typescript/lib/index.d.ts
+index afe6403..6eefcd0 100644
+--- a/node_modules/acorn-typescript/lib/index.d.ts
++++ b/node_modules/acorn-typescript/lib/index.d.ts
+@@ -1,7 +1,6 @@
+ import * as acornNamespace from 'acorn';
+ import { Accessibility, LookaheadState, ModifierBase, ParsingContext, TryParse, TsModifier } from './types';
+ import { DestructuringErrors } from './parseutil';
+-import type { AcornParseClass } from './middleware';
+ import type { ArrayPattern, ArrowFunctionExpression, BaseNode, Declaration, Expression, Identifier, ObjectPattern, Pattern, RestElement } from 'estree';
+ import type { Node, TokenType, Position, Options } from 'acorn';
+ declare function tsPlugin(options?: {
+@@ -10,7 +9,7 @@ declare function tsPlugin(options?: {
+         allowNamespaces?: boolean;
+         allowNamespacedObjects?: boolean;
+     };
+-}): (Parser: typeof AcornParseClass) => {
++}): (Parser: any) => {
+     new (options: Options, input: string, startPos?: number): {
+         preValue: any;
+         preToken: any;

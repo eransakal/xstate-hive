@@ -1,5 +1,5 @@
 import {Command, Flags} from '@oclif/core'
-import {Configuration} from '../../configuration.js'
+import {Configuration} from '../../lib/configuration.js'
 
 export default class Init extends Command {
   static description = 'Create a configuration file for xstate-hive on the root of your project';
@@ -25,7 +25,7 @@ export default class Init extends Command {
 
     try {
       const projectConfiguration = Configuration.create({
-        isKME: flags.kme ? true : undefined,
+        presets: flags.kme ? ['kme'] : [],
       })
 
       this.log(`A configuration file was created at ${projectConfiguration.root}`)

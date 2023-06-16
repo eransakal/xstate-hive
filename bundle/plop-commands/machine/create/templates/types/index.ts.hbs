@@ -19,10 +19,10 @@ export type {{pascalCase name}}MachineService = InterpreterFrom<{{pascalCase nam
 export type {{pascalCase name}}MachineSender = Sender<{{pascalCase name}}MachineEvents>;
 export type {{pascalCase name}}MachineState = State<
   {{pascalCase name}}MachineContext,
-  {{pascalCase name}}MachineEvents,
+  {{pascalCase name}}MachineEvents{{#if isKME}}{{else}},
   any,
   any,
-  any
+  any{{/if}}
 >;
 export type {{pascalCase name}}MachineStateConfig = StateNodeConfig<
   {{pascalCase name}}MachineContext,

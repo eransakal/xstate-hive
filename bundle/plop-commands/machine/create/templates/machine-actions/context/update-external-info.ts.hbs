@@ -5,6 +5,8 @@ import {
   {{pascalCase name}}MachineEventsTypes,
 } from '../../types';
 
+{{> xstateLogger isKME=isKME name='updateExternalInfo' logType='MachineAction' commented=true loggerPath='../../utils/'}}
+
 export const updateExternalInfo = actions.assign(
   (context: {{pascalCase name}}MachineContext, event: {{pascalCase name}}MachineEvents) => {
     if (event.type !== {{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated) {

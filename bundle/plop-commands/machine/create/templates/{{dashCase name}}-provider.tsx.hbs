@@ -1,23 +1,26 @@
 import React, { useState, useMemo, PropsWithChildren } from 'react';
+{{#if isKME}}
+import {
+  {{pascalCase name}}MachineContext,  
+  {{pascalCase name}}MachineEvents
+} from './types';
+{{else}}
 import {
   {{pascalCase name}}Machine
 } from './types';
+{{/if}}
 import { create{{pascalCase name}}Machine } from './utils/create-{{dashCase name}}-machine';
 import { useMachine } from '@xstate/react';
-import { create{{pascalCase name}}MachineLogger } from './utils/logger';
 import { {{pascalCase name}}Context } from './utils/{{dashCase name}}-context';
 import { updateExternalInfo } from './machine-actions/context/update-external-info';
 import { onExternalInfoChanged } from './machine-services/on-external-info-changed';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const logger =  create{{pascalCase name}}MachineLogger(
-    '{{pascalCase name}}Provider'
-  );
+{{> xstateLogger loggerName=(dynamicParam name 'Provider') isKME=isKME loggerType='Machine' loggerPath='./utils/'}}
 
-export const {{pascalCase name}}Provider: React.FC<PropsWithChildren> = ({ children }) => {
+export const {{pascalCase name}}Provider: React.FC{{#if isKME}}{{else}}<PropsWithChildren>{{/if}} = ({ children }) => {
  
  const [machine] = useState(() => create{{pascalCase name}}Machine());
 
-  const [, , {{lowerCase name}}MachineService] = useMachine<{{pascalCase name}}Machine>(machine, {
+  const [, , {{camelCase name}}MachineService] = useMachine<{{#if isKME}}{{pascalCase name}}MachineContext, {{pascalCase name}}MachineEvents{{else}}{{pascalCase name}}Machine{{/if}}>(machine, {
     actions: {
       updateExternalInfo 
     },
@@ -27,10 +30,9 @@ export const {{pascalCase name}}Provider: React.FC<PropsWithChildren> = ({ child
     guards: { },
   });
 
-
   const providerValue = useMemo(() => {
-    return { {{lowerCase name}}MachineService };
-  }, [{{lowerCase name}}MachineService]);
+    return { {{camelCase name}}MachineService };
+  }, [{{camelCase name}}MachineService]);
 
   return (
     <{{pascalCase name}}Context.Provider value={providerValue}>

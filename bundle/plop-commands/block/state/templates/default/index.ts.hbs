@@ -1,0 +1,26 @@
+{{#if includeLoadingState}}import { loadingState } from './loading-state';
+{{/if}}{{#if stateOffName}}import { {{camelCase stateOffName}}State } from './{{dashCase stateOffName}}-state';
+{{/if}}import {
+  {{pascalCase machineName}}MachineStateConfig,
+} from '{{relativePathToMachine}}types';
+import { {{camelCase stateOnName}}State } from './{{camelCase stateOnName}}-state';
+
+export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
+  initial: '{{#if includeLoadingState}}loading{{else if stateOffName}}unknown{{else}}{{camelCase stateOnName}}{{/if}}',
+  states: {
+    {{#unless includeLoadingState}}{{#if stateOffName}}unknown: {
+      always: [
+        {
+          cond: (context) => true,
+          target: '{{camelCase stateOnName}}',
+        },
+        {
+          target: '{{camelCase stateOffName}}',
+        },
+      ],
+    },{{/if}}{{/unless}}
+    {{#if includeLoadingState}}loading: loadingState,
+    {{/if}}{{camelCase stateOnName}}: {{camelCase stateOnName}}State{{#if stateOffName}},
+    {{camelCase stateOffName}}: {{camelCase stateOffName}}State{{/if}}
+  }  
+};

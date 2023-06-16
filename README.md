@@ -81,15 +81,15 @@ Create a new machine to manage a new feature
 
 ```
 USAGE
-  $ xstate-hive machine create DEST MACHINE [--coreState bootup-to-operating]
+  $ xstate-hive machine create DEST MACHINE [--coreState bootup-to-operational]
 
 ARGUMENTS
   DEST     Destination path
   MACHINE  A machine name
 
 FLAGS
-  --coreState=<option>  [default: bootup-to-operating] add core state of specified type
-                        <options: bootup-to-operating>
+  --coreState=<option>  [default: bootup-to-operational] add core state of specified type
+                        <options: bootup-to-operational>
 
 DESCRIPTION
   Create a new machine to manage a new feature
