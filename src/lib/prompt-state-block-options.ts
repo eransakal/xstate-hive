@@ -1,9 +1,5 @@
 import inquirer from 'inquirer'
-
-export enum PromptStateTypeModes {
-    CreateMachine,
-    InjectState
-}
+import {promptListWithHelp} from './utils/prompts.js'
 
 export interface StateBlockOptions {
   withLoading: boolean,
@@ -12,41 +8,28 @@ export interface StateBlockOptions {
   stateOffName: string,
 }
 
-export const promptStateBlockOptions = async (mode: PromptStateTypeModes): Promise<StateBlockOptions> => {
-  const message = mode === PromptStateTypeModes.CreateMachine ?
-    'Choose the machine availability:' :
-    'Choose the state type that best fits the purpose:'
+type DefaultValues = 'alwaysOn' | 'temporaryOnOff' | 'permanentOnOff';
+export const promptStateBlockOptions = async (options? : { defaultValue?: DefaultValues, customLabel?: string, alwaysOnAvailable?: boolean}): Promise<StateBlockOptions> => {
+  const {customLabel, alwaysOnAvailable, defaultValue} = options || {}
+  const message =  `Choose the statement that best fits the purpose of the ${customLabel || 'state'}:`
 
-  const newStateType = (await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'value',
-      message,
-      choices: [
-        ...(mode === PromptStateTypeModes.CreateMachine ? [{
-          name: 'Always operational',
-          value: 'alwaysOn',
-        }] : []),
-        {
-          name: 'Dynamically toggle between on and off statuses based on conditions',
-          value: 'temporaryOnOff',
-        },
-        {
-          name: 'Maintain a fixed state of either operational or non-operational statuses based on conditions',
-          value: 'permanentOnOff',
-        },
-        new inquirer.Separator(),
-        {
-          name: 'I\'m not sure what to choose, please assist me',
-          value: 'help',
-        },
-      ],
-    },
-  ])).value
-
-  if (newStateType === 'help') {
-    // TODO
-  }
+  const newStateType = await promptListWithHelp({
+    defaultValue: defaultValue || 'alwaysOn',
+    message, choices: [
+      ...(alwaysOnAvailable ? [{
+        name: 'Maintain a fixed state of always on status',
+        value: 'alwaysOn',
+      }] : []),
+      {
+        name: 'Dynamically toggle between on and off statuses based on conditions',
+        value: 'temporaryOnOff',
+      },
+      {
+        name: 'Maintain a fixed state of either on or off statuses based on conditions',
+        value: 'permanentOnOff',
+      },
+    ], helpLink: 'https://sakalim.com/projects/react-architecture/application-state-with-xstate-4-guides-statuses-blocks#state-types',
+  })
 
   const stateOffFinal = newStateType === 'permanentOnOff'
   const statusesNames: {on: string, off: string} =
@@ -76,30 +59,24 @@ export const promptStateBlockOptions = async (mode: PromptStateTypeModes): Promi
     },
   ])).value : {on: 'operational', off: newStateType === 'alwaysOn' ? '' : 'nonOperational'}
 
-  const withLoading = (await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'value',
-      message: `Select data gathering strategy before deciding if the feature is ${statusesNames.on} or not:`,
-      choices: [
-        {
-          name: 'Data gathering required. Feature\'s status not always immediately known',
-          value: true,
-          short: 'Require data gathering',
-        },
-        {
-          name: 'No data gathering required. machine\'s status always immediately known',
-          value: false,
-          short: 'No data gathering required',
-        },
-        new inquirer.Separator(),
-        {
-          name: 'I\'m not sure what to choose, please assist me',
-          value: 'help',
-        },
-      ],
-    },
-  ])).value
+  const withLoading = await promptListWithHelp<boolean>({
+    defaultValue: true,
+    message: `Select data gathering strategy before deciding if the feature is ${statusesNames.on} or not:`,
+    choices: [
+      {
+        name: 'Data gathering required. Feature\'s status not always immediately known',
+        value: true,
+        short: 'Require data gathering',
+      },
+      {
+        name: 'No data gathering required. machine\'s status always immediately known',
+        value: false,
+        short: 'No data gathering required',
+      },
+    ],
+    helpLink: 'https://sakalim.com/projects/react-architecture/application-state-with-xstate-4-guides-statuses-blocks#data-gathering',
+  },
+  )
 
   return {
     stateOffFinal,

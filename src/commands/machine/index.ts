@@ -1,15 +1,16 @@
 import {Args, Command} from '@oclif/core'
-import {Configuration} from '../../../lib/configuration.js'
+import {Configuration} from '../../lib/configuration.js'
 import {join} from 'path'
-import {createMachine} from '../../../lib/modifiers/create-machine.js'
-import {injectDiagnosticHook} from '../../../lib/modifiers/extensions/kme/inject-diagnostic-hook.js'
-import {createLoggerFile} from '../../../lib/modifiers/extensions/kme/create-logger-file.js'
-import {setActiveCommand} from '../../../lib/active-command.js'
-import {formatMachineName, toDashCase} from '../../../lib/utils.js'
+import {createMachine} from '../../lib/modifiers/create-machine.js'
+import {injectDiagnosticHook} from '../../lib/modifiers/extensions/kme/inject-diagnostic-hook.js'
+import {createLoggerFile} from '../../lib/modifiers/extensions/kme/create-logger-file.js'
+import {setActiveCommand} from '../../lib/active-command.js'
+import {formatMachineName, toDashCase} from '../../lib/utils.js'
 import inquirer from 'inquirer'
-import {PromptStateTypeModes, StateBlockOptions, promptStateBlockOptions} from '../../../lib/prompt-state-block-options.js'
+import {StateBlockOptions, promptStateBlockOptions} from '../../lib/prompt-state-block-options.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
-import {injectStateBlock} from '../../../lib/modifiers/inject-state-block.js'
+import {injectStateBlock} from '../../lib/modifiers/inject-state-block.js'
+import {promptListWithHelp} from '../../lib/utils/prompts.js'
 
 async function getUserInputs(prefilled:  Partial<{
   machineName: string,
@@ -18,7 +19,9 @@ async function getUserInputs(prefilled:  Partial<{
 }>): Promise<{
   machineName: string,
   machinePath: string,
-  coreStateOptions: StateBlockOptions
+  machineType: string,
+  stateName: string,
+  stateOptions: StateBlockOptions
 }> {
   const projectConfiguration = Configuration.get()
   const machineName = formatMachineName(
@@ -46,47 +49,39 @@ async function getUserInputs(prefilled:  Partial<{
     },
   ])).value
 
-  // let machineType = (await inquirer.prompt([
-  //   {
-  //     type: 'list',
-  //     name: 'value',
-  //     message: `Is this machine focus on a single feature or it is a container of independant sub-features?`,
-  //     choices: [
-  //       {
-  //         name: 'This machine focus on a single feature',
-  //         value: "single"
-  //       },
-  //       {
-  //         name: 'This machine is a container of sub-features',
-  //         value: "container"
-  //       },
-  //       new inquirer.Separator(),
-  //       {
-  //         name: 'I\'m not sure what to choose, please assist me',
-  //         value: 'help',
-  //       },
-  //     ],
-  //   },
-  // ])).value
+  const machineType = await promptListWithHelp(
+    {
+      defaultValue: 'single',
+      message: 'Choose the appropriate statement for this machine:', choices: [
+        {
+          name: 'The primary focus of this machine revolves around a single feature (recommended)',
+          value: 'single',
+        },
+        {
+          name: 'This machine serve as a container for independent sub-features',
+          value: 'container',
+        },
+      ], helpLink: 'https://sakalim.com/projects/react-architecture/application-state-with-xstate-4-guides-machines#machine-types',
+    })
 
-  // if (machineType === 'help') {
-  //   // TODO
-  // }
-
-  // if (machineType === 'container') {
-
-  // }
-
-  // TODO if container ask for the first feature name and use it instead of core
-  // TODO if container check if the sub-features require a shared boot-up phase
-  // TODO create notifications if needed
-
-  const coreStateOptions = await promptStateBlockOptions(PromptStateTypeModes.CreateMachine)
+  const stateName = machineType === 'single' ? 'core' : (await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'value',
+      message: 'Enter the name of first feature you plan to develop:',
+    },
+  ])).value
+  const stateOptions = await promptStateBlockOptions({
+    customLabel: machineType === 'container' ? '' : 'machine',
+    alwaysOnAvailable: true,
+  })
 
   return {
     machineName,
+    machineType,
+    stateName,
     machinePath,
-    coreStateOptions,
+    stateOptions,
 
   }
 }
@@ -94,9 +89,9 @@ async function getUserInputs(prefilled:  Partial<{
 export default class Machine extends Command {
   static description = 'Create a new machine to manage a new feature'
 
-  static examples = ['$ xstate-hive machine create quick-polls ./src/machines',
-    '$ xstate-hive machine create quick-polls',
-    '$ xstate-hive machine create']
+  static examples = ['$ xstate-hive machine quick-polls ./src/machines',
+    '$ xstate-hive machine quick-polls',
+    '$ xstate-hive machine']
 
   static flags = {}
 
@@ -147,7 +142,7 @@ export default class Machine extends Command {
       this.log('add core state')
 
       await injectStateBlock({
-        newStateOptions: userInputs.coreStateOptions,
+        newStateOptions: userInputs.stateOptions,
         machineName: resolvedMachineName,
         newStateName: 'core',
         newStateDirPath: '../machine-states/core',
@@ -156,7 +151,7 @@ export default class Machine extends Command {
       })
 
       if (projectConfiguration.isPresetActive('kme')) {
-        this.log(`add kme extensions to machine '${resolvedMachineName}'`)
+        this.log('run kme extensions')
         await injectDiagnosticHook({machineName: resolvedMachineName})
         await createLoggerFile({machineName: resolvedMachineName})
       }

@@ -1,4 +1,5 @@
 {{#if includeLoadingState}}import { loadingState } from './loading-state';
+{{/if}}{{#if stateOffName}}import { {{camelCase stateOffName}}State } from './{{dashCase stateOffName}}-state';
 {{/if}}import {
   {{pascalCase machineName}}MachineStateConfig,
 } from '{{relativePathToMachine}}types';
@@ -18,10 +19,8 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
         },
       ],
     },{{/if}}{{/unless}}
-    {{#if includeLoadingState}}loading: loadingState,{{/if}}
-    {{camelCase stateOnName}}: {{camelCase stateOnName}}State{{#if stateOffName}},
-    {{camelCase stateOffName}}: {
-      {{#if stateOffFinal}}type: 'final'{{/if}}
-    } {{/if}}
+    {{#if includeLoadingState}}loading: loadingState,
+    {{/if}}{{camelCase stateOnName}}: {{camelCase stateOnName}}State{{#if stateOffName}},
+    {{camelCase stateOffName}}: {{camelCase stateOffName}}State{{/if}}
   }  
 };

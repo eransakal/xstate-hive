@@ -1,5 +1,4 @@
 import {Configuration} from '../../lib/configuration.js'
-import {getActiveCommand, getActiveCommandDebug} from '../active-command.js'
 import {injectStatusBlock} from './inject-status-block.js'
 import inquirer from 'inquirer'
 import {formatMachineName} from '../../lib/utils.js'
@@ -11,7 +10,7 @@ export  const generateBlock = async (prefilled :  { machineName: string | undefi
       {
         type: 'input',
         name: 'value',
-        message: 'Enter the name of the new machine:',
+        message: 'Enter the name of the machine:',
       },
     ])).value)
 

@@ -1,7 +1,7 @@
 import {dirname, resolve} from 'path'
 import {fileURLToPath} from 'url'
 import nodePlop from 'node-plop'
-import {getActiveCommand, getActiveCommandDebug} from '../active-command.js'
+import {getActiveCommand} from '../active-command.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -16,7 +16,7 @@ export const executePlopJSCommand = async ({
   destPath: basePath,
   options,
 }: CommandOptions): Promise<void> => {
-  const debug = getActiveCommandDebug()
+  const {debug} = getActiveCommand()
 
   const plopCommandPath = resolve(
     __dirname,

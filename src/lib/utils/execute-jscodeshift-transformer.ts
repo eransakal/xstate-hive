@@ -2,7 +2,7 @@ import {dirname, resolve} from 'path'
 import {fileURLToPath} from 'url'
 import {spawnSync} from 'child_process'
 import {extname} from 'path'
-import {getActiveCommand, getActiveCommandDebug} from '../active-command.js'
+import {getActiveCommand} from '../active-command.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -17,7 +17,7 @@ export const executeJSCodeshiftTransformer = async ({
   destFilePath,
   options,
 }: TransformOptions): Promise<void> => {
-  const debug = getActiveCommandDebug()
+  const {debug} = getActiveCommand()
 
   const resolvedTransformerPath = resolve(
     __dirname,

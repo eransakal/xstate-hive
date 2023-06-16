@@ -19,6 +19,15 @@ export default function (plop) {
         base: './templates/loading',
         templateFiles: './templates/loading/**/*.hbs',
       },
+      {
+        type: 'addMany',
+        destination: './',
+        skip: data => {
+          return data.stateOffName ? null : 'always on mode'
+        },
+        base: './templates/stateOff',
+        templateFiles: './templates/stateOff/**/*.hbs',
+      },
     ],
   })
 }

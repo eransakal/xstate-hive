@@ -1,13 +1,13 @@
 import {Configuration, MachineConfig} from '../../lib/configuration.js'
 import {join} from 'path'
-import {getActiveCommand, getActiveCommandDebug} from '../active-command.js'
 import {formatStateName, toDashCase} from '../../lib/utils.js'
 import {extractStatesOfMachine, MachineState} from '../utils/extract-states-of-machine.js'
 import inquirer from 'inquirer'
 
 import {CLIError} from '@oclif/core/lib/errors/index.js'
-import {PromptStateTypeModes, promptStateBlockOptions} from '../prompt-state-block-options.js'
+import {promptStateBlockOptions} from '../prompt-state-block-options.js'
 import {injectStateBlock} from '../modifiers/inject-state-block.js'
+import {getActiveCommand} from '../active-command.js'
 
 const getMachineStates = async (machineName: string, statePath?: string): Promise<MachineState[]> => {
   let resolvedStateFilePath = statePath
@@ -21,7 +21,7 @@ const getMachineStates = async (machineName: string, statePath?: string): Promis
 }
 
 async function getUserInputs({machineStates} : {prefilled: unknown, machineStates: MachineState[] }) {
-  const stateBlockOptions = await promptStateBlockOptions(PromptStateTypeModes.InjectState)
+  const stateBlockOptions = await promptStateBlockOptions()
 
   const actionType = (await inquirer.prompt([
     {
@@ -86,75 +86,77 @@ async function getUserInputs({machineStates} : {prefilled: unknown, machineState
 }
 
 export const injectStatusBlock = async ({machineConfig} :  { machineConfig: MachineConfig}): Promise<void> => {
-  const activeCommand = getActiveCommand()
-  const debug = getActiveCommandDebug()
+  const {error: commandError, debug, log} = getActiveCommand()
 
   const {machineName} = machineConfig
 
+  let machineStates: MachineState[] = null!
+
   try {
-    const machineStates = await getMachineStates(machineName)
-
-    const userInputs = await getUserInputs({
-      prefilled: {},
-      machineStates,
-    })
-
-    if (userInputs.actionType !== 'change' && userInputs.newStateName === '') {
-      activeCommand.log('No state name was provided')
-      return
-    }
-
-    switch (userInputs.actionType) {
-    case 'root':
-      await injectStateBlock({
-        machineName: machineConfig.machineName,
-        selectedStateFilePath: `utils/create-${machineConfig.machineName}-machine.ts`,
-        selectedStateParentsInFile: [],
-        newStateName: userInputs.newStateName,
-        newStateDirPath: `../machine-states/${toDashCase(userInputs.newStateName)}-state`,
-        newStateOptions: userInputs.newStateBlockOptions,
-      })
-      break
-    case 'child':
-    {
-      const stateConfig = machineStates.find(state => state.id === userInputs.selectedState)
-
-      if (!stateConfig) {
-        throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
-      }
-
-      await injectStateBlock({
-        newStateOptions: userInputs.newStateBlockOptions,
-        selectedStateFilePath: stateConfig.filePath,
-        selectedStateParentsInFile: stateConfig.innerFileParentStates,
-        machineName: machineConfig.machineName,
-        newStateName: userInputs.newStateName,
-        newStateDirPath: `./${toDashCase(userInputs.newStateName)}-state`,
-      })
-      break
-    }
-
-    case 'change':
-    {
-      const stateConfig = machineStates.find(state => state.id === userInputs.selectedState)
-
-      if (!stateConfig) {
-        throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
-      }
-
-      await injectStateBlock({
-        newStateOptions: userInputs.newStateBlockOptions,
-        selectedStateFilePath: stateConfig.filePath,
-        selectedStateParentsInFile: stateConfig.innerFileParentStates,
-        machineName: machineConfig.machineName,
-        newStateName: stateConfig.name,
-        newStateDirPath: `./${toDashCase(stateConfig.name)}-state`,
-      })
-      break
-    }
-    }
-  } catch (error: any) {
+    machineStates = await getMachineStates(machineName)
+  } catch (error) {
     debug(error)
-    activeCommand.error(`failed to extract the machine '${machineName}' states, please verify that there are no compile issues and try again.`, {exit: 1})
+    commandError(`failed to extract the machine '${machineName}' states, please verify that there are no compile issues and try again.`, {exit: 1})
+    return
+  }
+
+  const userInputs = await getUserInputs({
+    prefilled: {},
+    machineStates,
+  })
+
+  if (userInputs.actionType !== 'change' && userInputs.newStateName === '') {
+    log('No state name was provided')
+    return
+  }
+
+  switch (userInputs.actionType) {
+  case 'root':
+    await injectStateBlock({
+      machineName: machineConfig.machineName,
+      selectedStateFilePath: `utils/create-${machineConfig.machineName}-machine.ts`,
+      selectedStateParentsInFile: [],
+      newStateName: userInputs.newStateName,
+      newStateDirPath: `../machine-states/${toDashCase(userInputs.newStateName)}-state`,
+      newStateOptions: userInputs.newStateBlockOptions,
+    })
+    break
+  case 'child':
+  {
+    const stateConfig = machineStates.find(state => state.id === userInputs.selectedState)
+
+    if (!stateConfig) {
+      throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
+    }
+
+    await injectStateBlock({
+      newStateOptions: userInputs.newStateBlockOptions,
+      selectedStateFilePath: stateConfig.filePath,
+      selectedStateParentsInFile: stateConfig.innerFileParentStates,
+      machineName: machineConfig.machineName,
+      newStateName: userInputs.newStateName,
+      newStateDirPath: `./${toDashCase(userInputs.newStateName)}-state`,
+    })
+    break
+  }
+
+  case 'change':
+  {
+    const stateConfig = machineStates.find(state => state.id === userInputs.selectedState)
+
+    if (!stateConfig) {
+      throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
+    }
+
+    await injectStateBlock({
+      newStateOptions: userInputs.newStateBlockOptions,
+      selectedStateFilePath: stateConfig.filePath,
+      selectedStateParentsInFile: stateConfig.innerFileParentStates,
+      machineName: machineConfig.machineName,
+      newStateName: stateConfig.name,
+      newStateDirPath: `./${toDashCase(stateConfig.name)}-state`,
+    })
+    break
+  }
   }
 }
