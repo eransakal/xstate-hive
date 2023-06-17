@@ -23,7 +23,7 @@ $ npm install -g xstate-hive
 $ xstate-hive COMMAND
 running command...
 $ xstate-hive (--version)
-xstate-hive/1.0.1 darwin-arm64 node-v16.15.1
+xstate-hive/2.0.0 darwin-arm64 node-v16.15.1
 $ xstate-hive --help [COMMAND]
 USAGE
   $ xstate-hive COMMAND
@@ -35,8 +35,6 @@ USAGE
 
 <!-- commands -->
 * [`xstate-hive help [COMMANDS]`](#xstate-hive-help-commands)
-* [`xstate-hive init`](#xstate-hive-init)
-* [`xstate-hive machine create DEST MACHINE`](#xstate-hive-machine-create-dest-machine)
 
 ## `xstate-hive help [COMMANDS]`
 
@@ -57,44 +55,4 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.9/src/commands/help.ts)_
-
-## `xstate-hive init`
-
-Create a configuration file for xstate-hive on the root of your project
-
-```
-USAGE
-  $ xstate-hive init
-
-DESCRIPTION
-  Create a configuration file for xstate-hive on the root of your project
-
-EXAMPLES
-  $ xstate-hive init
-```
-
-_See code: [dist/commands/init/index.ts](https://github.com/eransakal/xstate-hive/blob/v1.0.1/dist/commands/init/index.ts)_
-
-## `xstate-hive machine create DEST MACHINE`
-
-Create a new machine to manage a new feature
-
-```
-USAGE
-  $ xstate-hive machine create DEST MACHINE [--coreState bootup-to-operational]
-
-ARGUMENTS
-  DEST     Destination path
-  MACHINE  A machine name
-
-FLAGS
-  --coreState=<option>  [default: bootup-to-operational] add core state of specified type
-                        <options: bootup-to-operational>
-
-DESCRIPTION
-  Create a new machine to manage a new feature
-
-EXAMPLES
-  $ xstate-hive machine create ./src/machines quick-polls
-```
 <!-- commandsstop -->
