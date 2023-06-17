@@ -1,5 +1,5 @@
-export function toCamelCase(input: string): string {
-  let words: string[]
+export function toCamelCase(input) {
+  let words
   if (input.includes('-')) {
     words = input.split('-')
   } else if (/[a-z][A-Z]/.test(input)) {
@@ -19,8 +19,8 @@ export function toCamelCase(input: string): string {
   return camelCaseWords.join('')
 }
 
-export function toPascalCase(input: string): string {
-  let words: string[]
+export function toPascalCase(input) {
+  let words
   if (input.includes('-')) {
     words = input.split('-')
   } else if (/[a-z][A-Z]/.test(input)) {
@@ -36,8 +36,8 @@ export function toPascalCase(input: string): string {
   return pascalCaseWords.join('')
 }
 
-export function toDashCase(input: string): string {
-  let words: string[]
+export function toDashCase(input) {
+  let words
   if (input.includes('-')) {
     words = input.split('-')
   } else if (/[a-z][A-Z]/.test(input)) {

@@ -1,6 +1,6 @@
-import {Configuration, MachineConfig} from '../../lib/configuration.js'
+import {Configuration, MachineConfig} from '../configuration.js'
 import {join} from 'path'
-import {formatStateName, toDashCase} from '../../lib/utils.js'
+import {formatStateName, toDashCase} from '../utils.js'
 import {extractStatesOfMachine, MachineState} from '../utils/extract-states-of-machine.js'
 import inquirer from 'inquirer'
 
@@ -85,7 +85,7 @@ async function getUserInputs({machineStates} : {prefilled: unknown, machineState
   }
 }
 
-export const injectStatusBlock = async ({machineConfig} :  { machineConfig: MachineConfig}): Promise<void> => {
+export const statusBlockExecuter = async ({machineConfig} :  { machineConfig: MachineConfig}): Promise<void> => {
   const {error: commandError, debug, log} = getActiveCommand()
 
   const {machineName} = machineConfig

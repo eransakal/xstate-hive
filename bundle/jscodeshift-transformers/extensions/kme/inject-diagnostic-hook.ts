@@ -1,5 +1,5 @@
 import {JSCodeshift, Transform} from 'jscodeshift'
-import {toLowerCamelCase, toPascalCase} from '../../utils'
+import {toCamelCase, toPascalCase} from '../../utils'
 
 function findUseMachineAssignment(j: JSCodeshift, ast: Collection<any>): null {
   const assignment = ast.find(j.VariableDeclarator, {
@@ -56,7 +56,7 @@ export const transform: Transform = (fileInfo, api, options) => {
         j.objectExpression([
           j.objectProperty(j.identifier('machineId'), j.identifier(machineIdentifierId)),
           j.objectProperty(j.identifier('machineLogger'), j.identifier('logger')),
-          j.objectProperty(j.identifier('service'), j.identifier(`${toLowerCamelCase(options.name)}MachineService`)),
+          j.objectProperty(j.identifier('service'), j.identifier(`${toCamelCase(options.name)}MachineService`)),
         ]),
       ]))
     useMachinePath.parent.insertAfter(useXStateDiagnosticsStatement)

@@ -1,0 +1,68 @@
+import { actions } from 'xstate';
+import { {{pascalCase machineName}}MachineEventsTypes , {{pascalCase machineName}}MachineStateConfig } from '../../types';
+import { canManage{pascalCase actionName} } from '../../machine-guards';
+
+export const update{{pascalCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
+  initial: 'idle',
+  on: {
+    [{{pascalCase machineName}}MachineEventsTypes.{{pathToPascalCase contextPropFullPath}}Updated]: [
+      {
+        actions: ['update{{pathToPascalCase contextPropFullPath}}', 'cleanIntermediate{{pathToPascalCase contextPropFullPath}}'],
+        target: '.idle',
+      },
+    ],
+  },
+  states: {
+    idle: {
+      on: {
+        [{{pascalCase machineName}}MachineEventsTypes.update{{pathToPascalCase contextPropFullPath}}]: [
+          {
+            cond: 'canUpdate{{pascalCase contextPropFullPath}}',
+            actions: ['updateIntermediate{{pathToPascalCase contextPropFullPath}}'],
+            target: 'inProgress',
+          },
+        ],
+      },
+    },
+    inProgress: {
+      invoke: {
+        src: 'update{{pathToPascalCase contextPropFullPath}}',
+        onDone: {
+          target: 'pendingWebsocket',
+        },
+        onError: {
+          actions: [
+            {{#if notificationErrorMessage}}actions.send((context) => ({
+              type: {{pascalCase machineName}}MachineEventsTypes.ShowNotification,
+              payload: {
+                variant: 'error',
+                message: `{{notificationErrorMessage}}`,
+                reason: `An error occurred while requesting an update for '{{camelCase (pathToPascalCase contextPropFullPath)}}' to '${context.{{optionalPath contextPropFullPath}} || ''}'. As a result, the intermediate value is being reverted.`
+              },
+            })),
+            {{/if}}'cleanIntermediate{{pathToPascalCase contextPropFullPath}}',          
+          ],
+          target: 'idle',
+        },
+      },
+    },
+    pendingWebsocket: {
+      after: {
+        5000: {
+          actions: [          
+            {{#if notificationErrorMessage}}actions.send((context) => ({
+              type: {{pascalCase machineName}}MachineEventsTypes.ShowNotification,
+              payload: {
+                variant: 'error',
+                message: `{{notificationErrorMessage}}`,
+                reason: `The server failed to respond via the web socket when updating '{{camelCase (pathToPascalCase contextPropFullPath)}}' to '${context.{{optionalPath contextPropFullPath}} || ''}'. As a result, the intermediate value is being reverted.`
+              },
+            })),
+            {{/if}}'cleanIntermediate{{pathToPascalCase contextPropFullPath}}',
+          ],
+          target: 'idle',
+        },
+      },
+    },
+  },
+};
