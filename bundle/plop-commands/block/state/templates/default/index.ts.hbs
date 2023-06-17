@@ -18,8 +18,8 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
           target: '{{camelCase stateOffName}}',
         },
       ],
-    },{{/if}}{{/unless}}
-    {{#if includeLoadingState}}loading: loadingState,
+    },
+    {{/if}}{{/unless}}{{#if includeLoadingState}}loading: loadingState,
     {{/if}}{{camelCase stateOnName}}: {{camelCase stateOnName}}State{{#if stateOffName}},
     {{camelCase stateOffName}}: {{camelCase stateOffName}}State{{/if}}
   }  
