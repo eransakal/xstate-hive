@@ -1,9 +1,9 @@
-import {Configuration} from '../../lib/configuration.js'
+import {Configuration} from '../../configuration.js'
 import {statusBlockExecuter} from './status-block-executer.js'
 import inquirer from 'inquirer'
-import {formatMachineName} from '../../lib/utils.js'
-import {promptListWithHelp} from '../utils/prompts.js'
-import { optimisticActionBlockExecuter } from './optimistic-action-block-executer.js'
+import {formatMachineName} from '../../utils.js'
+import {promptListWithHelp} from '../../utils/prompts.js'
+import {optimisticActionBlockExecuter} from './optimistic-action-block-executer.js'
 
 export  const generateBlock = async (prefilled :  { machineName: string | undefined }): Promise<void> => {
   const projectConfiguration = Configuration.get()

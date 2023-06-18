@@ -1,14 +1,13 @@
-import {Configuration, MachineConfig} from '../configuration.js'
+import {Configuration, MachineConfig} from '../../configuration.js'
 import {join} from 'path'
-import {formatStateName, toDashCase} from '../utils.js'
-import {extractStatesOfMachine, MachineState} from '../utils/extract-states-of-machine.js'
+import {formatStateName, toDashCase} from '../../utils.js'
+import {extractStatesOfMachine, MachineState} from '../../utils/extract-states-of-machine.js'
 import inquirer from 'inquirer'
-
 import {CLIError} from '@oclif/core/lib/errors/index.js'
-import {promptStateBlockOptions} from '../prompt-state-block-options.js'
-import {injectStateBlock} from '../modifiers/inject-state-block.js'
-import {getActiveCommand} from '../active-command.js'
+import {getActiveCommand} from '../../active-command.js'
+import {executePlopJSCommand} from '../../utils/execute-plopljs-command.js'
 
+// TODO move to shared place
 const getMachineStates = async (machineName: string, statePath?: string): Promise<MachineState[]> => {
   let resolvedStateFilePath = statePath
   if (!resolvedStateFilePath) {
@@ -21,8 +20,7 @@ const getMachineStates = async (machineName: string, statePath?: string): Promis
 }
 
 async function getUserInputs({machineStates} : {prefilled: unknown, machineStates: MachineState[] }) {
-  const stateBlockOptions = await promptStateBlockOptions()
-
+  // TODO move to shared place
   const actionType = (await inquirer.prompt([
     {
       type: 'list',
@@ -81,11 +79,10 @@ async function getUserInputs({machineStates} : {prefilled: unknown, machineState
     actionType,
     selectedState,
     newStateName,
-    newStateBlockOptions: stateBlockOptions,
   }
 }
 
-export const statusBlockExecuter = async ({machineConfig} :  { machineConfig: MachineConfig}): Promise<void> => {
+export const optimisticActionBlockExecuter = async ({machineConfig} :  { machineConfig: MachineConfig}): Promise<void> => {
   const {error: commandError, debug, log} = getActiveCommand()
 
   const {machineName} = machineConfig
@@ -112,51 +109,53 @@ export const statusBlockExecuter = async ({machineConfig} :  { machineConfig: Ma
 
   switch (userInputs.actionType) {
   case 'root':
-    await injectStateBlock({
-      machineName: machineConfig.machineName,
-      selectedStateFilePath: `utils/create-${machineConfig.machineName}-machine.ts`,
-      selectedStateParentsInFile: [],
-      newStateName: userInputs.newStateName,
-      newStateDirPath: `../machine-states/${toDashCase(userInputs.newStateName)}-state`,
-      newStateOptions: userInputs.newStateBlockOptions,
+    executePlopJSCommand({
+      commandPath: 'block/optimistic-action',
+      destPath: join(machineConfig.getAbsolutePath(), 'machine-states'),
+      options: {
+        stateName: 'test-it-now-2',
+        machineName: machineConfig.machineName,
+        contextPropFullPath: 'lowerThird.isActive',
+        notificationErrorMessage: 'room.bla',
+      },
     })
     break
   case 'child':
   {
-    const stateConfig = machineStates.find(state => state.id === userInputs.selectedState)
+    // const stateConfig = machineStates.find(state => state.id === userInputs.selectedState)
 
-    if (!stateConfig) {
-      throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
-    }
+    // if (!stateConfig) {
+    //   throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
+    // }
 
-    await injectStateBlock({
-      newStateOptions: userInputs.newStateBlockOptions,
-      selectedStateFilePath: stateConfig.filePath,
-      selectedStateParentsInFile: stateConfig.innerFileParentStates,
-      machineName: machineConfig.machineName,
-      newStateName: userInputs.newStateName,
-      newStateDirPath: `./${toDashCase(userInputs.newStateName)}-state`,
-    })
+    // await injectStateBlock({
+    //   newStateOptions: userInputs.newStateBlockOptions,
+    //   selectedStateFilePath: stateConfig.filePath,
+    //   selectedStateParentsInFile: stateConfig.innerFileParentStates,
+    //   machineName: machineConfig.machineName,
+    //   newStateName: userInputs.newStateName,
+    //   newStateDirPath: `./${toDashCase(userInputs.newStateName)}-state`,
+    // })
     break
   }
 
   case 'change':
   {
-    const stateConfig = machineStates.find(state => state.id === userInputs.selectedState)
+    // const stateConfig = machineStates.find(state => state.id === userInputs.selectedState)
 
-    if (!stateConfig) {
-      throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
-    }
+    // if (!stateConfig) {
+    //   throw new Error(`state '${userInputs.selectedState}' not found in '${machineConfig.machineName}'`)
+    // }
 
-    await injectStateBlock({
-      newStateOptions: userInputs.newStateBlockOptions,
-      selectedStateFilePath: stateConfig.filePath,
-      selectedStateParentsInFile: stateConfig.innerFileParentStates,
-      machineName: machineConfig.machineName,
-      newStateName: stateConfig.name,
-      newStateDirPath: `./${toDashCase(stateConfig.name)}-state`,
-    })
-    break
+    // await injectStateBlock({
+    //   newStateOptions: userInputs.newStateBlockOptions,
+    //   selectedStateFilePath: stateConfig.filePath,
+    //   selectedStateParentsInFile: stateConfig.innerFileParentStates,
+    //   machineName: machineConfig.machineName,
+    //   newStateName: stateConfig.name,
+    //   newStateDirPath: `./${toDashCase(stateConfig.name)}-state`,
+    // })
+    // break
   }
   }
 }
