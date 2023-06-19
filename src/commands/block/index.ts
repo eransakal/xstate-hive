@@ -1,7 +1,7 @@
-import {Args, Command, Flags} from '@oclif/core'
+import {Args, Command} from '@oclif/core'
 import {setActiveCommand} from '../../lib/active-command.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
-import {generateBlock} from '../../lib/executers/blocks/generate-block.js'
+import {generateBlockHandler} from '../../lib/handlers/blocks/generate-block-handler.js'
 
 export default class State extends Command {
   static description = 'Inject a block of funcionality into the machine'
@@ -24,10 +24,10 @@ export default class State extends Command {
   async run(): Promise<void> {
     setActiveCommand(this, this.debug)
 
-    const {args, flags} = await this.parse(State)
+    const {args} = await this.parse(State)
 
     try {
-      await generateBlock({
+      await generateBlockHandler({
         machineName: args.machineName,
       })
     } catch (error: any) {

@@ -1,11 +1,10 @@
 import {Configuration} from '../../configuration.js'
-import {statusBlockExecuter} from './status-block-executer.js'
+import {statusBlockHandler} from './status-block-handler.js'
 import inquirer from 'inquirer'
 import {formatMachineName} from '../../utils.js'
 import {promptListWithHelp} from '../../utils/prompts.js'
-import {optimisticActionBlockExecuter} from './optimistic-action-block-executer.js'
 
-export  const generateBlock = async (prefilled :  { machineName: string | undefined }): Promise<void> => {
+export  const generateBlockHandler = async (prefilled :  { machineName: string | undefined }): Promise<void> => {
   const projectConfiguration = Configuration.get()
   const machineName = formatMachineName(
     prefilled.machineName || (await inquirer.prompt([
@@ -36,13 +35,14 @@ export  const generateBlock = async (prefilled :  { machineName: string | undefi
 
   switch (blockType) {
   case 'status':
-    return statusBlockExecuter({
+    return statusBlockHandler({
       machineConfig,
     })
   case 'optimistic-action':
-    return optimisticActionBlockExecuter({
-      machineConfig,
-    })
+    // return optimisticActionBlockExecuter({
+    //   machineConfig,
+    // })
+    throw new Error('Not implemented yet')
   }
 
   return Promise.resolve()

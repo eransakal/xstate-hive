@@ -1,3 +1,6 @@
+import {join} from 'path'
+import {Configuration} from '../configuration.js'
+import {toDashCase} from '../utils.js'
 import * as fs from 'fs'
 import {dirname, resolve} from 'path'
 import * as walk from 'acorn-walk'
@@ -32,10 +35,14 @@ function flattenStates(states: InnerMachineState[]): MachineState[] {
       hasContent: state.hasContent,
       innerFileParentStates: state.innerFileParentStates,
     })
-    state.children.forEach(flatten)
+    for (const child of state.children) {
+      flatten(child)
+    }
   }
 
-  states.forEach(flatten)
+  for (const element of states) {
+    flatten(element)
+  }
 
   return flattenedStates
 }
@@ -108,6 +115,7 @@ const getStatesFromNode = ({node, filePath, fileImports, parents, fileParents}: 
     fileParents: string[],
     fileImports: Record<string, string>}): InnerMachineState[]  => {
   const  result: InnerMachineState[] = []
+  // eslint-disable-next-line unicorn/no-array-for-each
   node.value.properties.forEach((property: any) => {
     const {key: {name: stateName}, value: {type: stateValueType, name: stateValueName}} = property
 
@@ -164,7 +172,18 @@ const getStatesFromNode = ({node, filePath, fileImports, parents, fileParents}: 
   return result
 }
 
-export const extractStatesOfMachine = (filePath: string): MachineState[] => {
+const extractStatesOfMachine = (filePath: string): MachineState[] => {
   const states = getStatesFromFile({filePath, isMachineFile: true, parents: []})
   return flattenStates(states)
+}
+
+export const getMachineStates = async (machineName: string, statePath?: string): Promise<MachineState[]> => {
+  let resolvedStateFilePath = statePath
+  if (!resolvedStateFilePath) {
+    resolvedStateFilePath =  `utils/create-${toDashCase(machineName)}-machine.ts`
+  }
+
+  resolvedStateFilePath = join(Configuration.get().getMachine(machineName).getAbsolutePath(), resolvedStateFilePath)
+
+  return extractStatesOfMachine(resolvedStateFilePath)
 }

@@ -1,6 +1,14 @@
-import {Prompt} from './prompts-wizard'
+import inquirer from 'inquirer'
+import {Prompt} from '../../utils/prompts-wizard.js'
+import {formatStateName} from '../../utils.js'
+import {getMachineStates} from '../../utils/get-machine-states.js'
+import {InjectStateToMachineOptions} from './index.js'
+import {MachineConfig} from '../../configuration.js'
 
-export const createSelectStatePrompts = <T, keyof T>(): Prompt<T, keyof T>[] => {
+export const createInjectStateToMachinePrompts = async ({machineConfig}: {
+  machineConfig: MachineConfig
+}): Promise<Prompt<InjectStateToMachineOptions>[]> => {
+  const machineStates = await getMachineStates(machineConfig.machineName)
   return [
     {
       propName: 'actionType',
@@ -46,7 +54,7 @@ export const createSelectStatePrompts = <T, keyof T>(): Prompt<T, keyof T>[] => 
         }
       },
       run: async data => {
-        return (await inquirer.prompt([
+        return  (await inquirer.prompt([
           {
             type: 'list',
             name: 'value',

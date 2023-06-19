@@ -1,5 +1,6 @@
 import {CLIError} from '@oclif/core/lib/errors/index.js'
 import {getActiveCommand} from '../active-command.js'
+import {isStringWithValue} from './validators.js'
 
 export interface Prompt<T> {
   propName: keyof T;
@@ -10,7 +11,7 @@ export interface Prompt<T> {
 
 export interface PromptsWizardOptions<T> {
     prompts: Prompt<T>[];
-    validateAnswers: (data: any) => data is T;
+    validateAnswers: (data: any) => string | boolean;
   }
 
 export class PromptsWizard {
@@ -29,16 +30,16 @@ export class PromptsWizard {
         if (propValue || typeof propValue === 'boolean') {
           data = {...data, [propName]: propValue}
           // eslint-disable-next-line no-await-in-loop
-          const maybeError = await activePrompt.validate(data as T)
+          const promptValidation = await activePrompt.validate(data as T)
 
           debug({
             propName,
             propValue,
-            maybeError,
+            promptValidateStatus: promptValidation,
           })
 
-          if (maybeError !== true && maybeError) {
-            throw new CLIError(maybeError)
+          if (promptValidation === false || isStringWithValue(promptValidation)) {
+            throw new CLIError(isStringWithValue(promptValidation) ? promptValidation : 'Invalid answers provided')
           }
 
           activeIndex++
@@ -54,7 +55,11 @@ export class PromptsWizard {
 
     debug('All prompts completed, validating answers')
     debug(data)
-    options.validateAnswers(data)
+    const validationStatus = options.validateAnswers(data)
+
+    if (validationStatus === false || isStringWithValue(validationStatus)) {
+      throw new CLIError(isStringWithValue(validationStatus) ? validationStatus : 'Invalid answers provided')
+    }
 
     debug('All answers validated')
     return data as T
