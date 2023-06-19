@@ -1,15 +1,15 @@
 import {CLIError} from '@oclif/core/lib/errors/index.js'
 import {getActiveCommand} from '../active-command.js'
 
-export interface Prompt<T, K extends keyof T> {
-  propName: K;
-  run: (data: Partial<T>) => Promise<T[K]>;
+export interface Prompt<T> {
+  propName: keyof T;
+  run: (data: Partial<T>) => Promise<T[keyof T]>;
   validate: (data: Partial<T>) => string | undefined | null | boolean;
   runIf?: (data: Partial<T>) => boolean;
 }
 
 export interface PromptsWizardOptions<T> {
-    prompts: Prompt<T, keyof T>[];
+    prompts: Prompt<T>[];
     validateAnswers: (data: any) => data is T;
   }
 

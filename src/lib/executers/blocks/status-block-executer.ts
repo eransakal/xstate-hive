@@ -100,17 +100,8 @@ async function getUserInputs({machineStates} : {prefilled: unknown, machineState
             }
           }
         },
-        run: async data => {
-          return (await inquirer.prompt([
-            {
-              type: 'list',
-              name: 'value',
-              message: data.actionType === 'child' ?
-                'Select the parent state to add a new state to:' :
-                'Select the state to change:',
-              choices: machineStates.map(state => state.id),
-            },
-          ])).value
+        run: async () => {
+          return 2
         },
       },
       {
