@@ -1,5 +1,7 @@
 import inquirer from 'inquirer'
-import {promptListWithHelp} from './utils/prompts.js'
+import {promptListWithHelp} from '../../utils/prompts.js'
+import {Prompt} from '../../utils/prompts-wizard.js'
+import {InjectStateOptions} from './index.js'
 
 export interface StateBlockOptions {
   withLoading: boolean,
@@ -8,9 +10,17 @@ export interface StateBlockOptions {
   stateOffName: string,
 }
 
-type DefaultValues = 'alwaysOn' | 'temporaryOnOff' | 'permanentOnOff';
-export const promptStateBlockOptions = async (options? : { defaultValue?: DefaultValues, customLabel?: string, alwaysOnAvailable?: boolean}): Promise<StateBlockOptions> => {
-  const {customLabel, alwaysOnAvailable, defaultValue} = options || {}
+export const generateStatusBlockPrompts = async ({
+  prefilled,
+  customLabel,
+  defaultValue,
+  alwaysOnAvailable,
+}: {
+  prefilled: Partial<InjectStateOptions>,
+  customLabel?: string,
+  defaultValue?: string,
+  alwaysOnAvailable?: boolean,
+}): Promise<Prompt<InjectStateOptions>[]> => {
   const message =  `Choose the statement that best fits the purpose of the ${customLabel || 'state'}:`
 
   const newStateType = await promptListWithHelp({

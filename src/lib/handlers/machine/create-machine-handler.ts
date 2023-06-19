@@ -48,6 +48,8 @@ export const createMachineHandler = async (options: { machineName?: string, mach
     newStateName: 'core',
   })
 
+  await generateStatusBlockTra
+
   // if (projectConfiguration.isPresetActive('kme')) {
   //   this.log('run kme extensions')
   //   await injectDiagnosticHook({machineName: resolvedMachineName})
