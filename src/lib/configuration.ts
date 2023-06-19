@@ -1,6 +1,6 @@
 import * as path from 'node:path'
 import {readFileSync, existsSync, writeFileSync} from 'fs'
-import {toDashCase} from './utils.js'
+import {toDashCase} from './utils/formatters.js'
 import * as fs from 'fs'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
 

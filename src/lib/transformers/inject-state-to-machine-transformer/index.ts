@@ -1,5 +1,5 @@
 import {Configuration} from '../../configuration.js'
-import {toDashCase} from '../../utils.js'
+import {toDashCase} from '../../utils/formatters.js'
 import {getActiveCommand} from '../../active-command.js'
 import {executeJSCodeshiftTransformer} from '../../utils/execute-jscodeshift-transformer.js'
 import * as path from 'path'

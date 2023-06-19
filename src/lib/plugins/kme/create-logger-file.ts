@@ -1,6 +1,6 @@
-import {Configuration} from '../../../configuration.js'
-import {executePlopJSCommand} from '../../../utils/execute-plopljs-command.js'
+import {Configuration} from '../../configuration.js'
 import {join} from 'path'
+import {executePlopJSCommand} from '../../utils/execute-plopljs-command.js'
 
 interface ModifierOptions {
   machineName: string

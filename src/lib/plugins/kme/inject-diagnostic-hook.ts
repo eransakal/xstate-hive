@@ -1,6 +1,6 @@
-import {Configuration} from '../../../configuration.js'
-import {toDashCase} from '../../../utils.js'
-import {executeJSCodeshiftTransformer} from '../../../utils/execute-jscodeshift-transformer.js'
+import {Configuration} from '../../configuration.js'
+import {toDashCase} from '../../utils/formatters.js'
+import {executeJSCodeshiftTransformer} from '../../utils/execute-jscodeshift-transformer.js'
 import {join} from 'path'
 
 interface ModifierOptions {

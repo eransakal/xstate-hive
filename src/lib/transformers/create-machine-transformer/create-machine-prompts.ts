@@ -1,6 +1,6 @@
 import inquirer from 'inquirer'
 import {Prompt} from '../../utils/prompts-wizard.js'
-import {formatMachineName} from '../../utils.js'
+import {formatMachineName} from '../../utils/formatters.js'
 import {CreateMachineOptions} from './index.js'
 import {isStringWithValue} from '../../utils/validators.js'
 

@@ -1,6 +1,6 @@
 import {join} from 'path'
 import {Configuration} from '../configuration.js'
-import {toDashCase} from '../utils.js'
+import {toDashCase} from './formatters.js'
 import * as fs from 'fs'
 import {dirname, resolve} from 'path'
 import * as walk from 'acorn-walk'

@@ -1,10 +1,10 @@
 import {Configuration} from '../../configuration.js'
-import {statusBlockHandler} from './status-block-handler.js'
+import {addStatusBlockHandler} from './add-status-block-handler.js'
 import inquirer from 'inquirer'
-import {formatMachineName} from '../../utils.js'
+import {formatMachineName} from '../../utils/formatters.js'
 import {promptListWithHelp} from '../../utils/prompts.js'
 
-export  const generateBlockHandler = async (prefilled :  { machineName: string | undefined }): Promise<void> => {
+export  const addBlockHandler = async (prefilled :  { machineName: string | undefined }): Promise<void> => {
   const projectConfiguration = Configuration.get()
   const machineName = formatMachineName(
     prefilled.machineName || (await inquirer.prompt([
@@ -35,7 +35,7 @@ export  const generateBlockHandler = async (prefilled :  { machineName: string |
 
   switch (blockType) {
   case 'status':
-    return statusBlockHandler({
+    return addStatusBlockHandler({
       machineConfig,
     })
   case 'optimistic-action':

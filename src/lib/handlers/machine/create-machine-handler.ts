@@ -2,15 +2,16 @@ import {join} from 'path'
 import {Configuration} from '../../configuration.js'
 import {PromptsWizard} from '../../utils/prompts-wizard.js'
 import {createMachinePrompts} from '../../transformers/create-machine-transformer/create-machine-prompts.js'
-import {toDashCase} from '../../utils.js'
+import {toDashCase} from '../../utils/formatters.js'
 import {CreateMachineOptions, createMachineTransformer, validateCreateMachineOptions} from '../../transformers/create-machine-transformer/index.js'
 import {getActiveCommand} from '../../active-command.js'
+import {injectStateTransformer} from '../../transformers/inject-state-to-machine-transformer/index.js'
 
-export const createMachineHandler = async (prefilled: { machineName?: string, machinePath?: string}): Promise<void> => {
+export const createMachineHandler = async (options: { machineName?: string, machinePath?: string}): Promise<void> => {
   const {log} = getActiveCommand()
   const userPrompts =  await PromptsWizard.run<CreateMachineOptions>({
     prompts: [
-      ...createMachinePrompts(prefilled),
+      ...createMachinePrompts(options),
     ],
     validateAnswers: validateCreateMachineOptions,
   })
@@ -24,6 +25,7 @@ export const createMachineHandler = async (prefilled: { machineName?: string, ma
 
   const machineRelativePath = join(userPrompts.machinePath, `${resolvedMachineName}-machine`)
   const machinePath = join(projectConfiguration.root, machineRelativePath)
+
   log(`create machine '${resolvedMachineName}' in ${machinePath}`)
   await createMachineTransformer({
     machinePath: userPrompts.machinePath,
@@ -38,16 +40,13 @@ export const createMachineHandler = async (prefilled: { machineName?: string, ma
     false,
   )
 
-  // this.log('add core state')
+  log('inject core state to machine')
 
-  // await injectStateTransformer({
-  //   newStateOptions: userPrompts.stateOptions,
-  //   machineName: resolvedMachineName,
-  //   newStateName: 'core',
-  //   newStateDirPath: '../machine-states/core',
-  //   selectedStateParentsInFile: [],
-  //   selectedStateFilePath: `utils/create-${toDashCase(resolvedMachineName)}-machine.ts`,
-  // })
+  await injectStateTransformer({
+    machineName: resolvedMachineName,
+    actionType: 'root',
+    newStateName: 'core',
+  })
 
   // if (projectConfiguration.isPresetActive('kme')) {
   //   this.log('run kme extensions')
@@ -55,8 +54,8 @@ export const createMachineHandler = async (prefilled: { machineName?: string, ma
   //   await createLoggerFile({machineName: resolvedMachineName})
   // }
 
-  // this.log('add new machine to configuration file')
-  // projectConfiguration.save()
+  log('add new machine to configuration file')
+  projectConfiguration.save()
 
-  // this.log(`machine '${resolvedMachineName}' created successfully`)
+  log(`machine '${resolvedMachineName}' created successfully`)
 }
