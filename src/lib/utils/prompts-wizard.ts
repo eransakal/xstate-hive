@@ -12,6 +12,7 @@ export interface Prompt<T extends Record<string, any>> {
   propName: DotNestedKeys<T> | DotNestedKeys<T>[];
   run: (data: Partial<T>) => Promise<any>;
   validate: (data: Partial<T>) => string | undefined | null | boolean;
+  postPrompt?: (data: Partial<T>) => void;
   runIf?: (data: Partial<T>) => boolean;
 }
 
@@ -60,8 +61,9 @@ export class PromptsWizard {
 
     let activeIndex = 0
     do {
-      debug(`Running prompt ${activeIndex} of ${options.prompts.length - 1}`)
       const activePrompt = options.prompts[activeIndex]
+
+      debug(`Running prompt ${activeIndex} of ${options.prompts.length - 1} (${activePrompt.propName})`)
       const propNameOrNames: string | string[] = activePrompt.propName
 
       const hasValues = Array.isArray(propNameOrNames) ? propNameOrNames.every(p => isValueProvided(getValue(data, p as string))) : isValueProvided(getValue(data, propNameOrNames as string))
@@ -83,8 +85,8 @@ export class PromptsWizard {
           const promptValidation = await activePrompt.validate(data as T)
 
           debug({
-            data,
             propName: propNameOrNames,
+            propValue,
             promptValidateStatus: promptValidation,
           })
 
@@ -100,6 +102,11 @@ export class PromptsWizard {
         }
       } else {
         activeIndex++
+      }
+
+      if (activePrompt.postPrompt) {
+        debug('run post prompt')
+        activePrompt.postPrompt(data)
       }
     } while (activeIndex < options.prompts.length)
 

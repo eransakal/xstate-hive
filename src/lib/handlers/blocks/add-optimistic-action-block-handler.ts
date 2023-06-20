@@ -150,7 +150,7 @@
 //     //   selectedStateParentsInFile: stateConfig.innerFileParentStates,
 //     //   machineName: machineConfig.machineName,
 //     //   newStateName: userInputs.newStateName,
-//     //   newStateDirPath: `./${toDashCase(userInputs.newStateName)}-state`,
+//     //   newStateFolderPath: `./${toDashCase(userInputs.newStateName)}-state`,
 //     // })
 //     break
 //   }
@@ -169,7 +169,7 @@
 //     //   selectedStateParentsInFile: stateConfig.innerFileParentStates,
 //     //   machineName: machineConfig.machineName,
 //     //   newStateName: stateConfig.name,
-//     //   newStateDirPath: `./${toDashCase(stateConfig.name)}-state`,
+//     //   newStateFolderPath: `./${toDashCase(stateConfig.name)}-state`,
 //     // })
 //     // break
 //   }

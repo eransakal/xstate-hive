@@ -1,14 +1,19 @@
 import {join} from 'path'
 import {Configuration} from '../../configuration.js'
 import {PromptsWizard} from '../../utils/prompts-wizard.js'
-import {createMachinePrompts} from '../../transformers/create-machine-transformer/create-machine-prompts.js'
+import {createMachinePrompts} from '../../transformers/create-machine-transformer/prompts.js'
 import {formatMachineName, toDashCase} from '../../utils/formatters.js'
-import {CreateMachineOptions, createMachineTransformer, validateCreateMachineOptions} from '../../transformers/create-machine-transformer/index.js'
+import {createMachineTransformer} from '../../transformers/create-machine-transformer/index.js'
 import {getActiveCommand} from '../../active-command.js'
 import {injectStateTransformer} from '../../transformers/inject-state-to-machine-transformer/index.js'
-import {GenerateStatusBlockOptions, generateStatusBlockTransformer, validateGenerateStatusBlockOptions} from '../../transformers/generate-status-block/index.js'
-import {generateStatusBlockPrompts} from '../../transformers/generate-status-block/generate-status-block-prompts.js'
+import {generateStatusBlockTransformer} from '../../transformers/generate-status-block/index.js'
+import {generateStatusBlockPrompts} from '../../transformers/generate-status-block/prompts.js'
 import {promptListWithHelp} from '../../utils/prompts.js'
+import {injectDiagnosticHook} from '../../plugins/kme/inject-diagnostic-hook.js'
+import {createLoggerFile} from '../../plugins/kme/create-logger-file.js'
+import {CreateMachineOptions, validateCreateMachineOptions} from '../../transformers/create-machine-transformer/types.js'
+import {GenerateStatusBlockOptions, validateGenerateStatusBlockOptions} from '../../transformers/generate-status-block/types.js'
+import {isStringWithValue} from '../../utils/validators.js'
 
 export const createMachineHandler = async (options: { machineName?: string, machinePath?: string}): Promise<void> => {
   const {log} = getActiveCommand()
@@ -42,10 +47,17 @@ export const createMachineHandler = async (options: { machineName?: string, mach
     machineName: createMachineOptions.machineName,
     newStateName,
     parentStateFilePath: `utils/create-${options.machineName}-machine.ts`,
-    newStateDirPath: `../machine-states/${newStateName}-state`,
   }, {
     prompts: [
-      ...generateStatusBlockPrompts({alwaysOnAvailable: true, defaultValue: 'alwaysOn', customLabel: 'machine'}),
+      ...generateStatusBlockPrompts({
+        alwaysOnAvailable: true,
+        defaultValue: 'alwaysOn',
+        customLabel: 'machine',
+        postNewStateNamePrompt: data => {
+          if (isStringWithValue(data.newStateName)) {
+            data.newStateFolderPath = `../machine-states/${data.newStateName}-state`
+          }
+        }}),
     ],
     validateAnswers: validateGenerateStatusBlockOptions,
   })
@@ -79,11 +91,11 @@ export const createMachineHandler = async (options: { machineName?: string, mach
   log('generate core state')
   await generateStatusBlockTransformer(generateStatusBlockOptions)
 
-  // if (projectConfiguration.isPresetActive('kme')) {
-  //   this.log('run kme extensions')
-  //   await injectDiagnosticHook({machineName: resolvedMachineName})
-  //   await createLoggerFile({machineName: resolvedMachineName})
-  // }
+  if (projectConfiguration.isPresetActive('kme')) {
+    log('run kme plugins')
+    await injectDiagnosticHook({machineName: resolvedMachineName})
+    await createLoggerFile({machineName: resolvedMachineName})
+  }
 
   log('add new machine to configuration file')
   projectConfiguration.save()

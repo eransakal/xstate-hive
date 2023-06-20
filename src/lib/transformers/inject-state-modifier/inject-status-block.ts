@@ -10,7 +10,7 @@
 //   selectedStateFilePath: string;
 //   selectedStateParentsInFile: string[]
 //   newStateName: string;
-//   newStateDirPath: string;
+//   newStateFolderPath: string;
 //   newStateOptions: StateBlockOptions
 // }
 
@@ -22,7 +22,7 @@
 //     selectedStateFilePath,
 //     selectedStateParentsInFile,
 //     newStateName,
-//     newStateDirPath,
+//     newStateFolderPath,
 //   } = options
 //   const projectConfiguration = Configuration.get()
 //   const machineConfig = projectConfiguration.getMachine(machineName)
@@ -34,7 +34,7 @@
 
 //   const plopCommandPath = 'block/state'
 
-//   const absoluteNewStatePath = path.resolve(path.dirname(absoluteStateFilePath), newStateDirPath)
+//   const absoluteNewStatePath = path.resolve(path.dirname(absoluteStateFilePath), newStateFolderPath)
 //   const newStatePathForUX = path.relative(machineConfig.getRoot(), absoluteNewStatePath)
 //   const stateFilePathForUX = path.relative(machineConfig.getRoot(), absoluteStateFilePath)
 //   const pathToParentStateInFile = relative(machineConfig.getAbsolutePath(), absoluteNewStatePath)
@@ -60,7 +60,7 @@
 //       stateName: newStateName,
 //       pathToParentStateInFile: selectedStateParentsInFile.join('.'),
 //       stateImportName: `${newStateName}State`,
-//       stateImportPath: newStateDirPath,
+//       stateImportPath: newStateFolderPath,
 //     },
 //   })
 //   ux.action.stop()

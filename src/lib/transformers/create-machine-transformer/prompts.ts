@@ -1,8 +1,8 @@
 import inquirer from 'inquirer'
 import {Prompt} from '../../utils/prompts-wizard.js'
-import {CreateMachineOptions} from './index.js'
 import {isStringWithValue} from '../../utils/validators.js'
 import {createMachineNamePrompt} from '../../utils/prompts.js'
+import {CreateMachineOptions} from './types.js'
 
 export const createMachinePrompts = (): Prompt<CreateMachineOptions>[] => {
   return [

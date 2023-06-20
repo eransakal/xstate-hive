@@ -13,14 +13,14 @@ const run = async (
     selectedStateFilePath: string;
     selectedStateParentsInFile: string[]
     newStateName: string;
-    newStateDirPath: string;
+    newStateFolderPath: string;
   }): Promise<void> => {
   const {
     machineName,
     selectedStateFilePath,
     selectedStateParentsInFile,
     newStateName,
-    newStateDirPath,
+    newStateFolderPath,
   } = options
   const projectConfiguration = Configuration.get()
   const machineConfig = projectConfiguration.getMachine(machineName)
@@ -40,7 +40,7 @@ const run = async (
       stateName: newStateName,
       pathToParentStateInFile: selectedStateParentsInFile.join('.'),
       stateImportName: `${newStateName}State`,
-      stateImportPath: newStateDirPath,
+      stateImportPath: newStateFolderPath,
     },
   })
   ux.action.stop()
@@ -86,7 +86,7 @@ export const injectStateTransformer = async (options:  InjectStateToMachineOptio
       selectedStateFilePath: `utils/create-${options.machineName}-machine.ts`,
       selectedStateParentsInFile: [],
       newStateName: options.newStateName,
-      newStateDirPath: `../machine-states/${toDashCase(options.newStateName!)}-state`,
+      newStateFolderPath: `../machine-states/${toDashCase(options.newStateName!)}-state`,
     })
     break
   case 'child':
@@ -102,7 +102,7 @@ export const injectStateTransformer = async (options:  InjectStateToMachineOptio
       selectedStateParentsInFile: stateConfig.innerFileParentStates,
       machineName: options.machineName,
       newStateName: options.newStateName!,
-      newStateDirPath: `./${toDashCase(options.newStateName!)}-state`,
+      newStateFolderPath: `./${toDashCase(options.newStateName!)}-state`,
     })
     break
   }
@@ -120,7 +120,7 @@ export const injectStateTransformer = async (options:  InjectStateToMachineOptio
       selectedStateParentsInFile: stateConfig.innerFileParentStates,
       machineName: options.machineName,
       newStateName: stateConfig.name,
-      newStateDirPath: `./${toDashCase(stateConfig.name)}-state`,
+      newStateFolderPath: `./${toDashCase(stateConfig.name)}-state`,
     })
     break
   }

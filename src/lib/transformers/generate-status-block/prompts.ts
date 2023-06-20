@@ -1,45 +1,49 @@
 import inquirer from 'inquirer'
 import {createMachineNamePrompt, promptListWithHelp} from '../../utils/prompts.js'
 import {Prompt} from '../../utils/prompts-wizard.js'
-import {GenerateStatusBlockOptions} from './index.js'
 import {isStringWithValue} from '../../utils/validators.js'
+import {GenerateStatusBlockOptions} from './types.js'
+import {formatStateName} from '../../utils/formatters.js'
 
 export const generateStatusBlockPrompts = ({
   customLabel,
   defaultValue,
   alwaysOnAvailable,
+  postNewStateNamePrompt,
 }: {
   customLabel?: string,
   defaultValue?: string,
   alwaysOnAvailable?: boolean,
+  postNewStateNamePrompt?: (data: Partial<GenerateStatusBlockOptions>) => void,
 }): Prompt<GenerateStatusBlockOptions>[] => {
   return [
     createMachineNamePrompt<GenerateStatusBlockOptions>(),
     {
-      propName: 'statePurpose',
-      validate: data => isStringWithValue(data.statePurpose) || 'State purpose is not valid',
-      run: async () =>  promptListWithHelp({
-        defaultValue: defaultValue || 'alwaysOn',
-        message: `Choose the statement that best fits the purpose of the ${customLabel || 'state'}:`,
-        choices: [
-          ...(alwaysOnAvailable ? [{
-            name: 'Maintain a fixed state of always on status',
-            value: 'alwaysOn',
-          }] : []),
-          {
-            name: 'Dynamically toggle between on and off statuses based on conditions',
-            value: 'temporaryOnOff',
-          },
-          {
-            name: 'Maintain a fixed state of either on or off statuses based on conditions',
-            value: 'permanentOnOff',
-          },
-        ], helpLink: 'https://sakalim.com/projects/react-architecture/application-state-with-xstate-4-guides-statuses-blocks#state-types',
-      }),
+      propName: 'newStateName',
+      validate: data =>  typeof data.newStateName === 'string' || 'New state name must be a string',
+      run: async () =>  formatStateName((await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'value',
+          message: 'Enter the name of the new state:',
+        },
+      ])).value),
+      postPrompt: postNewStateNamePrompt,
+    },
+    {
+      propName: 'newStateFolderPath',
+      validate: data =>  typeof data.newStateFolderPath === 'string' || 'New state folder must be a string',
+      run: async () =>  formatStateName((await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'value',
+          message: 'Enter the new state folder path in the machine:',
+        },
+      ])).value),
     },
     {
       propName: 'statePurpose',
-      validate: data => isStringWithValue(data.statePurpose) || 'State purpose must be provided',
+      validate: data => isStringWithValue(data.statePurpose) || 'State purpose is not valid',
       run: async () =>  promptListWithHelp({
         defaultValue: defaultValue || 'alwaysOn',
         message: `Choose the statement that best fits the purpose of the ${customLabel || 'state'}:`,

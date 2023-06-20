@@ -1,11 +1,12 @@
 export function toCamelCase(input: string): string {
   let words: string[]
-  if (input.includes('-')) {
-    words = input.split('-')
-  } else if (/[a-z][A-Z]/.test(input)) {
-    words = input.split(/(?=[A-Z])/)
+  const resolvedInput = (input || '').trim().replace('-', ' ').replace('/[ ]{2,}/g', ' ').replace(/-^/, '')
+  if (resolvedInput.includes(' ')) {
+    words = resolvedInput.split(' ')
+  }  else if (/[a-z][A-Z]/.test(input)) {
+    words = resolvedInput.split(/(?=[A-Z])/)
   } else {
-    words = [input]
+    words = [resolvedInput]
   }
 
   const camelCaseWords = words.map((word, index) => {
@@ -21,12 +22,13 @@ export function toCamelCase(input: string): string {
 
 export function toPascalCase(input: string): string {
   let words: string[]
-  if (input.includes('-')) {
-    words = input.split('-')
+  const resolvedInput = (input || '').trim().replace('-', ' ').replace('/[ ]{2,}/g', ' ').replace(/-^/, '')
+  if (input.includes(' ')) {
+    words = resolvedInput.split(' ')
   } else if (/[a-z][A-Z]/.test(input)) {
-    words = input.split(/(?=[A-Z])/)
+    words = resolvedInput.split(/(?=[A-Z])/)
   } else {
-    words = [input]
+    words = [resolvedInput]
   }
 
   const pascalCaseWords = words.map(word => {
@@ -38,12 +40,13 @@ export function toPascalCase(input: string): string {
 
 export function toDashCase(input: string): string {
   let words: string[]
-  if (input.includes('-')) {
-    words = input.split('-')
+  const resolvedInput = (input || '').trim().replace('-', ' ').replace('/[ ]{2,}/g', ' ').replace(/-^/, '')
+  if (resolvedInput.includes(' ')) {
+    words = resolvedInput.split(' ')
   } else if (/[a-z][A-Z]/.test(input)) {
-    words = input.split(/(?=[A-Z])/)
+    words = resolvedInput.split(/(?=[A-Z])/)
   } else {
-    words = [input]
+    words = [resolvedInput]
   }
 
   const dashCaseWords = words.map(word => word.toLowerCase())
