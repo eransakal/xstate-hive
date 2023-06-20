@@ -2,7 +2,7 @@ import inquirer from 'inquirer'
 import {Prompt} from '../../utils/prompts-wizard.js'
 import {formatStateName} from '../../utils/formatters.js'
 import {getMachineStates} from '../../utils/get-machine-states.js'
-import {InjectStateToMachineOptions} from './index.js'
+import {InjectStateToMachineOptions} from './types.js'
 import {MachineConfig} from '../../configuration.js'
 
 export const createInjectStateToMachinePrompts = async ({machineConfig}: {

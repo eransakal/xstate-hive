@@ -47,7 +47,7 @@ function getValue(obj: any, path: string): any {
   return value
 }
 
-const isValueProvided = (value: any): boolean => typeof value  !== 'undefined' && value !== null
+const isValueProvided = (value: any): boolean => typeof value  !== 'undefined' && value !== null && value !== ''
 
 export interface PromptsWizardOptions<T extends Record<string, any>> {
     prompts: Prompt<T>[];

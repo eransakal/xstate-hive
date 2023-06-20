@@ -37,9 +37,12 @@ export const createMachineHandler = async (options: { machineName?: string, mach
       ], helpLink: 'https://sakalim.com/projects/react-architecture/application-state-with-xstate-4-guides-machines#machine-types',
     })
 
+  const newStateName = machinePurpose === 'single' ? 'core' : ''
   const generateStatusBlockOptions =  await PromptsWizard.run<GenerateStatusBlockOptions>({
     machineName: createMachineOptions.machineName,
-    newStateName: machinePurpose === 'single' ? 'core' : '',
+    newStateName,
+    parentStateFilePath: `utils/create-${options.machineName}-machine.ts`,
+    newStateDirPath: `../machine-states/${newStateName}-state`,
   }, {
     prompts: [
       ...generateStatusBlockPrompts({alwaysOnAvailable: true, defaultValue: 'alwaysOn', customLabel: 'machine'}),
@@ -70,9 +73,10 @@ export const createMachineHandler = async (options: { machineName?: string, mach
   await injectStateTransformer({
     machineName: resolvedMachineName,
     actionType: 'root',
-    newStateName: 'core',
+    newStateName: generateStatusBlockOptions.newStateName,
   })
 
+  log('generate core state')
   await generateStatusBlockTransformer(generateStatusBlockOptions)
 
   // if (projectConfiguration.isPresetActive('kme')) {

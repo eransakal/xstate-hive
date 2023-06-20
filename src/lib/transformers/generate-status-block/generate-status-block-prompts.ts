@@ -97,8 +97,8 @@ export const generateStatusBlockPrompts = ({
       },
     },
     {
-      propName: 'innerStateOptions.withLoading',
-      validate: data => typeof data.innerStateOptions?.withLoading === 'boolean' || 'With loading is not defined',
+      propName: 'innerStateOptions.includeLoadingState',
+      validate: data => typeof data.innerStateOptions?.includeLoadingState === 'boolean' || 'With loading is not defined',
       run: async data => promptListWithHelp<boolean>({
         defaultValue: true,
         message: `Select data gathering strategy before deciding if the feature is ${data.innerStateOptions?.stateOnName} or not:`,
