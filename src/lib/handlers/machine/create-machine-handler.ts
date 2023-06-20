@@ -6,10 +6,13 @@ import {formatMachineName, toDashCase} from '../../utils/formatters.js'
 import {CreateMachineOptions, createMachineTransformer, validateCreateMachineOptions} from '../../transformers/create-machine-transformer/index.js'
 import {getActiveCommand} from '../../active-command.js'
 import {injectStateTransformer} from '../../transformers/inject-state-to-machine-transformer/index.js'
+import {GenerateStatusBlockOptions, generateStatusBlockTransformer} from '../../transformers/generate-status-block/index.js'
+import {generateStatusBlockPrompts} from '../../transformers/generate-status-block/generate-status-block-prompts.js'
+import {promptListWithHelp} from '../../utils/prompts.js'
 
 export const createMachineHandler = async (options: { machineName?: string, machinePath?: string}): Promise<void> => {
   const {log} = getActiveCommand()
-  const userPrompts =  await PromptsWizard.run<CreateMachineOptions>({
+  const createMachineOptions =  await PromptsWizard.run<CreateMachineOptions>({
     machineName: formatMachineName(options.machineName),
     machinePath: options.machinePath,
   }, {
@@ -19,22 +22,41 @@ export const createMachineHandler = async (options: { machineName?: string, mach
     validateAnswers: validateCreateMachineOptions,
   })
 
+  const machinePurpose = await promptListWithHelp(
+    {
+      defaultValue: 'single',
+      message: 'Choose the appropriate statement for this machine:', choices: [
+        {
+          name: 'The primary focus of this machine revolves around a single feature (recommended)',
+          value: 'single',
+        },
+        {
+          name: 'This machine serve as a container for independent sub-features',
+          value: 'container',
+        },
+      ], helpLink: 'https://sakalim.com/projects/react-architecture/application-state-with-xstate-4-guides-machines#machine-types',
+    })
+
+  const generateStatusBlockOptions =  await PromptsWizard.run<GenerateStatusBlockOptions>({
+    machineName: createMachineOptions.machineName,
+    newStateName: machinePurpose === 'single' ? 'core' : '',
+  }, {
+    prompts: [
+      ...generateStatusBlockPrompts({alwaysOnAvailable: true, defaultValue: 'alwaysOn', customLabel: 'machine'}),
+    ],
+    validateAnswers: validateCreateMachineOptions,
+  })
+
   const projectConfiguration = Configuration.get()
-  const resolvedMachineName = toDashCase(userPrompts.machineName)
+  const resolvedMachineName = toDashCase(createMachineOptions.machineName)
 
   if (projectConfiguration.hasMachine(resolvedMachineName)) {
     throw new Error('machine already exists')
   }
 
-  const machineRelativePath = join(userPrompts.machinePath, `${resolvedMachineName}-machine`)
-  const machinePath = join(projectConfiguration.root, machineRelativePath)
+  await createMachineTransformer(createMachineOptions)
 
-  log(`create machine '${resolvedMachineName}' in ${machinePath}`)
-  await createMachineTransformer({
-    machinePath: userPrompts.machinePath,
-    machineName: userPrompts.machineName,
-  })
-
+  const machineRelativePath = join(createMachineOptions.machinePath, `${resolvedMachineName}-machine`)
   projectConfiguration.addMachineConfig(
     resolvedMachineName,
     {
@@ -50,6 +72,8 @@ export const createMachineHandler = async (options: { machineName?: string, mach
     actionType: 'root',
     newStateName: 'core',
   })
+
+  await generateStatusBlockTransformer(generateStatusBlockOptions)
 
   // if (projectConfiguration.isPresetActive('kme')) {
   //   this.log('run kme extensions')

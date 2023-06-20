@@ -4,6 +4,7 @@ import {ux} from '@oclif/core'
 import {Configuration} from '../../configuration'
 
 export interface GenerateStatusBlockOptions {
+  machineName: string,
   statePurpose: 'alwaysOn' | 'temporaryOnOff' | 'permanentOnOff',
   innerStateOptions: {
     withLoading: boolean,
@@ -18,7 +19,7 @@ export interface GenerateStatusBlockOptions {
 }
 
 export const generateStatusBlockTransformer = async (
-  options : GenerateStatusBlockOptions & { machineName: string}): Promise<void> => {
+  options : GenerateStatusBlockOptions): Promise<void> => {
   const projectConfiguration = Configuration.get()
   const machineConfig = projectConfiguration.getMachine(options.machineName)
 

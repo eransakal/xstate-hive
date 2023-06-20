@@ -1,6 +1,9 @@
 import inquirer from 'inquirer'
 import {getActiveCommand} from '../active-command.js'
 import open from 'open'
+import {Prompt} from './prompts-wizard.js'
+import {formatMachineName} from './formatters.js'
+import {isStringWithValue} from './validators.js'
 
 export const promptListWithHelp = async <T>({defaultValue, message, choices, helpLink}: { defaultValue:T, message: string; choices: inquirer.prompts.PromptOptions['choices']['choices']; helpLink: string }): Promise<T> => {
   let result: T = null!
@@ -33,6 +36,23 @@ export const promptListWithHelp = async <T>({defaultValue, message, choices, hel
     } else {
       stopped = true
     }
+  }
+
+  return result
+}
+
+export const createMachineNamePrompt = <T extends { machineName: string}>(): Prompt<T> => {
+  const result: Prompt<{ machineName: string }> = {
+    propName: 'machineName',
+    validate: data => isStringWithValue(data.machineName) || 'Machine name must be a string',
+    run: async () => formatMachineName(
+      (await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'value',
+          message: 'Enter a machine name',
+        },
+      ])).value),
   }
 
   return result

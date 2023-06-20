@@ -2,14 +2,14 @@ import {CLIError} from '@oclif/core/lib/errors/index.js'
 import {getActiveCommand} from '../active-command.js'
 import {isStringWithValue} from './validators.js'
 
-type NestedKeyOf<ObjectType extends Record<string, any>> =
-{[Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends Record<string, any>
-? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
-: `${Key}`
-}[keyof ObjectType & (string | number)];
+type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
+
+type DotNestedKeys<T> = (T extends Record<string, any> ?
+    { [K in Exclude<keyof T, symbol>]: `${K}${DotPrefix<DotNestedKeys<T[K]>>}` }[Exclude<keyof T, symbol>]
+    : '') extends infer D ? Extract<D, string> : never;
 
 export interface Prompt<T extends Record<string, any>> {
-  propName: NestedKeyOf<T> | NestedKeyOf<T>[];
+  propName: DotNestedKeys<T> | DotNestedKeys<T>[];
   run: (data: Partial<T>) => Promise<any>;
   validate: (data: Partial<T>) => string | undefined | null | boolean;
   runIf?: (data: Partial<T>) => boolean;
