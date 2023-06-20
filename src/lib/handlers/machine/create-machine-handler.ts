@@ -6,7 +6,7 @@ import {formatMachineName, toDashCase} from '../../utils/formatters.js'
 import {CreateMachineOptions, createMachineTransformer, validateCreateMachineOptions} from '../../transformers/create-machine-transformer/index.js'
 import {getActiveCommand} from '../../active-command.js'
 import {injectStateTransformer} from '../../transformers/inject-state-to-machine-transformer/index.js'
-import {GenerateStatusBlockOptions, generateStatusBlockTransformer} from '../../transformers/generate-status-block/index.js'
+import {GenerateStatusBlockOptions, generateStatusBlockTransformer, validateGenerateStatusBlockOptions} from '../../transformers/generate-status-block/index.js'
 import {generateStatusBlockPrompts} from '../../transformers/generate-status-block/generate-status-block-prompts.js'
 import {promptListWithHelp} from '../../utils/prompts.js'
 
@@ -44,7 +44,7 @@ export const createMachineHandler = async (options: { machineName?: string, mach
     prompts: [
       ...generateStatusBlockPrompts({alwaysOnAvailable: true, defaultValue: 'alwaysOn', customLabel: 'machine'}),
     ],
-    validateAnswers: validateCreateMachineOptions,
+    validateAnswers: validateGenerateStatusBlockOptions,
   })
 
   const projectConfiguration = Configuration.get()

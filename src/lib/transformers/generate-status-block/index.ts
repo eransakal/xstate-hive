@@ -1,7 +1,8 @@
 import * as path from 'path'
-import {executePlopJSCommand} from '../../utils/execute-plopljs-command'
+import {executePlopJSCommand} from '../../utils/execute-plopljs-command.js'
 import {ux} from '@oclif/core'
-import {Configuration} from '../../configuration'
+import {Configuration} from '../../configuration.js'
+import {getActiveCommand} from '../../active-command.js'
 
 export interface GenerateStatusBlockOptions {
   machineName: string,
@@ -16,6 +17,47 @@ export interface GenerateStatusBlockOptions {
   // selectedStateParentsInFile: string[]
   newStateName: string;
   newStateDirPath: string;
+}
+
+export function validateGenerateStatusBlockOptions(options: GenerateStatusBlockOptions): boolean {
+  const {debug} = getActiveCommand()
+  const validMachineName = typeof options.machineName === 'string'
+  const validStatePurpose = ['alwaysOn', 'temporaryOnOff', 'permanentOnOff'].includes(options.statePurpose)
+  const validInnerStateOptions = typeof options.innerStateOptions === 'object' &&
+    typeof options.innerStateOptions.withLoading === 'boolean' &&
+    typeof options.innerStateOptions.stateOffFinal === 'boolean' &&
+    typeof options.innerStateOptions.stateOnName === 'string' &&
+    typeof options.innerStateOptions.stateOffName === 'string'
+  const validSelectedStateFilePath = typeof options.selectedStateFilePath === 'string'
+  const validNewStateName = typeof options.newStateName === 'string'
+  const validNewStateDirPath = typeof options.newStateDirPath === 'string'
+
+  if (!validMachineName) {
+    debug('Invalid machineName:', options.machineName)
+  }
+
+  if (!validStatePurpose) {
+    debug('Invalid statePurpose:', options.statePurpose)
+  }
+
+  if (!validInnerStateOptions) {
+    debug('Invalid innerStateOptions:', options.innerStateOptions)
+  }
+
+  if (!validSelectedStateFilePath) {
+    debug('Invalid selectedStateFilePath:', options.selectedStateFilePath)
+  }
+
+  if (!validNewStateName) {
+    debug('Invalid newStateName:', options.newStateName)
+  }
+
+  if (!validNewStateDirPath) {
+    debug('Invalid newStateDirPath:', options.newStateDirPath)
+  }
+
+  return validMachineName && validStatePurpose && validInnerStateOptions &&
+    validSelectedStateFilePath && validNewStateName && validNewStateDirPath
 }
 
 export const generateStatusBlockTransformer = async (

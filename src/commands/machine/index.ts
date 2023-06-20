@@ -3,65 +3,6 @@ import {setActiveCommand} from '../../lib/active-command.js'
 import {createMachineHandler} from '../../lib/handlers/machine/create-machine-handler.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
 
-// {
-//   propName: 'machineType',
-//   validate: data =>  typeof data.machineType === 'string' || 'Machine type name must be a string',
-//   run: async () => promptListWithHelp(
-//     {
-//       defaultValue: 'single',
-//       message: 'Choose the appropriate statement for this machine:', choices: [
-//         {
-//           name: 'The primary focus of this machine revolves around a single feature (recommended)',
-//           value: 'single',
-//         },
-//         {
-//           name: 'This machine serve as a container for independent sub-features',
-//           value: 'container',
-//         },
-//       ], helpLink: 'https://sakalim.com/projects/react-architecture/application-state-with-xstate-4-guides-machines#machine-types',
-//     }),
-// },
-// async function getUserInputs(prefilled:  Partial<{
-//   createMachinePrompts: string,
-//   machinePath: string,
-//   isContainer: boolean,
-// }>): Promise<CreateMachinePrompts> {
-//   // const projectConfiguration = Configuration.get()
-
-//   // const machineStates = await getMachineStates(machineName)
-
-//   const userAnswers =
-//   )
-//   if (projectConfiguration.hasMachine(machineName)) {
-//     throw new CLIError(`machine '${machineName}' already exists`)
-//   }
-
-//   const stateName = {
-//     propName: 'stateName',
-//     validate: data =>  typeof data.machineType === 'string' || 'Machine type name must be a string',
-//     run: async data => data.machineType === 'single' ? 'core' : (await inquirer.prompt([
-//       {
-//         type: 'input',
-//         name: 'value',
-//         message: 'Enter the name of first feature you plan to develop:',
-//       },
-//     ])).value,
-//   },
-//   const stateOptions = await promptStateBlockOptions({
-//     customLabel: machineType === 'container' ? '' : 'machine',
-//     alwaysOnAvailable: true,
-//   })
-
-//   return {
-//     machineName,
-//     machineType,
-//     stateName,
-//     machinePath,
-//     stateOptions,
-
-//   }
-// }
-
 export default class Machine extends Command {
   static description = 'Create a new machine to manage a new feature'
 

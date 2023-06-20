@@ -32,7 +32,7 @@ function setNestedProperty(obj: any, path: string, value: any): any {
   return obj
 }
 
-function getNestedProperty(obj: any, path: string): any {
+function getValue(obj: any, path: string): any {
   const keys = path.split('.')
   let value = obj
   for (const key of keys) {
@@ -47,6 +47,8 @@ function getNestedProperty(obj: any, path: string): any {
   return value
 }
 
+const isValueProvided = (value: any): boolean => typeof value  !== 'undefined' && value !== null
+
 export interface PromptsWizardOptions<T extends Record<string, any>> {
     prompts: Prompt<T>[];
     validateAnswers: (data: any) => string | boolean;
@@ -60,20 +62,29 @@ export class PromptsWizard {
     do {
       debug(`Running prompt ${activeIndex} of ${options.prompts.length - 1}`)
       const activePrompt = options.prompts[activeIndex]
-      const propName = activePrompt.propName
-      const propValue = getNestedProperty(data, propName as string)
+      const propNameOrNames: string | string[] = activePrompt.propName
 
-      if (propValue === null && (!activePrompt.runIf || activePrompt.runIf(data))) {
+      const hasValues = Array.isArray(propNameOrNames) ? propNameOrNames.every(p => isValueProvided(getValue(data, p as string))) : isValueProvided(getValue(data, propNameOrNames as string))
+
+      if (!hasValues && (!activePrompt.runIf || activePrompt.runIf(data))) {
         // eslint-disable-next-line no-await-in-loop
         const propValue = await activePrompt.run(data as T)
         if (propValue || typeof propValue === 'boolean') {
-          setNestedProperty(data, propName as string, propValue)
+          if (Array.isArray(propNameOrNames)) {
+            // eslint-disable-next-line max-depth
+            for (const [i, propName] of propNameOrNames.entries()) {
+              setNestedProperty(data, propName, propValue[i])
+            }
+          } else {
+            setNestedProperty(data, propNameOrNames, propValue)
+          }
+
           // eslint-disable-next-line no-await-in-loop
           const promptValidation = await activePrompt.validate(data as T)
 
           debug({
-            propName,
-            propValue,
+            data,
+            propName: propNameOrNames,
             promptValidateStatus: promptValidation,
           })
 

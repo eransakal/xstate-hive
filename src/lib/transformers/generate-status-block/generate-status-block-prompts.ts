@@ -66,7 +66,7 @@ export const generateStatusBlockPrompts = ({
     },
     {
       propName: ['innerStateOptions.stateOnName', 'innerStateOptions.stateOffName'],
-      validate: data => isStringWithValue(data.innerStateOptions?.stateOnName) || 'State on final is not defined',
+      validate: data => isStringWithValue(data.innerStateOptions?.stateOnName) || 'State on is not defined',
       run: async data => {
         return data.statePurpose === 'temporaryOnOff' ? (await inquirer.prompt([
           {
