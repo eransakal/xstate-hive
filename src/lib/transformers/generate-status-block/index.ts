@@ -2,18 +2,23 @@ import * as path from 'path'
 import {executePlopJSCommand} from '../../utils/execute-plopljs-command'
 import {ux} from '@oclif/core'
 import {Configuration} from '../../configuration'
-import {StateBlockOptions} from './generate-status-block-prompts'
 
-export interface InjectStateOptions {
+export interface GenerateStatusBlockOptions {
+  statePurpose: 'alwaysOn' | 'temporaryOnOff' | 'permanentOnOff',
+  innerStateOptions: {
+    withLoading: boolean,
+    stateOffFinal: boolean,
+    stateOnName: string,
+    stateOffName: string,
+  },
   selectedStateFilePath: string;
   // selectedStateParentsInFile: string[]
   newStateName: string;
   newStateDirPath: string;
-  newStateOptions: StateBlockOptions
 }
 
 export const generateStatusBlockTransformer = async (
-  options : InjectStateOptions & { machineName: string}): Promise<void> => {
+  options : GenerateStatusBlockOptions & { machineName: string}): Promise<void> => {
   const projectConfiguration = Configuration.get()
   const machineConfig = projectConfiguration.getMachine(options.machineName)
 
@@ -31,7 +36,7 @@ export const generateStatusBlockTransformer = async (
     commandPath: 'block/state',
     destPath: absoluteNewStatePath,
     options: {
-      ...options.newStateOptions,
+      ...options.innerStateOptions,
       stateName: options.newStateName,
       machineName: options.machineName,
       relativePathToMachine: pathToParentStateInFile.split('/').map(() => '../').join(''),

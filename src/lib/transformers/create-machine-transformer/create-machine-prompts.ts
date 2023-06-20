@@ -4,13 +4,13 @@ import {formatMachineName} from '../../utils/formatters.js'
 import {CreateMachineOptions} from './index.js'
 import {isStringWithValue} from '../../utils/validators.js'
 
-export const createMachinePrompts = (prefilled: Partial<CreateMachineOptions>): Prompt<CreateMachineOptions>[] => {
+export const createMachinePrompts = (): Prompt<CreateMachineOptions>[] => {
   return [
     {
       propName: 'machineName',
       validate: data => isStringWithValue(data.machineName) || 'Machine name must be a string',
       run: async () => formatMachineName(
-        prefilled.machineName || (await inquirer.prompt([
+        (await inquirer.prompt([
           {
             type: 'input',
             name: 'value',
@@ -22,7 +22,7 @@ export const createMachinePrompts = (prefilled: Partial<CreateMachineOptions>): 
       propName: 'machinePath',
       validate: data => isStringWithValue(data.machinePath) || 'Machine path must be a string',
       run: async data => {
-        return  prefilled.machinePath || (await inquirer.prompt([
+        return (await inquirer.prompt([
           {
             type: 'input',
             name: 'value',

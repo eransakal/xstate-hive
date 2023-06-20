@@ -2,7 +2,7 @@ import {join} from 'path'
 import {Configuration} from '../../configuration.js'
 import {PromptsWizard} from '../../utils/prompts-wizard.js'
 import {createMachinePrompts} from '../../transformers/create-machine-transformer/create-machine-prompts.js'
-import {toDashCase} from '../../utils/formatters.js'
+import {formatMachineName, toDashCase} from '../../utils/formatters.js'
 import {CreateMachineOptions, createMachineTransformer, validateCreateMachineOptions} from '../../transformers/create-machine-transformer/index.js'
 import {getActiveCommand} from '../../active-command.js'
 import {injectStateTransformer} from '../../transformers/inject-state-to-machine-transformer/index.js'
@@ -10,8 +10,11 @@ import {injectStateTransformer} from '../../transformers/inject-state-to-machine
 export const createMachineHandler = async (options: { machineName?: string, machinePath?: string}): Promise<void> => {
   const {log} = getActiveCommand()
   const userPrompts =  await PromptsWizard.run<CreateMachineOptions>({
+    machineName: formatMachineName(options.machineName),
+    machinePath: options.machinePath,
+  }, {
     prompts: [
-      ...createMachinePrompts(options),
+      ...createMachinePrompts(),
     ],
     validateAnswers: validateCreateMachineOptions,
   })
@@ -47,8 +50,6 @@ export const createMachineHandler = async (options: { machineName?: string, mach
     actionType: 'root',
     newStateName: 'core',
   })
-
-  await generateStatusBlockTra
 
   // if (projectConfiguration.isPresetActive('kme')) {
   //   this.log('run kme extensions')

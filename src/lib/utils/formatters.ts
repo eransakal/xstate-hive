@@ -60,7 +60,7 @@ export function formatStateName(stateName: string): string {
   return  toCamelCase(resolvedStateName).endsWith('State') ? toCamelCase(resolvedStateName).slice(0, -5)  : toCamelCase(resolvedStateName)
 }
 
-export const formatMachineName = (name: string) => {
+export const formatMachineName = (name?: string) => {
   const result = (name || '').trim()
   if (!result) {
     return ''

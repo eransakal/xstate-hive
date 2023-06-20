@@ -1,2 +1,2 @@
 
-export const isStringWithValue = (value: any): value is string => typeof value === 'string' && Boolean(value)
+export const isStringWithValue = (value?: any): value is string => value && typeof value === 'string' && Boolean(value)
