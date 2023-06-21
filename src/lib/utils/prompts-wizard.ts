@@ -2,17 +2,24 @@ import {CLIError} from '@oclif/core/lib/errors/index.js'
 import {getActiveCommand} from '../active-command.js'
 import {isStringWithValue} from './validators.js'
 
-type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
+type Join<K, P> = K extends string | number ?
+    P extends string | number ?
+    `${K}${'' extends P ? '' : '.'}${P}`
+    : never : never;
 
-type DotNestedKeys<T> = (T extends Record<string, any> ?
-    { [K in Exclude<keyof T, symbol>]: `${K}${DotPrefix<DotNestedKeys<T[K]>>}` }[Exclude<keyof T, symbol>]
-    : '') extends infer D ? Extract<D, string> : never;
+    type Paths<T, D extends number = 10> = [D] extends [never] ? never : T extends Record<string, any> ?
+    { [K in keyof T]-?: K extends string | number ?
+        `${K}` | Join<K, Paths<T[K], Prev[D]>>
+        : never
+    }[keyof T] : ''
+
+type Prev = [never, 0, 1, 2, 3, ...0[]]
 
 export interface Prompt<T extends Record<string, any>> {
-  propName: DotNestedKeys<T> | DotNestedKeys<T>[];
+  propName: Paths<T> | (Paths<T>[]);
   run: (data: Partial<T>) => Promise<any>;
   validate: (data: Partial<T>) => string | undefined | null | boolean;
-  postPrompt?: (data: Partial<T>) => void;
+  postPrompt?: (data: Partial<T>) => Promise<void>;
   runIf?: (data: Partial<T>) => boolean;
 }
 
@@ -106,7 +113,8 @@ export class PromptsWizard {
 
       if (activePrompt.postPrompt) {
         debug('run post prompt')
-        activePrompt.postPrompt(data)
+        // eslint-disable-next-line no-await-in-loop
+        await activePrompt.postPrompt(data)
       }
     } while (activeIndex < options.prompts.length)
 

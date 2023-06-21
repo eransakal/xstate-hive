@@ -14,7 +14,7 @@ export const generateStatusBlockPrompts = ({
   customLabel?: string,
   defaultValue?: string,
   alwaysOnAvailable?: boolean,
-  postNewStateNamePrompt?: (data: Partial<GenerateStatusBlockOptions>) => void,
+  postNewStateNamePrompt?: (data: Partial<GenerateStatusBlockOptions>) => Promise<void>,
 }): Prompt<GenerateStatusBlockOptions>[] => {
   return [
     createMachineNamePrompt<GenerateStatusBlockOptions>(),

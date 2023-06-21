@@ -177,13 +177,23 @@ const extractStatesOfMachine = (filePath: string): MachineState[] => {
   return flattenStates(states)
 }
 
-export const getMachineStates = async (machineName: string, statePath?: string): Promise<MachineState[]> => {
-  let resolvedStateFilePath = statePath
-  if (!resolvedStateFilePath) {
-    resolvedStateFilePath =  `utils/create-${toDashCase(machineName)}-machine.ts`
+export const getRootMachineState = (machineName: string): MachineState => {
+  return {
+    id: '',
+    name: '',
+    filePath: `utils/create-${toDashCase(machineName)}-machine.ts`,
+    innerFileParentStates: [],
+    hasContent: true,
   }
+}
 
-  resolvedStateFilePath = join(Configuration.get().getMachine(machineName).getAbsolutePath(), resolvedStateFilePath)
+export const getMachineStates = async (machineName: string): Promise<MachineState[]> => {
+  const rootMachineState = getRootMachineState(machineName)
 
-  return extractStatesOfMachine(resolvedStateFilePath)
+  const machineRootFilePath = join(Configuration.get().getMachine(machineName).getAbsolutePath(), rootMachineState.filePath)
+
+  return [
+    rootMachineState,
+    ...extractStatesOfMachine(machineRootFilePath),
+  ]
 }

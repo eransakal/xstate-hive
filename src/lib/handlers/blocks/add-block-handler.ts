@@ -4,10 +4,10 @@ import inquirer from 'inquirer'
 import {formatMachineName} from '../../utils/formatters.js'
 import {promptListWithHelp} from '../../utils/prompts.js'
 
-export  const addBlockHandler = async (prefilled :  { machineName: string | undefined }): Promise<void> => {
+export  const addBlockHandler = async (options :  { machineName: string | undefined }): Promise<void> => {
   const projectConfiguration = Configuration.get()
   const machineName = formatMachineName(
-    prefilled.machineName || (await inquirer.prompt([
+    options.machineName || (await inquirer.prompt([
       {
         type: 'input',
         name: 'value',

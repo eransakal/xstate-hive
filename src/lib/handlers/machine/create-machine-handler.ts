@@ -14,6 +14,7 @@ import {createLoggerFile} from '../../plugins/kme/create-logger-file.js'
 import {CreateMachineOptions, validateCreateMachineOptions} from '../../transformers/create-machine-transformer/types.js'
 import {GenerateStatusBlockOptions, validateGenerateStatusBlockOptions} from '../../transformers/generate-status-block/types.js'
 import {isStringWithValue} from '../../utils/validators.js'
+import {getRootMachineState} from '../../utils/get-machine-states.js'
 
 export const createMachineHandler = async (options: { machineName?: string, machinePath?: string}): Promise<void> => {
   const {log} = getActiveCommand()
@@ -53,11 +54,7 @@ export const createMachineHandler = async (options: { machineName?: string, mach
         alwaysOnAvailable: true,
         defaultValue: 'alwaysOn',
         customLabel: 'machine',
-        postNewStateNamePrompt: data => {
-          if (isStringWithValue(data.newStateName)) {
-            data.newStateFolderPath = `../machine-states/${data.newStateName}-state`
-          }
-        }}),
+      }),
     ],
     validateAnswers: validateGenerateStatusBlockOptions,
   })
@@ -84,7 +81,7 @@ export const createMachineHandler = async (options: { machineName?: string, mach
 
   await injectStateTransformer({
     machineName: resolvedMachineName,
-    actionType: 'root',
+    parentState: getRootMachineState(resolvedMachineName),
     newStateName: generateStatusBlockOptions.newStateName,
   })
 
