@@ -9,9 +9,8 @@ export interface GenerateStatusBlockOptions {
       stateOnName: string,
       stateOffName: string,
     },
-    parentStateFilePath: string;
-    newStateName: string;
-    newStateFolderPath: string
+    stateName: string,
+    destPath: string
   }
 
 // eslint-disable-next-line complexity
@@ -25,9 +24,8 @@ export function validateGenerateStatusBlockOptions(options: GenerateStatusBlockO
       typeof innerStateOptions.stateOffFinal === 'boolean' &&
       typeof innerStateOptions.stateOnName === 'string' && innerStateOptions.stateOnName.trim().length > 0 &&
       typeof innerStateOptions.stateOffName === 'string'
-  const validParentStateFilePath = typeof options.parentStateFilePath === 'string' && options.parentStateFilePath.trim().length > 0
-  const validNewStateName = typeof options.newStateName === 'string' && options.newStateName.trim().length > 0
-  const validNewStateFolderPath = typeof options.newStateFolderPath === 'string' && options.newStateFolderPath.trim().length > 0
+  const validDestPath = typeof options.destPath === 'string' && options.destPath.trim().length > 0
+  const validStateName = typeof options.stateName === 'string' && options.stateName.trim().length > 0
 
   if (!validMachineName) {
     debug('Invalid machineName:', options.machineName)
@@ -41,19 +39,15 @@ export function validateGenerateStatusBlockOptions(options: GenerateStatusBlockO
     debug('Invalid innerStateOptions:', options.innerStateOptions)
   }
 
-  if (!validParentStateFilePath) {
-    debug('Invalid parentStateFilePath:', options.parentStateFilePath)
+  if (!validDestPath) {
+    debug('Invalid destPath:', options.destPath)
   }
 
-  if (!validNewStateName) {
-    debug('Invalid newStateName:', options.newStateName)
-  }
-
-  if (!validNewStateFolderPath) {
-    debug('Invalid newStateFolderPath:', options.newStateFolderPath)
+  if (!validStateName) {
+    debug('Invalid stateName:', options.stateName)
   }
 
   return validMachineName && validStatePurpose && validInnerStateOptions &&
-      validParentStateFilePath && validNewStateName && validNewStateFolderPath
+  validDestPath && validStateName
 }
 

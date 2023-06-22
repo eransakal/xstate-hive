@@ -10,34 +10,34 @@ import {isStringWithValue} from '../../utils/validators.js'
 
 export const addStatusBlockHandler = async ({machineConfig} :  { machineConfig: MachineConfig}): Promise<void> => {
   const {log} = getActiveCommand()
-  const injectStateToMachineOptions = await PromptsWizard.run<InjectStateToMachineOptions>({
-    machineName: machineConfig.machineName,
-  }, {
-    prompts: [
-      ...(await createInjectStateToMachinePrompts({machineConfig})),
-    ],
-    validateAnswers: validateInjectStatusToMachineOptions,
-  })
+  // const injectStateToMachineOptions = await PromptsWizard.run<InjectStateToMachineOptions>({
+  //   machineName: machineConfig.machineName,
+  // }, {
+  //   prompts: [
+  //     ...(await createInjectStateToMachinePrompts({machineConfig})),
+  //   ],
+  //   validateAnswers: validateInjectStatusToMachineOptions,
+  // })
 
-  const newStateName = injectStateToMachineOptions.newStateName || injectStateToMachineOptions.parentStateName.split('.')[[selectedState.split('.').length - 1]]
-  const generateStatusBlockOptions =  await PromptsWizard.run<GenerateStatusBlockOptions>({
-    machineName: machineConfig.machineName,
-    newStateName,
-    parentStateFilePath: `utils/create-${options.machineName}-machine.ts`,
-  }, {
-    prompts: [
-      ...generateStatusBlockPrompts({
-        alwaysOnAvailable: false,
-        postNewStateNamePrompt: async data => {
-          if (isStringWithValue(data.newStateName)) {
-            data.newStateFolderPath = `../machine-states/${data.newStateName}-state`
-          }
-        }}),
-    ],
-    validateAnswers: validateGenerateStatusBlockOptions,
-  })
-  log(`inject '${injectStateToMachineOptions.newStateName || ''}' state into '${injectStateToMachineOptions.parentStateName || 'root'}' state`)
-  await injectStateTransformer(injectStateToMachineOptions)
+  // const newStateName = injectStateToMachineOptions.newStateName || injectStateToMachineOptions.parentState.id.split('.')[injectStateToMachineOptions.parentState.id.split('.').length - 1]
+  // const generateStatusBlockOptions =  await PromptsWizard.run<GenerateStatusBlockOptions>({
+  //   machineName: machineConfig.machineName,
+  //   newStateName,
+  //   parentStateFilePath: `utils/create-${options.machineName}-machine.ts`,
+  // }, {
+  //   prompts: [
+  //     ...generateStatusBlockPrompts({
+  //       alwaysOnAvailable: false,
+  //       postNewStateNamePrompt: async data => {
+  //         if (isStringWithValue(data.newStateName)) {
+  //           data.newStateFolderPath = `../machine-states/${data.newStateName}-state`
+  //         }
+  //       }}),
+  //   ],
+  //   validateAnswers: validateGenerateStatusBlockOptions,
+  // })
+  // log(`inject '${injectStateToMachineOptions.newStateName || ''}' state into '${injectStateToMachineOptions.parentStateName || 'root'}' state`)
+  // await injectStateTransformer(injectStateToMachineOptions)
 
   // const stateFilePathForUX = path.relative(machineConfig.getRoot(), absoluteStateFilePath)
   // ux.action.start(`inject new state '${newStateName}' in '${stateFilePathForUX}'`)

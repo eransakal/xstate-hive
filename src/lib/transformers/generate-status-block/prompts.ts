@@ -19,8 +19,8 @@ export const generateStatusBlockPrompts = ({
   return [
     createMachineNamePrompt<GenerateStatusBlockOptions>(),
     {
-      propName: 'newStateName',
-      validate: data =>  typeof data.newStateName === 'string' || 'New state name must be a string',
+      propName: 'stateName',
+      validate: data =>  typeof data.stateName === 'string' || 'State name must be a string',
       run: async () =>  formatStateName((await inquirer.prompt([
         {
           type: 'input',
@@ -31,8 +31,8 @@ export const generateStatusBlockPrompts = ({
       postPrompt: postNewStateNamePrompt,
     },
     {
-      propName: 'newStateFolderPath',
-      validate: data =>  typeof data.newStateFolderPath === 'string' || 'New state folder must be a string',
+      propName: 'destPath',
+      validate: data =>  typeof data.destPath === 'string' || 'Dest path must be a string',
       run: async () =>  formatStateName((await inquirer.prompt([
         {
           type: 'input',

@@ -12,17 +12,14 @@ export const injectStateTransformer = async (options:  InjectStateToMachineOptio
   const projectConfiguration = Configuration.get()
   const machineConfig = projectConfiguration.getMachine(options.machineName)
 
-  const newStateImportPath = options.parentState ?
-    `${toDashCase(options.newStateName)}-state}` :
+  const newStateImportPath = options.parentState.id ?
+    `${toDashCase(options.newStateName)}-state` :
     `../machine-states/${toDashCase(options.newStateName)}-state`
 
   const absoluteStateFilePath =  path.join(
+    machineConfig.getAbsolutePath(),
     options.parentState.filePath,
-    newStateImportPath,
   )
-
-  // TODO
-  debug('sakal remove - ' + absoluteStateFilePath)
 
   ux.action.start(`inject new state '${options.parentState.id}${options.newStateName ? `.${options.newStateName}` : ''}' in '${path.relative(machineConfig.getAbsolutePath(), absoluteStateFilePath)}'`)
   await executeJSCodeshiftTransformer({

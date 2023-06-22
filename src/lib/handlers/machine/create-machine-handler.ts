@@ -13,11 +13,11 @@ import {injectDiagnosticHook} from '../../plugins/kme/inject-diagnostic-hook.js'
 import {createLoggerFile} from '../../plugins/kme/create-logger-file.js'
 import {CreateMachineOptions, validateCreateMachineOptions} from '../../transformers/create-machine-transformer/types.js'
 import {GenerateStatusBlockOptions, validateGenerateStatusBlockOptions} from '../../transformers/generate-status-block/types.js'
-import {isStringWithValue} from '../../utils/validators.js'
 import {getRootMachineState} from '../../utils/get-machine-states.js'
 
 export const createMachineHandler = async (options: { machineName?: string, machinePath?: string}): Promise<void> => {
   const {log} = getActiveCommand()
+
   const createMachineOptions =  await PromptsWizard.run<CreateMachineOptions>({
     machineName: formatMachineName(options.machineName),
     machinePath: options.machinePath,
@@ -43,11 +43,11 @@ export const createMachineHandler = async (options: { machineName?: string, mach
       ], helpLink: 'https://sakalim.com/projects/react-architecture/application-state-with-xstate-4-guides-machines#machine-types',
     })
 
-  const newStateName = machinePurpose === 'single' ? 'core' : ''
+  const initialStateName = machinePurpose === 'single' ? 'core' : ''
   const generateStatusBlockOptions =  await PromptsWizard.run<GenerateStatusBlockOptions>({
     machineName: createMachineOptions.machineName,
-    newStateName,
-    parentStateFilePath: `utils/create-${options.machineName}-machine.ts`,
+    stateName: initialStateName,
+    destPath: join(createMachineOptions.machinePath, `${createMachineOptions.machineName}-machine/machine-states`),
   }, {
     prompts: [
       ...generateStatusBlockPrompts({
@@ -82,7 +82,7 @@ export const createMachineHandler = async (options: { machineName?: string, mach
   await injectStateTransformer({
     machineName: resolvedMachineName,
     parentState: getRootMachineState(resolvedMachineName),
-    newStateName: generateStatusBlockOptions.newStateName,
+    newStateName: generateStatusBlockOptions.stateName,
   })
 
   log('generate core state')

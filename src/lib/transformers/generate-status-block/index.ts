@@ -9,21 +9,16 @@ export const generateStatusBlockTransformer = async (
   const projectConfiguration = Configuration.get()
   const machineConfig = projectConfiguration.getMachine(options.machineName)
 
-  const resolvedParentStateFilePath = path.isAbsolute(options.parentStateFilePath) ? options.parentStateFilePath : path.join(
-    machineConfig.getAbsolutePath(),
-    options.parentStateFilePath,
-  )
+  const statePath = path.join(options.destPath, `${options.stateName}-state`)
+  const pathToParentStateInFile = path.relative(machineConfig.getAbsolutePath(), statePath)
+  ux.action.start(`generate new state files in '${pathToParentStateInFile}'`)
 
-  const resolvedNewStateFolderPath = path.resolve(path.dirname(resolvedParentStateFilePath), options.newStateFolderPath)
-
-  const pathToParentStateInFile = path.relative(machineConfig.getAbsolutePath(), resolvedNewStateFolderPath)
-  ux.action.start(`generate new state '${options.newStateName}' files in '${path.relative(machineConfig.getRoot(), resolvedNewStateFolderPath)}'`)
   await executePlopJSCommand({
     commandPath: 'block/state',
-    destPath: resolvedNewStateFolderPath,
+    destPath: path.join(options.destPath, `${options.stateName}-state`),
     options: {
       ...options.innerStateOptions,
-      stateName: options.newStateName,
+      stateName: options.stateName,
       machineName: options.machineName,
       relativePathToMachine: pathToParentStateInFile.split('/').map(() => '../').join(''),
       isKME: projectConfiguration.isPresetActive('kme'),
