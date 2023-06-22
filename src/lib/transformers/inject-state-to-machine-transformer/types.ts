@@ -4,12 +4,16 @@ import {isStringWithValue} from '../../utils/validators.js'
 export interface InjectStateToMachineOptions {
     machineName: string,
     parentState: MachineState;
-    newStateName: string;
+    stateName: string;
   }
 
 export function validateInjectStatusToMachineOptions(options: Partial<InjectStateToMachineOptions>): string | boolean {
   if (!options.parentState) {
     return 'Parent state is required'
+  }
+
+  if (!options.stateName) {
+    return 'State name is required'
   }
 
   if (!isStringWithValue(options.machineName)) {

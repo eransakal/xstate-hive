@@ -1,46 +1,23 @@
 import inquirer from 'inquirer'
-import {createMachineNamePrompt, promptListWithHelp} from '../../utils/prompts.js'
+import {createStateToModifyPrompt, promptListWithHelp} from '../../utils/prompts.js'
 import {Prompt} from '../../utils/prompts-wizard.js'
 import {isStringWithValue} from '../../utils/validators.js'
 import {GenerateStatusBlockOptions} from './types.js'
-import {formatStateName} from '../../utils/formatters.js'
+import {MachineConfig} from '../../configuration.js'
 
-export const generateStatusBlockPrompts = ({
+export const generateStatusBlockPrompts = async ({
   customLabel,
   defaultValue,
   alwaysOnAvailable,
-  postNewStateNamePrompt,
+  machineConfig,
 }: {
   customLabel?: string,
   defaultValue?: string,
   alwaysOnAvailable?: boolean,
-  postNewStateNamePrompt?: (data: Partial<GenerateStatusBlockOptions>) => Promise<void>,
-}): Prompt<GenerateStatusBlockOptions>[] => {
+  machineConfig: MachineConfig,
+}): Promise<Prompt<GenerateStatusBlockOptions>[]> => {
   return [
-    createMachineNamePrompt<GenerateStatusBlockOptions>(),
-    {
-      propName: 'stateName',
-      validate: data =>  typeof data.stateName === 'string' || 'State name must be a string',
-      run: async () =>  formatStateName((await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'value',
-          message: 'Enter the name of the new state:',
-        },
-      ])).value),
-      postPrompt: postNewStateNamePrompt,
-    },
-    {
-      propName: 'destPath',
-      validate: data =>  typeof data.destPath === 'string' || 'Dest path must be a string',
-      run: async () =>  formatStateName((await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'value',
-          message: 'Enter the new state folder path in the machine:',
-        },
-      ])).value),
-    },
+    (await createStateToModifyPrompt(machineConfig)),
     {
       propName: 'statePurpose',
       validate: data => isStringWithValue(data.statePurpose) || 'State purpose is not valid',

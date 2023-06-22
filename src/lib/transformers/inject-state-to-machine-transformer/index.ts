@@ -1,34 +1,30 @@
 import {Configuration} from '../../configuration.js'
 import {toDashCase} from '../../utils/formatters.js'
-import {getActiveCommand} from '../../active-command.js'
 import {executeJSCodeshiftTransformer} from '../../utils/execute-jscodeshift-transformer.js'
 import * as path from 'path'
 import {ux} from '@oclif/core'
-import {InjectStateToMachineOptions} from './types.js'
+import {InjectStateToMachineOptions, validateInjectStatusToMachineOptions} from './types.js'
 
 export const injectStateTransformer = async (options:  InjectStateToMachineOptions): Promise<void> => {
-  const {debug} = getActiveCommand()
+  if (!validateInjectStatusToMachineOptions(options)) {
+    throw new Error('Invalid options')
+  }
 
   const projectConfiguration = Configuration.get()
   const machineConfig = projectConfiguration.getMachine(options.machineName)
 
   const newStateImportPath = options.parentState.id ?
-    `${toDashCase(options.newStateName)}-state` :
-    `../machine-states/${toDashCase(options.newStateName)}-state`
+    `./${toDashCase(options.stateName)}-state` :
+    `../machine-states/${toDashCase(options.stateName)}-state`
 
-  const absoluteStateFilePath =  path.join(
-    machineConfig.getAbsolutePath(),
-    options.parentState.filePath,
-  )
-
-  ux.action.start(`inject new state '${options.parentState.id}${options.newStateName ? `.${options.newStateName}` : ''}' in '${path.relative(machineConfig.getAbsolutePath(), absoluteStateFilePath)}'`)
+  ux.action.start(`inject new state '${options.parentState.id}${options.stateName ? `.${options.stateName}` : ''}' in '${path.relative(machineConfig.getAbsolutePath(), options.parentState.filePath)}'`)
   await executeJSCodeshiftTransformer({
     transformerPath: 'states/inject-state-to-machine.ts',
-    destFilePath: absoluteStateFilePath,
+    destFilePath: options.parentState.filePath,
     options: {
-      stateName: options.newStateName,
+      stateName: options.stateName,
       pathToParentStateInFile: options.parentState.innerFileParentStates.join('.'),
-      stateImportName: `${options.newStateName}State`,
+      stateImportName: `${options.stateName}State`,
       stateImportPath: newStateImportPath,
     },
   })

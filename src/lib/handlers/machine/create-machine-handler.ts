@@ -13,7 +13,7 @@ import {injectDiagnosticHook} from '../../plugins/kme/inject-diagnostic-hook.js'
 import {createLoggerFile} from '../../plugins/kme/create-logger-file.js'
 import {CreateMachineOptions, validateCreateMachineOptions} from '../../transformers/create-machine-transformer/types.js'
 import {GenerateStatusBlockOptions, validateGenerateStatusBlockOptions} from '../../transformers/generate-status-block/types.js'
-import {getRootMachineState} from '../../utils/get-machine-states.js'
+import {createRootMachineState} from '../../utils/get-machine-states.js'
 
 export const createMachineHandler = async (options: { machineName?: string, machinePath?: string}): Promise<void> => {
   const {log} = getActiveCommand()
@@ -43,22 +43,6 @@ export const createMachineHandler = async (options: { machineName?: string, mach
       ], helpLink: 'https://sakalim.com/projects/react-architecture/application-state-with-xstate-4-guides-machines#machine-types',
     })
 
-  const initialStateName = machinePurpose === 'single' ? 'core' : ''
-  const generateStatusBlockOptions =  await PromptsWizard.run<GenerateStatusBlockOptions>({
-    machineName: createMachineOptions.machineName,
-    stateName: initialStateName,
-    destPath: join(createMachineOptions.machinePath, `${createMachineOptions.machineName}-machine/machine-states`),
-  }, {
-    prompts: [
-      ...generateStatusBlockPrompts({
-        alwaysOnAvailable: true,
-        defaultValue: 'alwaysOn',
-        customLabel: 'machine',
-      }),
-    ],
-    validateAnswers: validateGenerateStatusBlockOptions,
-  })
-
   const projectConfiguration = Configuration.get()
   const resolvedMachineName = toDashCase(createMachineOptions.machineName)
 
@@ -66,10 +50,8 @@ export const createMachineHandler = async (options: { machineName?: string, mach
     throw new Error('machine already exists')
   }
 
-  await createMachineTransformer(createMachineOptions)
-
   const machineRelativePath = join(createMachineOptions.machinePath, `${resolvedMachineName}-machine`)
-  projectConfiguration.addMachineConfig(
+  const machineConfig = projectConfiguration.addMachineConfig(
     resolvedMachineName,
     {
       path: machineRelativePath,
@@ -77,12 +59,31 @@ export const createMachineHandler = async (options: { machineName?: string, mach
     false,
   )
 
+  const initialStateName = machinePurpose === 'single' ? 'core' : ''
+  const generateStatusBlockOptions =  await PromptsWizard.run<GenerateStatusBlockOptions>({
+    machineConfig,
+    stateName: initialStateName,
+    parentState: createRootMachineState(resolvedMachineName, machineConfig.getAbsolutePath()),
+  }, {
+    prompts: [
+      ...(await generateStatusBlockPrompts({
+        alwaysOnAvailable: true,
+        defaultValue: 'alwaysOn',
+        customLabel: 'machine',
+        machineConfig,
+      })),
+    ],
+    validateAnswers: validateGenerateStatusBlockOptions,
+  })
+
+  await createMachineTransformer(createMachineOptions)
+
   log('inject core state to machine')
 
   await injectStateTransformer({
     machineName: resolvedMachineName,
-    parentState: getRootMachineState(resolvedMachineName),
-    newStateName: generateStatusBlockOptions.stateName,
+    parentState: createRootMachineState(resolvedMachineName, machineConfig.getAbsolutePath()),
+    stateName: generateStatusBlockOptions.stateName,
   })
 
   log('generate core state')

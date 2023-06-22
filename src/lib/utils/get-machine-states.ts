@@ -6,6 +6,8 @@ import {dirname, resolve} from 'path'
 import * as walk from 'acorn-walk'
 import * as acorn from 'acorn'
 import tsPlugin from 'acorn-typescript'
+import * as path from 'path'
+import {getActiveCommand} from '../active-command.js'
 
 interface InnerMachineState {
   name: string;
@@ -177,23 +179,37 @@ const extractStatesOfMachine = (filePath: string): MachineState[] => {
   return flattenStates(states)
 }
 
-export const getRootMachineState = (machineName: string): MachineState => {
+export const createRootMachineState = (machineName: string, machinePath: string): MachineState => {
+  if (!path.isAbsolute(machinePath)) {
+    throw new Error('machinePath must be an absolute path')
+  }
+
   return {
     id: '',
-    name: '',
-    filePath: `utils/create-${toDashCase(machineName)}-machine.ts`,
+    name: '[Machine Root State]',
+    filePath: path.join(machinePath, `utils/create-${toDashCase(machineName)}-machine.ts`),
     innerFileParentStates: [],
     hasContent: true,
   }
 }
 
 export const getMachineStates = async (machineName: string): Promise<MachineState[]> => {
-  const rootMachineState = getRootMachineState(machineName)
+  const {debug} = getActiveCommand()
+  const machineConfig = Configuration.get().getMachine(machineName)
 
-  const machineRootFilePath = join(Configuration.get().getMachine(machineName).getAbsolutePath(), rootMachineState.filePath)
+  if (machineConfig && fs.existsSync(machineConfig.getAbsolutePath())) {
+    const machineRootState = createRootMachineState(machineName, machineConfig.getAbsolutePath())
 
-  return [
-    rootMachineState,
-    ...extractStatesOfMachine(machineRootFilePath),
-  ]
+    debug(`extract states of machine '${machineName}' from '${machineRootState.filePath}'`)
+    if (fs.existsSync(machineRootState.filePath)) {
+      return [
+        machineRootState,
+        ...extractStatesOfMachine(machineRootState.filePath),
+      ]
+    }
+
+    throw new Error('failed to find machine root state file')
+  }
+
+  return []
 }
