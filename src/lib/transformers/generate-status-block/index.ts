@@ -6,6 +6,14 @@ import {GenerateStatusBlockOptions, validateGenerateStatusBlockOptions} from './
 import {toDashCase} from '../../utils/formatters.js'
 import {getActiveCommand} from '../../active-command.js'
 
+export const getNewStatePath = (options : GenerateStatusBlockOptions): string => {
+  const stateRelativePath = options.parentState.id  ?
+    `./${toDashCase(options.stateName)}-state` :
+    `../machine-states/${toDashCase(options.stateName)}-state`
+
+  return path.resolve(path.dirname(options.parentState.filePath), stateRelativePath)
+}
+
 export const generateStatusBlockTransformer = async (
   options : GenerateStatusBlockOptions): Promise<void> => {
   const {debug} = getActiveCommand()
@@ -15,15 +23,10 @@ export const generateStatusBlockTransformer = async (
 
   const projectConfiguration = Configuration.get()
 
-  const stateRelativePath = options.parentState.id  ?
-    `./${toDashCase(options.stateName)}-state` :
-    `../machine-states/${toDashCase(options.stateName)}-state`
-
-  const destPath = path.resolve(path.dirname(options.parentState.filePath), stateRelativePath)
-  const pathToParentStateInFile = path.relative(options.machineConfig.getAbsolutePath(), destPath)
+  const destPath = getNewStatePath(options)
+  const pathToParentStateInFile = path.relative(projectConfiguration.root, destPath)
 
   debug({
-    stateRelativePath,
     destPath,
     parentFilePath: options.parentState.filePath,
     pathToParentStateInFile,
