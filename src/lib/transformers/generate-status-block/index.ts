@@ -3,6 +3,7 @@ import {executePlopJSCommand} from '../../utils/execute-plopljs-command.js'
 import {ux} from '@oclif/core'
 import {Configuration} from '../../configuration.js'
 import {GenerateStatusBlockOptions} from './types.js'
+import {toDashCase} from '../../utils/formatters.js'
 
 export const generateStatusBlockTransformer = async (
   options : GenerateStatusBlockOptions): Promise<void> => {
@@ -15,7 +16,7 @@ export const generateStatusBlockTransformer = async (
 
   await executePlopJSCommand({
     commandPath: 'block/state',
-    destPath: path.join(options.destPath, `${options.stateName}-state`),
+    destPath: path.join(options.destPath, `${toDashCase(options.stateName)}-state`),
     options: {
       ...options.innerStateOptions,
       stateName: options.stateName,
