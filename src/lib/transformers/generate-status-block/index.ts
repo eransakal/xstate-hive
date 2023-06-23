@@ -32,7 +32,7 @@ export const generateStatusBlockTransformer = async (
     pathToParentStateInFile,
   })
 
-  ux.action.start(`generate new state files in '${pathToParentStateInFile}'`)
+  ux.action.start(`generate new state files in '${projectConfiguration.getRelativePath(destPath)}'`)
 
   await executePlopJSCommand({
     commandPath: 'block/state',

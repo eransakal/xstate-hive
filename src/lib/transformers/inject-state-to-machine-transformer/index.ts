@@ -11,13 +11,12 @@ export const injectStateTransformer = async (options:  InjectStateToMachineOptio
   }
 
   const projectConfiguration = Configuration.get()
-  const machineConfig = projectConfiguration.getMachine(options.machineName)
 
   const newStateImportPath = options.parentState.id ?
     `./${toDashCase(options.stateName)}-state` :
     `../machine-states/${toDashCase(options.stateName)}-state`
 
-  ux.action.start(`inject new state '${options.parentState.id}${options.stateName ? `.${options.stateName}` : ''}' in '${path.relative(machineConfig.getAbsolutePath(), options.parentState.filePath)}'`)
+  ux.action.start(`inject new state '${options.parentState.id}${options.stateName ? `.${options.stateName}` : ''}' in '${projectConfiguration.getRelativePath(options.parentState.filePath)}'`)
   await executeJSCodeshiftTransformer({
     transformerPath: 'states/inject-state-to-machine.ts',
     destFilePath: options.parentState.filePath,

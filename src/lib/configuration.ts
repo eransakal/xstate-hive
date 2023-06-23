@@ -156,6 +156,14 @@ export class Configuration {
     return this.getMachine(machineName)
   }
 
+  getRelativePath(targetPath: string): string {
+    if (targetPath.startsWith('.')) {
+      return targetPath
+    }
+
+    return path.relative(this.root, targetPath)
+  }
+
   getMachine(machineName: string): MachineConfig {
     const resolvedMachineName = toDashCase(machineName)
     const machineConfig = this.config.machines[resolvedMachineName]
