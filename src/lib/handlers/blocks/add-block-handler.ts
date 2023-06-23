@@ -2,7 +2,7 @@ import {Configuration} from '../../configuration.js'
 import {addStatusBlockHandler} from './add-status-block-handler.js'
 import inquirer from 'inquirer'
 import {formatMachineName} from '../../utils/formatters.js'
-import {promptListWithHelp} from '../../utils/prompts.js'
+import {promptListWithHelp} from '../../transformers/prompts.js'
 
 export  const addBlockHandler = async (options :  { machineName: string | undefined }): Promise<void> => {
   const projectConfiguration = Configuration.get()

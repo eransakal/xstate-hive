@@ -1,5 +1,5 @@
 import inquirer from 'inquirer'
-import {createStateToModifyPrompt, promptListWithHelp} from '../../utils/prompts.js'
+import {createStateToModifyPrompt, promptListWithHelp} from '../prompts.js'
 import {Prompt} from '../../utils/prompts-wizard.js'
 import {isStringWithValue} from '../../utils/validators.js'
 import {GenerateStatusBlockOptions} from './types.js'
