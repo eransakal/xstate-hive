@@ -117,7 +117,7 @@ export class Configuration {
     if (process.env.NODE_ENV !== 'development') {
       const missingLibraries = Object.entries(result).filter(([_, value]) => !value)
       if (missingLibraries.length > 0) {
-        throw new Error(`missing libraries: ${missingLibraries.map(([key]) => key).join(', ')}`)
+        throw new Error(`missing libraries: ${missingLibraries.map(([key]) => key).join(', ')} (please ensure that you have installed the dependencies))`)
       }
     }
 

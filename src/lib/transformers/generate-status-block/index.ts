@@ -24,7 +24,7 @@ export const generateStatusBlockTransformer = async (
   const projectConfiguration = Configuration.get()
 
   const destPath = getNewStatePath(options)
-  const pathToParentStateInFile = path.relative(projectConfiguration.root, destPath)
+  const pathToParentStateInFile = path.relative(options.machineConfig.getAbsolutePath(), destPath)
 
   debug({
     destPath,

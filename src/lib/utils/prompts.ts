@@ -78,21 +78,23 @@ export const createStateToModifyPrompt = async (machineConfig: MachineConfig): P
           type: 'list',
           name: 'value',
           message: 'Select the action to perform:',
-          choices: [{
-            name: 'Add a new state to the machine root',
-            value: 'root',
-            short: 'Add Root State',
-          },
-          {
-            name: 'Add a new state to a child state',
-            value: 'child',
-            short: 'Add Child State',
-          },
-          {
-            name: 'Change an existing state type',
-            value: 'change',
-            short: 'Change Existing State Type',
-          }],
+          choices: [
+            {
+              name: 'Add a new state to a child state',
+              value: 'child',
+              short: 'Add Child State',
+            },
+            {
+              name: 'Add a new state to the machine root',
+              value: 'root',
+              short: 'Add Root State',
+            },
+            {
+              name: 'Change an existing state type',
+              value: 'change',
+              short: 'Change Existing State Type',
+            },
+          ],
         },
       ])).value
 
