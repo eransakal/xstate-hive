@@ -1,6 +1,6 @@
 import {join} from 'path'
 import {Configuration} from '../../configuration.js'
-import {PromptsWizard} from '../../utils/prompts-wizard.js'
+import {PromptsWizard} from '../../prompts/prompts-wizard.js'
 import {createMachinePrompts} from '../../transformers/create-machine-transformer/prompts.js'
 import {formatMachineName, toDashCase} from '../../utils/formatters.js'
 import {createMachineTransformer} from '../../transformers/create-machine-transformer/index.js'
@@ -8,14 +8,14 @@ import {getActiveCommand} from '../../active-command.js'
 import {injectStateTransformer} from '../../transformers/inject-state-to-machine-transformer/index.js'
 import {generateStatusBlockTransformer} from '../../transformers/generate-status-block/index.js'
 import {generateStatusBlockPrompts} from '../../transformers/generate-status-block/prompts.js'
-import {promptListWithHelp} from '../../transformers/prompts.js'
+import {promptListWithHelp} from '../../prompts/prompts.js'
 import {injectDiagnosticHook} from '../../plugins/kme/inject-diagnostic-hook.js'
 import {createLoggerFile} from '../../plugins/kme/create-logger-file.js'
 import {CreateMachineOptions, validateCreateMachineOptions} from '../../transformers/create-machine-transformer/types.js'
 import {GenerateStatusBlockOptions, validateGenerateStatusBlockOptions} from '../../transformers/generate-status-block/types.js'
 import {createRootMachineState} from '../../utils/get-machine-states.js'
 
-export const createMachineHandler = async (options: { machineName?: string, machinePath?: string}): Promise<void> => {
+export const machineHandler = async (options: { machineName?: string, machinePath?: string}): Promise<void> => {
   const {log} = getActiveCommand()
 
   const createMachineOptions =  await PromptsWizard.run<CreateMachineOptions>({
@@ -81,7 +81,7 @@ export const createMachineHandler = async (options: { machineName?: string, mach
   log('inject core state to machine')
 
   await injectStateTransformer({
-    machineName: resolvedMachineName,
+
     parentState: createRootMachineState(resolvedMachineName, machineConfig.getAbsolutePath()),
     stateName: generateStatusBlockOptions.stateName,
   })

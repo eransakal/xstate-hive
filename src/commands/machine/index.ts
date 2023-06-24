@@ -1,6 +1,6 @@
 import {Args, Command} from '@oclif/core'
 import {setActiveCommand} from '../../lib/active-command.js'
-import {createMachineHandler} from '../../lib/handlers/machine/create-machine-handler.js'
+import {machineHandler} from '../../lib/handlers/machine/machine-handler.js'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
 
 export default class Machine extends Command {
@@ -28,7 +28,7 @@ export default class Machine extends Command {
     const {args} = await this.parse(Machine)
 
     try {
-      createMachineHandler({
+      machineHandler({
         machineName: args.machineName,
         machinePath: args.machinePath,
       })

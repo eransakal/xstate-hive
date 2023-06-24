@@ -1,10 +1,11 @@
 import {Configuration} from '../../configuration.js'
-import {addStatusBlockHandler} from './add-status-block-handler.js'
+import {statusBlockHandler} from './status-block-handler.js'
 import inquirer from 'inquirer'
 import {formatMachineName} from '../../utils/formatters.js'
-import {promptListWithHelp} from '../../transformers/prompts.js'
+import {promptListWithHelp} from '../../prompts/prompts.js'
+import { optimisticActionBlockHandler } from './optimistic-action-block-handler.js'
 
-export  const addBlockHandler = async (options :  { machineName: string | undefined }): Promise<void> => {
+export  const blockHandler = async (options :  { machineName: string | undefined }): Promise<void> => {
   const projectConfiguration = Configuration.get()
   const machineName = formatMachineName(
     options.machineName || (await inquirer.prompt([
@@ -35,14 +36,13 @@ export  const addBlockHandler = async (options :  { machineName: string | undefi
 
   switch (blockType) {
   case 'status':
-    return addStatusBlockHandler({
+    return statusBlockHandler({
       machineConfig,
     })
   case 'optimistic-action':
-    // return optimisticActionBlockExecuter({
-    //   machineConfig,
-    // })
-    throw new Error('Not implemented yet')
+    return optimisticActionBlockHandler({
+      machineConfig,
+    })
   }
 
   return Promise.resolve()

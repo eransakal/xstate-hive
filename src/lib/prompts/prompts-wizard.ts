@@ -1,6 +1,6 @@
 import {CLIError} from '@oclif/core/lib/errors/index.js'
 import {getActiveCommand} from '../active-command.js'
-import {isStringWithValue} from './validators.js'
+import {isStringWithValue} from '../utils/validators.js'
 
 type Join<K, P> = K extends string | number ?
     P extends string | number ?

@@ -1,7 +1,6 @@
 import {Configuration} from '../../configuration.js'
 import {toDashCase} from '../../utils/formatters.js'
 import {executeJSCodeshiftTransformer} from '../../utils/execute-jscodeshift-transformer.js'
-import * as path from 'path'
 import {ux} from '@oclif/core'
 import {InjectStateToMachineOptions, validateInjectStatusToMachineOptions} from './types.js'
 

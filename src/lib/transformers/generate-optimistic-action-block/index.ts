@@ -2,14 +2,14 @@ import * as path from 'path'
 import {executePlopJSCommand} from '../../utils/execute-plopljs-command.js'
 import {ux} from '@oclif/core'
 import {Configuration} from '../../configuration.js'
-import {GenerateStatusBlockOptions, validateGenerateStatusBlockOptions} from './types.js'
+import {OptimisticActionBlockTransformerOptions, validateOptimisticActionBlockTransformerOptions} from './types.js'
 import {getActiveCommand} from '../../active-command.js'
 import {getStatePath} from '../../utils/paths.js'
 
-export const generateStatusBlockTransformer = async (
-  options : GenerateStatusBlockOptions): Promise<void> => {
+export const generateOoptimisticActionBlockTransformer = async (
+  options : OptimisticActionBlockTransformerOptions): Promise<void> => {
   const {debug} = getActiveCommand()
-  if (!validateGenerateStatusBlockOptions(options)) {
+  if (!validateOptimisticActionBlockTransformerOptions(options)) {
     throw new Error('Invalid options')
   }
 
@@ -24,17 +24,20 @@ export const generateStatusBlockTransformer = async (
     pathToParentStateInFile,
   })
 
-  ux.action.start(`generate new state files in '${projectConfiguration.getRelativePath(destPath)}'`)
+  ux.action.start(`generate optimistic action state files in '${projectConfiguration.getRelativePath(destPath)}'`)
 
-  await executePlopJSCommand({
-    commandPath: 'block/state',
+  executePlopJSCommand({
+    commandPath: 'block/optimistic-action',
     destPath,
     options: {
-      ...options.innerStateOptions,
       stateName: options.stateName,
       machineName: options.machineConfig.machineName,
       relativePathToMachine: pathToParentStateInFile.split('/').map(() => '../').join(''),
       isKME: projectConfiguration.isPresetActive('kme'),
+      actionVerb: options.actionVerb,
+      noun: options.noun,
+      contextPropFullPath: options.contextPropFullPath,
+      notificationErrorMessage: options.notificationErrorMessage,
     },
   })
   ux.action.stop()

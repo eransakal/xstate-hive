@@ -1,7 +1,7 @@
 import inquirer from 'inquirer'
 import {getActiveCommand} from '../active-command.js'
 import open from 'open'
-import {Prompt} from '../utils/prompts-wizard.js'
+import {Prompt} from './prompts-wizard.js'
 import {formatMachineName, formatStateName} from '../utils/formatters.js'
 import {isStringWithValue} from '../utils/validators.js'
 import {MachineState, getMachineStates} from '../utils/get-machine-states.js'
@@ -70,7 +70,7 @@ export const createStateToModifyPrompt = async (machineConfig: MachineConfig): P
     validate: ({parentState, stateName}) => parentState &&
     stateName !== null && typeof stateName !== 'undefined',
     run: async data => {
-      let stateName = ''
+      let stateName = data.stateName
       let parentState = data.parentState
 
       const action = parentState && !parentState.id ? 'root' : (await inquirer.prompt([
@@ -120,7 +120,7 @@ export const createStateToModifyPrompt = async (machineConfig: MachineConfig): P
         }
       }
 
-      if (action !== 'change') {
+      if (!stateName && action !== 'change') {
         stateName = formatStateName((await inquirer.prompt([
           {
             type: 'input',

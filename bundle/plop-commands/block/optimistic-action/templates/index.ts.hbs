@@ -1,8 +1,7 @@
 import { actions } from 'xstate';
-import { {{pascalCase machineName}}MachineEventsTypes , {{pascalCase machineName}}MachineStateConfig } from '../../types';
-import { canManage{pascalCase actionName} } from '../../machine-guards';
+import { {{pascalCase machineName}}MachineEventsTypes , {{pascalCase machineName}}MachineStateConfig } from '{{relativePathToMachine}}types';
 
-export const update{{pascalCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
+export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
   initial: 'idle',
   on: {
     [{{pascalCase machineName}}MachineEventsTypes.{{pathToPascalCase contextPropFullPath}}Updated]: [
@@ -15,9 +14,8 @@ export const update{{pascalCase stateName}}State: {{pascalCase machineName}}Mach
   states: {
     idle: {
       on: {
-        [{{pascalCase machineName}}MachineEventsTypes.update{{pathToPascalCase contextPropFullPath}}]: [
-          {
-            cond: 'canUpdate{{pascalCase contextPropFullPath}}',
+        [{{pascalCase machineName}}MachineEventsTypes.Update{{pathToPascalCase contextPropFullPath}}]: [
+          {          
             actions: ['updateIntermediate{{pathToPascalCase contextPropFullPath}}'],
             target: 'inProgress',
           },

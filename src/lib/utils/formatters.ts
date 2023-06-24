@@ -17,7 +17,7 @@ export function toCamelCase(input: string): string {
     return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
   })
 
-  return camelCaseWords.join('')
+  return camelCaseWords.join('').trim()
 }
 
 export function toPascalCase(input: string): string {
@@ -35,7 +35,7 @@ export function toPascalCase(input: string): string {
     return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
   })
 
-  return pascalCaseWords.join('')
+  return pascalCaseWords.join('').trim()
 }
 
 export function toDashCase(input: string): string {
@@ -51,7 +51,7 @@ export function toDashCase(input: string): string {
 
   const dashCaseWords = words.map(word => word.toLowerCase())
 
-  return dashCaseWords.join('-')
+  return dashCaseWords.join('-').trim()
 }
 
 export function formatStateName(stateName: string): string {
