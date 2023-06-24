@@ -2,16 +2,16 @@ import inquirer from 'inquirer'
 import {createStateToModifyPrompt} from '../../prompts/prompts.js'
 import {Prompt} from '../../prompts/prompts-wizard.js'
 import {isStringWithValue} from '../../utils/validators.js'
-import {OptimisticActionBlockTransformerOptions} from './types.js'
+import {OptimisticActionBlockOptions} from './types.js'
 import {MachineConfig} from '../../configuration.js'
 import {toCamelCase, toPascalCase} from '../../utils/formatters.js'
 
-export const optimisticActionBlockTransformerPrompts = async ({
+export const optimisticActionBlockPrompts = async ({
   machineConfig,
 }: {
   machineConfig: MachineConfig,
-}): Promise<Prompt<OptimisticActionBlockTransformerOptions>[]> => {
-  const promises: (Prompt<OptimisticActionBlockTransformerOptions> | null)[] = [
+}): Promise<Prompt<OptimisticActionBlockOptions>[]> => {
+  const promises: (Prompt<OptimisticActionBlockOptions> | null)[] = [
     {
       propName: ['actionVerb', 'noun'],
       validate: data => (isStringWithValue(data.actionVerb) && isStringWithValue(data.noun)) || 'Action verb or noun is not defined',
@@ -36,7 +36,7 @@ export const optimisticActionBlockTransformerPrompts = async ({
           },
         ])).value
 
-        if (actionVerb === 'custom') {
+        if (actionVerb === 'Custom') {
           actionVerb =  (await inquirer.prompt([
             {
               type: 'input',
@@ -72,6 +72,7 @@ export const optimisticActionBlockTransformerPrompts = async ({
     },
     {
       propName: 'contextGuardPropFullPath',
+      allowEmptyAnswer: true,
       validate: data => typeof data.contextGuardPropFullPath === 'string',
       run: async data => {
         const actionRequiresPermission = (await inquirer.prompt([
@@ -110,5 +111,5 @@ export const optimisticActionBlockTransformerPrompts = async ({
     } : null,
   ]
 
-  return promises.filter(Boolean) as Prompt<OptimisticActionBlockTransformerOptions>[]
+  return promises.filter(Boolean) as Prompt<OptimisticActionBlockOptions>[]
 }

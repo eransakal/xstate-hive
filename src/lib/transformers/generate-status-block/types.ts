@@ -27,7 +27,6 @@ export function validateGenerateStatusBlockOptions(options: GenerateStatusBlockO
       typeof innerStateOptions.stateOnName === 'string' && innerStateOptions.stateOnName.trim().length > 0 &&
       typeof innerStateOptions.stateOffName === 'string'
   const validParentState = typeof options.parentState === 'object' && options.parentState !== null
-  const validStateName = typeof options.stateName === 'string' && options.stateName.trim().length > 0
 
   if (!validMachineConfig) {
     debug('Invalid machineConfig:', options.machineConfig)
@@ -45,11 +44,7 @@ export function validateGenerateStatusBlockOptions(options: GenerateStatusBlockO
     debug('Invalid parentState:', options.parentState)
   }
 
-  if (!validStateName) {
-    debug('Invalid stateName:', options.stateName)
-  }
-
   return validMachineConfig && validStatePurpose && validInnerStateOptions &&
-  validParentState && validStateName
+  validParentState
 }
 

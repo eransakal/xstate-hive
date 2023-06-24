@@ -1,5 +1,4 @@
 import {MachineState} from '../../utils/get-machine-states.js'
-import {isStringWithValue} from '../../utils/validators.js'
 
 export interface InjectStateToMachineOptions {
     parentState: MachineState;

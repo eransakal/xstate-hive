@@ -2,7 +2,7 @@ import {getActiveCommand} from '../../active-command.js'
 import {MachineConfig} from '../../configuration.js'
 import {MachineState} from '../../utils/get-machine-states.js'
 
-export interface OptimisticActionBlockTransformerOptions {
+export interface OptimisticActionBlockOptions {
     machineConfig: MachineConfig,
     noun: string,
     actionVerb: string,
@@ -14,11 +14,10 @@ export interface OptimisticActionBlockTransformerOptions {
   }
 
 // eslint-disable-next-line complexity
-export function validateOptimisticActionBlockTransformerOptions(options: OptimisticActionBlockTransformerOptions): boolean {
+export function validateOptimisticActionBlockOptions(options: OptimisticActionBlockOptions): boolean {
   const {debug} = getActiveCommand()
   const validMachineConfig = Boolean(options.machineConfig)
   const validParentState = typeof options.parentState === 'object' && options.parentState !== null
-  const validStateName = typeof options.stateName === 'string' && options.stateName.trim().length > 0
   const validContextPropFullPath = typeof options.contextPropFullPath === 'string' && options.contextPropFullPath.trim().length > 0
   const validContextGuardPropFullPath = typeof options.contextPropFullPath === 'string'
 
@@ -30,10 +29,6 @@ export function validateOptimisticActionBlockTransformerOptions(options: Optimis
     debug('Invalid parentState:', options.parentState)
   }
 
-  if (!validStateName) {
-    debug('Invalid stateName:', options.stateName)
-  }
-
   if (!validContextPropFullPath) {
     debug('Invalid contextPropFullPath:', options.contextPropFullPath)
   }
@@ -42,6 +37,6 @@ export function validateOptimisticActionBlockTransformerOptions(options: Optimis
     debug('Invalid contextGuardPropFullPath:', options.contextGuardPropFullPath)
   }
 
-  return validMachineConfig && validParentState && validStateName && validContextPropFullPath && validContextGuardPropFullPath
+  return validMachineConfig && validParentState && validContextPropFullPath && validContextGuardPropFullPath
 }
 

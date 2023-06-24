@@ -18,6 +18,7 @@ type Prev = [never, 0, 1, 2, 3, ...0[]]
 export interface Prompt<T extends Record<string, any>> {
   propName: Paths<T> | (Paths<T>[]);
   run: (data: Partial<T>) => Promise<any>;
+  allowEmptyAnswer?: boolean;
   validate: (data: Partial<T>) => string | undefined | null | boolean;
   postPrompt?: (data: Partial<T>) => Promise<void>;
   runIf?: (data: Partial<T>) => boolean;
@@ -70,7 +71,7 @@ export class PromptsWizard {
     do {
       const activePrompt = options.prompts[activeIndex]
 
-      debug(`Running prompt ${activeIndex} of ${options.prompts.length - 1} (${activePrompt.propName})`)
+      debug(`Running prompt ${activeIndex + 1} of ${options.prompts.length} (${activePrompt.propName})`)
       const propNameOrNames: string | string[] = activePrompt.propName
 
       const hasValues = Array.isArray(propNameOrNames) ? propNameOrNames.every(p => isValueProvided(getValue(data, p as string))) : isValueProvided(getValue(data, propNameOrNames as string))
@@ -78,7 +79,11 @@ export class PromptsWizard {
       if (!hasValues && (!activePrompt.runIf || activePrompt.runIf(data))) {
         // eslint-disable-next-line no-await-in-loop
         const propValue = await activePrompt.run(data as T)
-        if (propValue || typeof propValue === 'boolean') {
+        console.log('propValue', {
+          propValue,
+          bla: typeof propValue,
+        })
+        if (activePrompt.allowEmptyAnswer || propValue || typeof propValue === 'boolean') {
           if (Array.isArray(propNameOrNames)) {
             // eslint-disable-next-line max-depth
             for (const [i, propName] of propNameOrNames.entries()) {

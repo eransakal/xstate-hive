@@ -1,25 +1,25 @@
 import {MachineConfig} from '../../configuration.js'
 import {PromptsWizard} from '../../prompts/prompts-wizard.js'
-import {createInjectStateToMachinePrompts} from '../../transformers/inject-state-to-machine-transformer/prompts.js'
-import {InjectStateToMachineOptions, validateInjectStatusToMachineOptions} from '../../transformers/inject-state-to-machine-transformer/types.js'
-import {injectStateTransformer} from '../../transformers/inject-state-to-machine-transformer/index.js'
+import {createInjectStateToMachinePrompts} from '../../transformers/inject-state-to-machine/prompts.js'
+import {InjectStateToMachineOptions, validateInjectStatusToMachineOptions} from '../../transformers/inject-state-to-machine/types.js'
+import {injectStateTransformer} from '../../transformers/inject-state-to-machine/index.js'
 import * as fs from 'fs'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
 import {getStatePath} from '../../utils/paths.js'
-import {OptimisticActionBlockTransformerOptions, validateOptimisticActionBlockTransformerOptions} from '../../transformers/generate-optimistic-action-block/types.js'
-import {optimisticActionBlockTransformerPrompts} from '../../transformers/generate-optimistic-action-block/prompts.js'
-import {generateOoptimisticActionBlockTransformer} from '../../transformers/generate-optimistic-action-block/index.js'
+import {OptimisticActionBlockOptions, validateOptimisticActionBlockOptions} from '../../transformers/generate-optimistic-action-block/types.js'
+import {optimisticActionBlockPrompts} from '../../transformers/generate-optimistic-action-block/prompts.js'
+import {generateOptimisticActionBlockTransformer} from '../../transformers/generate-optimistic-action-block/index.js'
 
 export const optimisticActionBlockHandler = async ({machineConfig} :  { machineConfig: MachineConfig}): Promise<void> => {
-  const optimisticActionBlockTransformerOptions =  await PromptsWizard.run<OptimisticActionBlockTransformerOptions>({
+  const optimisticActionBlockTransformerOptions =  await PromptsWizard.run<OptimisticActionBlockOptions>({
     machineConfig,
   }, {
     prompts: [
-      ...(await optimisticActionBlockTransformerPrompts({
+      ...(await optimisticActionBlockPrompts({
         machineConfig,
       })),
     ],
-    validateAnswers: validateOptimisticActionBlockTransformerOptions,
+    validateAnswers: validateOptimisticActionBlockOptions,
   })
 
   const injectStateToMachineOptions = await PromptsWizard.run<InjectStateToMachineOptions>({
@@ -39,6 +39,6 @@ export const optimisticActionBlockHandler = async ({machineConfig} :  { machineC
 
   await injectStateTransformer(injectStateToMachineOptions)
 
-  await generateOoptimisticActionBlockTransformer(optimisticActionBlockTransformerOptions)
+  await generateOptimisticActionBlockTransformer(optimisticActionBlockTransformerOptions)
 }
 

@@ -2,6 +2,7 @@ import {join} from 'path'
 import {Configuration} from '../../configuration.js'
 import {executePlopJSCommand} from '../../utils/execute-plopljs-command.js'
 import {CreateMachineOptions, validateCreateMachineOptions} from './types.js'
+import {toDashCase} from '../../utils/formatters.js'
 
 export const createMachineTransformer = async ({
   machinePath,
@@ -13,7 +14,7 @@ export const createMachineTransformer = async ({
 
   const projectConfiguration = Configuration.get()
 
-  const destPath = join(machinePath, `${machineName}-machine`)
+  const destPath = join(machinePath, `${toDashCase(machineName)}-machine`)
   return executePlopJSCommand({
     commandPath: 'machine/create',
     destPath,

@@ -67,60 +67,63 @@ export const createStateToModifyPrompt = async (machineConfig: MachineConfig): P
   const machineStates = await getMachineStates(machineConfig.machineName)
   return {
     propName: ['parentState', 'stateName'],
-    validate: ({parentState, stateName}) => parentState &&
-    stateName !== null && typeof stateName !== 'undefined',
+    validate: ({parentState}) => parentState ? true : 'Parent state  is not defined',
     run: async data => {
       let stateName = data.stateName
       let parentState = data.parentState
 
-      const action = parentState && !parentState.id ? 'root' : (await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'value',
-          message: 'Select the action to perform:',
-          choices: [
-            {
-              name: 'Add a new state to a child state',
-              value: 'child',
-              short: 'Add Child State',
-            },
-            {
-              name: 'Add a new state to the machine root',
-              value: 'root',
-              short: 'Add Root State',
-            },
-            {
-              name: 'Change an existing state type',
-              value: 'change',
-              short: 'Change Existing State Type',
-            },
-          ],
-        },
-      ])).value
+      // const action = parentState && !parentState.id ? 'root' : (await inquirer.prompt([
+      //   {
+      //     type: 'list',
+      //     name: 'value',
+      //     message: 'Select the action to perform:',
+      //     choices: ([
+      //       {
+      //         name: 'Add a new state to a child state',
+      //         value: 'child',
+      //         short: 'Add Child State',
+      //       },
+      //       {
+      //         name: 'Add a new state to the machine root',
+      //         value: 'root',
+      //         short: 'Add Root State',
+      //       },
+      //       // allowChange ? {
+      //       //   name: 'Change an existing state type',
+      //       //   value: 'change',
+      //       //   short: 'Change Existing State Type',
+      //       // } : null,
+      //     ]).filter(Boolean),
+      //   },
+      // ])).value
 
       if (!parentState) {
-        if (action === 'root') {
-          parentState = machineStates.find(state => !state.id)!
-        } else {
-          parentState = (await inquirer.prompt([
-            {
-              type: 'list',
-              name: 'value',
-              message: action === 'child' ?
-                'Select the parent state to add a new state to:' :
-                'Select the state to change:',
-              choices: machineStates.filter(state => state.id).map(state => {
-                return {
-                  name: state.id,
-                  value: state,
-                }
-              }),
-            },
-          ])).value
-        }
+        // if (action === 'root') {
+        //   parentState = machineStates.find(state => !state.id)!
+        // } else {
+        parentState = (await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'value',
+            message: // action === 'child' ?
+              'Select the parent state to add a new state to:',
+            // : 'Select the state to change:',
+            choices: machineStates.map(state => {
+              if (state.id === '') {
+                return state.name
+              }
+
+              return {
+                name: state.id,
+                value: state,
+              }
+            }),
+          },
+        ])).value
+        // }
       }
 
-      if (!stateName && action !== 'change') {
+      if (!stateName) {
         stateName = formatStateName((await inquirer.prompt([
           {
             type: 'input',
