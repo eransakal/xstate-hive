@@ -15,7 +15,9 @@ export const generateOoptimisticActionBlockTransformer = async (
 
   const projectConfiguration = Configuration.get()
 
-  const destPath = getStatePath(options.parentState, options.stateName)
+  const destPath = options.parentState.id === '' ? getStatePath(options.parentState, options.stateName) :
+    path.dirname(options.parentState.filePath)
+
   const pathToParentStateInFile = path.relative(options.machineConfig.getAbsolutePath(), destPath)
 
   debug({
@@ -36,6 +38,7 @@ export const generateOoptimisticActionBlockTransformer = async (
       isKME: projectConfiguration.isPresetActive('kme'),
       actionVerb: options.actionVerb,
       noun: options.noun,
+      contextGuardPropFullPath: options.contextGuardPropFullPath,
       contextPropFullPath: options.contextPropFullPath,
       notificationErrorMessage: options.notificationErrorMessage,
     },

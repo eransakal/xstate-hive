@@ -8,7 +8,8 @@ export interface OptimisticActionBlockTransformerOptions {
     actionVerb: string,
     stateName: string,
     contextPropFullPath: string,
-    notificationErrorMessage: string,
+    contextGuardPropFullPath?: string
+    notificationErrorMessage?: string,
     parentState: MachineState,
   }
 
@@ -19,7 +20,7 @@ export function validateOptimisticActionBlockTransformerOptions(options: Optimis
   const validParentState = typeof options.parentState === 'object' && options.parentState !== null
   const validStateName = typeof options.stateName === 'string' && options.stateName.trim().length > 0
   const validContextPropFullPath = typeof options.contextPropFullPath === 'string' && options.contextPropFullPath.trim().length > 0
-  const validNotificationErrorMessage = typeof options.notificationErrorMessage === 'string' && options.notificationErrorMessage.trim().length > 0
+  const validContextGuardPropFullPath = typeof options.contextPropFullPath === 'string'
 
   if (!validMachineConfig) {
     debug('Invalid machineConfig:', options.machineConfig)
@@ -37,10 +38,10 @@ export function validateOptimisticActionBlockTransformerOptions(options: Optimis
     debug('Invalid contextPropFullPath:', options.contextPropFullPath)
   }
 
-  if (!validNotificationErrorMessage) {
-    debug('Invalid notificationErrorMessage:', options.notificationErrorMessage)
+  if (!validContextGuardPropFullPath) {
+    debug('Invalid contextGuardPropFullPath:', options.contextGuardPropFullPath)
   }
 
-  return validMachineConfig && validParentState && validStateName && validContextPropFullPath && validNotificationErrorMessage
+  return validMachineConfig && validParentState && validStateName && validContextPropFullPath && validContextGuardPropFullPath
 }
 

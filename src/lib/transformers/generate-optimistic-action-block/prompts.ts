@@ -11,7 +11,7 @@ export const optimisticActionBlockTransformerPrompts = async ({
 }: {
   machineConfig: MachineConfig,
 }): Promise<Prompt<OptimisticActionBlockTransformerOptions>[]> => {
-  return [
+  const promises: (Prompt<OptimisticActionBlockTransformerOptions> | null)[] = [
     {
       propName: ['actionVerb', 'noun'],
       validate: data => (isStringWithValue(data.actionVerb) && isStringWithValue(data.noun)) || 'Action verb or noun is not defined',
@@ -71,6 +71,32 @@ export const optimisticActionBlockTransformerPrompts = async ({
       ])).value,
     },
     {
+      propName: 'contextGuardPropFullPath',
+      validate: data => typeof data.contextGuardPropFullPath === 'string',
+      run: async data => {
+        const actionRequiresPermission = (await inquirer.prompt([
+          {
+            type: 'confirm',
+            name: 'value',
+            message: 'Does this action require a permission (validated by checking a property on the context)?',
+          },
+        ])).value
+
+        if (actionRequiresPermission) {
+          return (await inquirer.prompt([
+            {
+              type: 'input',
+              name: 'value',
+              default: `${data.contextPropFullPath?.split('.')?.map(item => toPascalCase(item))?.join('')}`,
+              message: 'Specify the context property to examine within the machine context:',
+            },
+          ])).value
+        }
+
+        return ''
+      },
+    },
+    machineConfig.context.hasNotificationsState ? {
       propName: 'notificationErrorMessage',
       validate: data => isStringWithValue(data.notificationErrorMessage) || 'Notification error message/id is not defined',
       run: async data => (await inquirer.prompt([
@@ -81,6 +107,8 @@ export const optimisticActionBlockTransformerPrompts = async ({
           message: 'Enter the error message/ID for the notification when an error occurs:',
         },
       ])).value,
-    },
+    } : null,
   ]
+
+  return promises.filter(Boolean) as Prompt<OptimisticActionBlockTransformerOptions>[]
 }

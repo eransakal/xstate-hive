@@ -15,8 +15,9 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
     idle: {
       on: {
         [{{pascalCase machineName}}MachineEventsTypes.Update{{pathToPascalCase contextPropFullPath}}]: [
-          {          
-            actions: ['updateIntermediate{{pathToPascalCase contextPropFullPath}}'],
+          {
+            {{#if contextGuardPropFullPath }}cond: 'canManage{{pascalCase contextGuardPropFullPath}}',
+            {{/if}}actions: ['updateIntermediate{{pathToPascalCase contextPropFullPath}}'],
             target: 'inProgress',
           },
         ],
