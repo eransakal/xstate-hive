@@ -2,21 +2,22 @@ import * as path from 'path'
 import {executePlopJSCommand} from '../../utils/execute-plopljs-command.js'
 import {ux} from '@oclif/core'
 import {Configuration} from '../../configuration.js'
-import {OptimisticActionBlockOptions, validateOptimisticActionBlockTransformerOptions} from './types.js'
+import {OptimisticActionBlockOptions, validateOptimisticActionBlockOptions} from './types.js'
 import {getActiveCommand} from '../../active-command.js'
-import {getStatePath} from '../../utils/paths.js'
+import {getStateDirPath, getStatePath} from '../../utils/paths.js'
+import {toDashCase} from '../../utils/formatters.js'
 
 export const generateOptimisticActionBlockTransformer = async (
   options : OptimisticActionBlockOptions): Promise<void> => {
   const {debug} = getActiveCommand()
-  if (!validateOptimisticActionBlockTransformerOptions(options)) {
+  if (!validateOptimisticActionBlockOptions(options)) {
     throw new Error('Invalid options')
   }
 
   const projectConfiguration = Configuration.get()
 
-  const destPath = options.parentState.id === '' ? getStatePath(options.parentState, options.stateName) :
-    path.dirname(options.parentState.filePath)
+  const destPath = options.parentState.id === '' ? getStateDirPath(options.parentState) :
+    `${path.dirname(options.parentState.filePath)}/${toDashCase(options.parentState.name)}-states`
 
   const pathToParentStateInFile = path.relative(options.machineConfig.getAbsolutePath(), destPath)
 

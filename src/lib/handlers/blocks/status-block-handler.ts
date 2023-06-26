@@ -37,12 +37,7 @@ export const statusBlockHandler = async ({machineConfig} :  { machineConfig: Mac
     throw new CLIError(`State file '${newStatePath}' already exists (do you have a sibilant state with the same name?)`)
   }
 
-  // ux.action.start(`inject '${injectStateToMachineOptions.stateName || ''}' state into '${injectStateToMachineOptions.parentState.id || injectStateToMachineOptions.parentState.name}' state declaration`)
   await injectStateTransformer(injectStateToMachineOptions)
-  // ux.action.stop()
-
-  // ux.action.start(`generate new state files '${}`)
   await generateStatusBlockTransformer(generateStatusBlockOptions)
-  // ux.action.stop()
 }
 

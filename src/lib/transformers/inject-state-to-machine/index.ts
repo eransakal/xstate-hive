@@ -12,7 +12,7 @@ export const injectStateTransformer = async (options:  InjectStateToMachineOptio
   const projectConfiguration = Configuration.get()
 
   const newStateImportPath = options.parentState.id ?
-    `./${toDashCase(options.stateName)}-state` :
+    `./${toDashCase(options.parentState.name)}-states/${toDashCase(options.stateName)}-state` :
     `../machine-states/${toDashCase(options.stateName)}-state`
 
   ux.action.start(`inject new state '${options.parentState.id}${options.stateName ? `.${options.stateName}` : ''}' in '${projectConfiguration.getRelativePath(options.parentState.filePath)}'`)

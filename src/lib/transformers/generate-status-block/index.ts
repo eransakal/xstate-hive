@@ -4,7 +4,7 @@ import {ux} from '@oclif/core'
 import {Configuration} from '../../configuration.js'
 import {GenerateStatusBlockOptions, validateGenerateStatusBlockOptions} from './types.js'
 import {getActiveCommand} from '../../active-command.js'
-import {getStatePath} from '../../utils/paths.js'
+import {getStateDirPath, getStatePath} from '../../utils/paths.js'
 
 export const generateStatusBlockTransformer = async (
   options : GenerateStatusBlockOptions): Promise<void> => {
@@ -15,7 +15,7 @@ export const generateStatusBlockTransformer = async (
 
   const projectConfiguration = Configuration.get()
 
-  const destPath = getStatePath(options.parentState, options.stateName)
+  const destPath = getStateDirPath(options.parentState)
   const pathToParentStateInFile = path.relative(options.machineConfig.getAbsolutePath(), destPath)
 
   debug({
