@@ -79,10 +79,7 @@ export class PromptsWizard {
       if (!hasValues && (!activePrompt.runIf || activePrompt.runIf(data))) {
         // eslint-disable-next-line no-await-in-loop
         const propValue = await activePrompt.run(data as T)
-        console.log('propValue', {
-          propValue,
-          bla: typeof propValue,
-        })
+
         if (activePrompt.allowEmptyAnswer || propValue || typeof propValue === 'boolean') {
           if (Array.isArray(propNameOrNames)) {
             // eslint-disable-next-line max-depth

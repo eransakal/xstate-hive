@@ -8,8 +8,10 @@ const logger = create{{pascalCase name}}MachineLogger(
   XStateMachineLogSenderTypes.{{loggerType}}
 );
 {{else}}
+import { createUserPollsMachineLogger } from './logger';
+
 const logger =  create{{pascalCase name}}MachineLogger(
-    '{{pascalCase name}}Provider'
+    '{{loggerName}}'
   );
 {{/if}}
 {{#if commented}}*/{{/if}}

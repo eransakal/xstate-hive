@@ -7,11 +7,11 @@ import {
 // TODO add link to reference
 export const onExternalInfoChanged =
   (context: {{pascalCase name}}MachineContext, data: any) => (send: {{pascalCase name}}MachineSender) => {
-
     // const handleExampleChanged = (exampleData: ExampleData | null) => {
     //   if (ownUser) {
+    //     logger.log(`updating external info for user '${ownUser.id}'`)
     //     send({
-    //       type: {{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated,
+    //       type: UserPollsMachineEventsTypes.ExternalInfoUpdated,
     //       externalInfo: {
     //         something: exampleData.something
     //       },
@@ -24,7 +24,7 @@ export const onExternalInfoChanged =
     //   data.emitLastValue ?? false      
     // );
     
-    return () => {
-      // onExampleChanged.off(handleExampleChanged);
-    };
+    // return () => {
+    //   onExampleChanged.off(handleExampleChanged);
+    // };
   };

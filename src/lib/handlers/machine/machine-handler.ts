@@ -55,6 +55,9 @@ export const machineHandler = async (options: { machineName?: string, machinePat
     resolvedMachineName,
     {
       path: machineRelativePath,
+      context: {
+        hasNotificationsState: true,
+      },
     },
     false,
   )

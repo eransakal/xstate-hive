@@ -1,9 +1,9 @@
-{{#if includeLoadingState}}import { loadingState } from './loading-state';
-{{/if}}{{#if stateOffName}}import { {{camelCase stateOffName}}State } from './{{dashCase stateOffName}}-state';
+{{#if includeLoadingState}}import { loadingState } from './{{dashCase stateName}}-states/loading-state';
+{{/if}}{{#if stateOffName}}import { {{camelCase stateOffName}}State } from './{{dashCase stateName}}-states/{{dashCase stateOffName}}-state';
 {{/if}}import {
   {{pascalCase machineName}}MachineStateConfig,
 } from '{{relativePathToMachine}}types';
-import { {{camelCase stateOnName}}State } from './{{camelCase stateOnName}}-state';
+import { {{camelCase stateOnName}}State } from './{{dashCase stateName}}-states/{{camelCase stateOnName}}-state';
 
 export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
   initial: '{{#if includeLoadingState}}loading{{else if stateOffName}}unknown{{else}}{{camelCase stateOnName}}{{/if}}',

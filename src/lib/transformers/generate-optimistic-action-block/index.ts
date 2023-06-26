@@ -2,14 +2,14 @@ import * as path from 'path'
 import {executePlopJSCommand} from '../../utils/execute-plopljs-command.js'
 import {ux} from '@oclif/core'
 import {Configuration} from '../../configuration.js'
-import {OptimisticActionBlockOptions, validateOptimisticActionBlockOptions} from './types.js'
+import {OptimisticActionBlockOptions, validateOptimisticActionBlockTransformerOptions} from './types.js'
 import {getActiveCommand} from '../../active-command.js'
 import {getStatePath} from '../../utils/paths.js'
 
 export const generateOptimisticActionBlockTransformer = async (
   options : OptimisticActionBlockOptions): Promise<void> => {
   const {debug} = getActiveCommand()
-  if (!validateOptimisticActionBlockOptions(options)) {
+  if (!validateOptimisticActionBlockTransformerOptions(options)) {
     throw new Error('Invalid options')
   }
 

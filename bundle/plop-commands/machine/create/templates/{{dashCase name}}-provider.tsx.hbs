@@ -14,6 +14,7 @@ import { useMachine } from '@xstate/react';
 import { {{pascalCase name}}Context } from './utils/{{dashCase name}}-context';
 import { updateExternalInfo } from './machine-actions/context/update-external-info';
 import { onExternalInfoChanged } from './machine-services/on-external-info-changed';
+import { MachineCalculatedValueEmitter } from './utils/machine-calculated-value-emitter';
 {{> xstateLogger loggerName=(dynamicParam name 'Provider') isKME=isKME loggerType='Machine' loggerPath='./utils/'}}
 
 export const {{pascalCase name}}Provider: React.FC{{#if isKME}}{{else}}<PropsWithChildren>{{/if}} = ({ children }) => {

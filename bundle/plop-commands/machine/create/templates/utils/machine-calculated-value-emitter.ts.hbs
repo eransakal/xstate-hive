@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { {{pascalCase name}}Context } from './{{camelCase name}}-context';
+import { {{pascalCase name}}Context } from './{{dashCase name}}-context';
 import { {{pascalCase name}}MachineEvents, {{pascalCase name}}MachineState } from '../types';
 import { useSelector } from '@xstate/react';
-{{> xstateLogger isKME=isKME loggerType='MachineCalculatedValueEmitter' loggerName='Util' loggerPath='./'}}
+{{> xstateLogger isKME=isKME loggerType='Util' loggerName='MachineCalculatedValueEmitter' loggerPath='./'}}
 
 
 export interface Props<TValue> {  
