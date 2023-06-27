@@ -31,6 +31,7 @@ export const generateStatusBlockTransformer = async (
     destPath,
     options: {
       ...options.innerStateOptions,
+      isMachineLoadingState: options.parentState.id === '',
       stateName: options.stateName,
       machineName: options.machineConfig.machineName,
       relativePathToMachine: pathToParentStateInFile.split('/').map(() => '../').join(''),

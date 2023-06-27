@@ -84,7 +84,6 @@ export const machineHandler = async (options: { machineName?: string, machinePat
   log('inject core state to machine')
 
   await injectStateTransformer({
-
     parentState: createRootMachineState(resolvedMachineName, machineConfig.getAbsolutePath()),
     stateName: generateStatusBlockOptions.stateName,
   })

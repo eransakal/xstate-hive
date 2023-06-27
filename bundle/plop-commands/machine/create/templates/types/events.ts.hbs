@@ -1,7 +1,8 @@
 import { {{pascalCase name}}MachineContext } from "./context";
 
 export enum {{pascalCase name}}MachineEventsTypes {
-  ExternalInfoUpdated = 'ExternalInfoUpdated'
+  ExternalInfoUpdated = 'ExternalInfoUpdated',
+  ExternalInfoLoaded = 'ExternalInfoLoaded'
 }
 
 // TODO add reference to example
@@ -9,6 +10,10 @@ export enum {{pascalCase name}}MachineEventsTypes {
 
 export type {{pascalCase name}}MachineEvents = 
   //  | invokeEvents
+  {
+    type: {{pascalCase name}}MachineEventsTypes.ExternalInfoLoaded;      
+    loaded: boolean
+  }
   | {
       type: {{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated;
       externalInfo: Partial<{{pascalCase name}}MachineContext['externalInfo']>;

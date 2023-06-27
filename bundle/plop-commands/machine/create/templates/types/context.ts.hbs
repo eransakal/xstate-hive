@@ -3,3 +3,8 @@
 export interface {{pascalCase name}}MachineContext {
     externalInfo: {}
 }
+
+export const createDefault{{pascalCase name}}MachineContext = (): {{pascalCase name}}MachineContext =>  ({    
+      externalInfo: {        
+      }
+})

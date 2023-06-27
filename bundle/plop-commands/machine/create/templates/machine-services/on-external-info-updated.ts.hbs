@@ -2,16 +2,16 @@ import {
   {{pascalCase name}}MachineContext,
   {{pascalCase name}}MachineSender,
 } from '../types';
-{{> xstateLogger isKME=isKME loggerName='onExternalInfoChanged' loggerType='MachineService' commented=false loggerPath='../utils/'}}
+{{> xstateLogger isKME=isKME loggerName='onExternalInfoUpdated' loggerType='MachineService' commented=false loggerPath='../utils/'}}
 
 // TODO add link to reference
-export const onExternalInfoChanged =
+export const onExternalInfoUpdated =
   (context: {{pascalCase name}}MachineContext, data: any) => (send: {{pascalCase name}}MachineSender) => {
-    // const handleExampleChanged = (exampleData: ExampleData | null) => {
+    // const handleExampleUpdated = (exampleData: ExampleData | null) => {
     //   if (ownUser) {
     //     logger.log(`updating external info for user '${ownUser.id}'`)
     //     send({
-    //       type: UserPollsMachineEventsTypes.ExternalInfoUpdated,
+    //       type: {{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated,
     //       externalInfo: {
     //         something: exampleData.something
     //       },
@@ -19,12 +19,12 @@ export const onExternalInfoChanged =
     //   }
     // };
 
-    // onExampleChanged.on(
-    //   handleExampleChanged,
+    // onExampleUpdated.on(
+    //   handleExampleUpdated,
     //   data.emitLastValue ?? false      
     // );
     
     // return () => {
-    //   onExampleChanged.off(handleExampleChanged);
+    //   onExampleUpdated.off(handleExampleUpdated);
     // };
   };

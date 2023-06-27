@@ -1,13 +1,12 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import { {{pascalCase name}}Context } from './{{dashCase name}}-context';
-import { {{pascalCase name}}MachineEvents, {{pascalCase name}}MachineState } from '../types';
+import { {{pascalCase name}}MachineContext, {{pascalCase name}}MachineEvents, {{pascalCase name}}MachineState } from '../types';
 import { useSelector } from '@xstate/react';
 {{> xstateLogger isKME=isKME loggerType='Util' loggerName='MachineCalculatedValueEmitter' loggerPath='./'}}
 
-
 export interface Props<TValue> {  
-  selector: (state: {{pascalCase name}}MachineState) => TValue;
-  event: {{pascalCase name}}MachineEvents  
+  formula: (context: {{pascalCase name}}MachineContext) => TValue;
+  event: (value: TValue) => {{pascalCase name}}MachineEvents  
 }
 
 export function MachineCalculatedValueEmitter<T>(props: Props<T>) {
@@ -15,12 +14,23 @@ export function MachineCalculatedValueEmitter<T>(props: Props<T>) {
 
   const eventRef = useRef(props.event);
   eventRef.current = props.event;
+
+  const formula = props?.formula;
+  const selector = useMemo(() => {
+    return (state: {{pascalCase name}}MachineState) => {
+      return formula?.(state.context);
+    }
+  }, [formula]);
   
-  const value = useSelector({{camelCase name}}MachineService, props.selector);
+  const value = useSelector({{camelCase name}}MachineService, selector);
   useEffect(() => {
     if (eventRef.current) {
-    logger.log(`emitting calculated value changed event '${eventRef.current?.type}'`);
-        {{camelCase name}}MachineService.send(eventRef.current)
+      const event = eventRef.current(value)
+      if (event) {
+        logger.log(`emitting calculated value changed event '${event.type}'`);
+        console.log(event)
+        {{camelCase name}}MachineService.send(event)
+      }
     }
   }, [value, {{camelCase name}}MachineService]);
 
