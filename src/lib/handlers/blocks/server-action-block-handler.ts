@@ -6,25 +6,25 @@ import {injectStateTransformer} from '../../transformers/inject-state-to-machine
 import * as fs from 'fs'
 import {CLIError} from '@oclif/core/lib/errors/index.js'
 import {getStatePath} from '../../utils/paths.js'
-import {OptimisticActionBlockOptions, validateOptimisticActionBlockOptions} from '../../transformers/generate-optimistic-action-block/types.js'
-import {optimisticActionBlockPrompts} from '../../transformers/generate-optimistic-action-block/prompts.js'
-import {generateOptimisticActionBlockTransformer} from '../../transformers/generate-optimistic-action-block/index.js'
+import {ServerActionBlockOptions, validateServerActionBlockOptions} from '../../transformers/generate-server-action-block/types.js'
+import {serverActionBlockPrompts} from '../../transformers/generate-server-action-block/prompts.js'
+import {generateServerActionBlockTransformer} from '../../transformers/generate-server-action-block/index.js'
 
-export const optimisticActionBlockHandler = async ({machineConfig} :  { machineConfig: MachineConfig}): Promise<void> => {
-  const optimisticActionBlockTransformerOptions =  await PromptsWizard.run<OptimisticActionBlockOptions>({
+export const serverActionBlockHandler = async ({machineConfig} :  { machineConfig: MachineConfig}): Promise<void> => {
+  const serverActionBlockTransformerOptions =  await PromptsWizard.run<ServerActionBlockOptions>({
     machineConfig,
   }, {
     prompts: [
-      ...(await optimisticActionBlockPrompts({
+      ...(await serverActionBlockPrompts({
         machineConfig,
       })),
     ],
-    validateAnswers: validateOptimisticActionBlockOptions,
+    validateAnswers: validateServerActionBlockOptions,
   })
 
   const injectStateToMachineOptions = await PromptsWizard.run<InjectStateToMachineOptions>({
-    parentState: optimisticActionBlockTransformerOptions.parentState,
-    stateName: optimisticActionBlockTransformerOptions.stateName,
+    parentState: serverActionBlockTransformerOptions.parentState,
+    stateName: serverActionBlockTransformerOptions.stateName,
     forceTypeParallel: true,
   }, {
     prompts: [
@@ -33,13 +33,13 @@ export const optimisticActionBlockHandler = async ({machineConfig} :  { machineC
     validateAnswers: validateInjectStatusToMachineOptions,
   })
 
-  const newStatePath = getStatePath(optimisticActionBlockTransformerOptions.parentState, optimisticActionBlockTransformerOptions.stateName)
+  const newStatePath = getStatePath(serverActionBlockTransformerOptions.parentState, serverActionBlockTransformerOptions.stateName)
   if (fs.existsSync(newStatePath)) {
     throw new CLIError(`State file '${newStatePath}' already exists (do you have a sibilant state with the same name?)`)
   }
 
   await injectStateTransformer(injectStateToMachineOptions)
 
-  await generateOptimisticActionBlockTransformer(optimisticActionBlockTransformerOptions)
+  await generateServerActionBlockTransformer(serverActionBlockTransformerOptions)
 }
 

@@ -109,12 +109,8 @@ export const createStateToModifyPrompt = async (machineConfig: MachineConfig): P
               'Select the parent state to add a new state to:',
             // : 'Select the state to change:',
             choices: machineStates.map(state => {
-              if (state.id === '') {
-                return state.name
-              }
-
               return {
-                name: state.id,
+                name: state.id || state.name,
                 value: state,
               }
             }),

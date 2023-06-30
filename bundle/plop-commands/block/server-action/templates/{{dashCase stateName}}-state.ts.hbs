@@ -1,0 +1,49 @@
+import { {{pascalCase machineName}}MachineContext, {{pascalCase machineName}}MachineEventsTypes , {{pascalCase machineName}}MachineStateConfig } from '{{relativePathToMachine}}types';
+import { actions } from 'xstate';
+
+export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
+  initial: 'idle',
+  states: {
+    idle: {    
+      on: {
+        [{{pascalCase machineName}}MachineEventsTypes.{{pascalCase stateName}}]: [
+          {
+            {{#if guardName }}cond: '{{pascalCase guardName}}',
+            {{/if}}target: 'inProgress',
+          },
+        ],     
+      },
+    },
+    inProgress: {
+      invoke: {
+        src: '{{camelCase stateName}}',
+        onDone: {
+          target: 'idle',
+        },
+        onError: {        
+          target: 'error',
+        },
+      },
+    },
+    error: {
+      {{#if useNotifications}}entry: [
+        actions.send((context: {{pascalCase machineName}}MachineContext) => ({
+          type: {{pascalCase machineName}}MachineEventsTypes.ShowNotification,
+          payload: {
+            variant: 'error',
+            message: `{{dashCase stateName}}-failed`,
+            reason: `An error occurred while sending server request '{{camelCase stateName}}'.`
+          },
+        })),            
+      ],
+      {{/if}}on: {
+        [{{pascalCase machineName}}MachineEventsTypes.{{pascalCase stateName}}]: [
+          {
+            {{#if guardName }}cond: '{{pascalCase guardName}}',
+            {{/if}}target: 'inProgress',
+          },
+        ],     
+      },
+    }
+  },
+};

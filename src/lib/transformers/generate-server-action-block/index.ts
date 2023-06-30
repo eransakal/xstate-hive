@@ -2,15 +2,15 @@ import * as path from 'path'
 import {executePlopJSCommand} from '../../utils/execute-plopljs-command.js'
 import {ux} from '@oclif/core'
 import {Configuration} from '../../configuration.js'
-import {OptimisticActionBlockOptions, validateOptimisticActionBlockOptions} from './types.js'
+import {ServerActionBlockOptions, validateServerActionBlockOptions} from './types.js'
 import {getActiveCommand} from '../../active-command.js'
 import {getStateDirPath, getStatePath} from '../../utils/paths.js'
 import {toDashCase} from '../../utils/formatters.js'
 
-export const generateOptimisticActionBlockTransformer = async (
-  options : OptimisticActionBlockOptions): Promise<void> => {
+export const generateServerActionBlockTransformer = async (
+  options : ServerActionBlockOptions): Promise<void> => {
   const {debug} = getActiveCommand()
-  if (!validateOptimisticActionBlockOptions(options)) {
+  if (!validateServerActionBlockOptions(options)) {
     throw new Error('Invalid options')
   }
 
@@ -27,10 +27,10 @@ export const generateOptimisticActionBlockTransformer = async (
     pathToParentStateInFile,
   })
 
-  ux.action.start(`generate optimistic action state files in '${projectConfiguration.getRelativePath(destPath)}'`)
+  ux.action.start(`generate server action state files in '${projectConfiguration.getRelativePath(destPath)}'`)
 
   executePlopJSCommand({
-    commandPath: 'block/optimistic-action',
+    commandPath: 'block/server-action',
     destPath,
     options: {
       stateName: options.stateName,
@@ -40,7 +40,6 @@ export const generateOptimisticActionBlockTransformer = async (
       actionVerb: options.actionVerb,
       noun: options.noun,
       guardName: options.guardName,
-      contextPropFullPath: options.contextPropFullPath,
       useNotifications: options.machineConfig.context.hasNotificationsState,
     },
   })

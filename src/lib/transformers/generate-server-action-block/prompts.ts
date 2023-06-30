@@ -2,16 +2,16 @@ import inquirer from 'inquirer'
 import {createStateToModifyPrompt} from '../../prompts/prompts.js'
 import {Prompt} from '../../prompts/prompts-wizard.js'
 import {isStringWithValue} from '../../utils/validators.js'
-import {OptimisticActionBlockOptions} from './types.js'
+import {ServerActionBlockOptions} from './types.js'
 import {MachineConfig} from '../../configuration.js'
 import {toCamelCase, toPascalCase} from '../../utils/formatters.js'
 
-export const optimisticActionBlockPrompts = async ({
+export const serverActionBlockPrompts = async ({
   machineConfig,
 }: {
   machineConfig: MachineConfig,
-}): Promise<Prompt<OptimisticActionBlockOptions>[]> => {
-  const promises: (Prompt<OptimisticActionBlockOptions> | null)[] = [
+}): Promise<Prompt<ServerActionBlockOptions>[]> => {
+  const promises: (Prompt<ServerActionBlockOptions> | null)[] = [
     {
       propName: ['actionVerb', 'noun'],
       validate: data => (isStringWithValue(data.actionVerb) && isStringWithValue(data.noun)) || 'Action verb or noun is not defined',
@@ -59,18 +59,6 @@ export const optimisticActionBlockPrompts = async ({
     },
     (await createStateToModifyPrompt(machineConfig)),
     {
-      propName: 'contextPropFullPath',
-      validate: data => isStringWithValue(data.contextPropFullPath) || 'Context property name is not defined',
-      run: async data => (await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'value',
-          default: data.noun,
-          message: 'Enter the machine context property that stores the value:',
-        },
-      ])).value,
-    },
-    {
       propName: 'guardName',
       allowEmptyAnswer: true,
       validate: data => typeof data.guardName === 'string',
@@ -99,5 +87,5 @@ export const optimisticActionBlockPrompts = async ({
     },
   ]
 
-  return promises.filter(Boolean) as Prompt<OptimisticActionBlockOptions>[]
+  return promises.filter(Boolean) as Prompt<ServerActionBlockOptions>[]
 }

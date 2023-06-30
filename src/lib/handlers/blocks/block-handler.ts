@@ -3,7 +3,8 @@ import {statusBlockHandler} from './status-block-handler.js'
 import inquirer from 'inquirer'
 import {formatMachineName} from '../../utils/formatters.js'
 import {promptListWithHelp} from '../../prompts/prompts.js'
-import { optimisticActionBlockHandler } from './optimistic-action-block-handler.js'
+import {optimisticActionBlockHandler} from './optimistic-action-block-handler.js'
+import {serverActionBlockHandler} from './server-action-block-handler.js'
 
 export  const blockHandler = async (options :  { machineName: string | undefined }): Promise<void> => {
   const projectConfiguration = Configuration.get()
@@ -31,6 +32,10 @@ export  const blockHandler = async (options :  { machineName: string | undefined
           name: 'User optimistic action block',
           value: 'optimistic-action',
         },
+        {
+          name: 'User request to server block',
+          value: 'server-action',
+        },
       ], helpLink: 'https://sakalim.com/projects/react-architecture/application-state-with-xstate-4-guides-blocks#blocks-types',
     })
 
@@ -41,6 +46,10 @@ export  const blockHandler = async (options :  { machineName: string | undefined
     })
   case 'optimistic-action':
     return optimisticActionBlockHandler({
+      machineConfig,
+    })
+  case 'server-action':
+    return serverActionBlockHandler({
       machineConfig,
     })
   }

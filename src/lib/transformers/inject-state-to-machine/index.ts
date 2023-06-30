@@ -24,6 +24,7 @@ export const injectStateTransformer = async (options:  InjectStateToMachineOptio
       pathToParentStateInFile: options.parentState.innerFileParentStates.join('.'),
       stateImportName: `${options.stateName}State`,
       stateImportPath: newStateImportPath,
+      forceTypeParallel: String(options.forceTypeParallel),
     },
   })
   ux.action.stop()

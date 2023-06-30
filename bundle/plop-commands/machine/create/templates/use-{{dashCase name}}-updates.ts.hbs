@@ -23,23 +23,28 @@ export const use{{pascalCase name}}Updates = <
 ): {{pascalCase name}}Selectors<T> => {  
   const { {{camelCase name}}MachineService } = useContext({{pascalCase name}}Context);
 
-  let selector: (state: {{pascalCase name}}MachineState) => any = () => {};
+  const { machineService } = useContext({{pascalCase name}}Context);
 
-  if (typeof selectors === 'function') {
-    selector = selectors;
-  } else if (typeof selectors === 'object') {
-    selector = (state: {{pascalCase name}}MachineState) => {
-      const result: Partial<{{pascalCase name}}Selectors<T>> = {};
+  const getSelectorFn: () => ((state: {{pascalCase name}}State) => any) = ()  => {
+    if (typeof selectors === 'function') {
+      return selectors;
+    } else if (typeof selectors === 'object') {
+      return (state: {{pascalCase name}}State) => {
+        const result: Partial<UsersSelectors<T>> = {};
 
-      for (const key in selectors) {
-        if (Object.prototype.hasOwnProperty.call(selectors, key)) {
-          result[key] = (selectors[key] as any)(state);
+        for (const key in selectors) {
+          if (Object.prototype.hasOwnProperty.call(selectors, key)) {
+            result[key] = (selectors[key] as any)(state);
+          }
         }
-      }
 
-      return result as {{pascalCase name}}Selectors<T>;
-    };
+        return result as UsersSelectors<T>;
+      };
+    }
+
+    return () => null;
   }
+  const [selectorFn] = useState<(state: {{pascalCase name}}State) => any>(() => getSelectorFn())
 
-  return useSelector({{camelCase name}}MachineService, selector) as {{pascalCase name}}Selectors<T>;
+  return useSelector(machineService, selectorFn) as UsersSelectors<T>;
 };

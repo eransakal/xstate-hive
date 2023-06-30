@@ -11,7 +11,7 @@ export const loadingState: {{pascalCase machineName}}MachineStateConfig = {
     {{#if isMachineLoadingState}}externalInfo: {
       initial: 'unknown',               
       states: {
-        'unknown': {
+        unknown: {
           always: [
             {
               cond: 'isExternalInfoLoaded',

@@ -15,7 +15,7 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
       on: {
         [{{pascalCase machineName}}MachineEventsTypes.Update{{pathToPascalCase contextPropFullPath}}]: [
           {
-            {{#if contextGuardPropFullPath }}cond: 'canManage{{pascalCase contextGuardPropFullPath}}',
+            {{#if guardName }}cond: '{{pascalCase guardName}}',
             {{/if}}actions: ['updateIntermediate{{pathToPascalCase contextPropFullPath}}'],
             target: 'inProgress',
           },
@@ -30,11 +30,11 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
         },
         onError: {
           actions: [
-            {{#if notificationErrorMessage}}actions.send((context) => ({
+            {{#if useNotifications}}actions.send((context) => ({
               type: {{pascalCase machineName}}MachineEventsTypes.ShowNotification,
               payload: {
                 variant: 'error',
-                message: `{{notificationErrorMessage}}`,
+                message: `{{dashCase stateName}}-failed`,
                 reason: `An error occurred while requesting an update for '{{camelCase (pathToPascalCase contextPropFullPath)}}' to '${context.{{optionalPath contextPropFullPath}} || ''}'. As a result, the intermediate value is being reverted.`
               },
             })),
@@ -48,11 +48,11 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
       after: {
         5000: {
           actions: [          
-            {{#if notificationErrorMessage}}actions.send((context) => ({
+            {{#if useNotifications}}actions.send((context) => ({
               type: {{pascalCase machineName}}MachineEventsTypes.ShowNotification,
               payload: {
                 variant: 'error',
-                message: `{{notificationErrorMessage}}`,
+                message: `{{dashCase stateName}}-failed`,
                 reason: `The server failed to respond via the web socket when updating '{{camelCase (pathToPascalCase contextPropFullPath)}}' to '${context.{{optionalPath contextPropFullPath}} || ''}'. As a result, the intermediate value is being reverted.`
               },
             })),
