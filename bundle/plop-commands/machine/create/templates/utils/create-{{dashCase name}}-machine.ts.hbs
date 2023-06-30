@@ -23,6 +23,12 @@ export const create{{pascalCase name}}Machine = () => {
       [{{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated]: {
         actions: 'updateExternalInfo',        
       },
+      [{{pascalCase name}}MachineEventsTypes.AddNotification]: {
+        actions: 'addNotification',
+      },
+      [{{pascalCase name}}MachineEventsTypes.RemoveNotification]: {
+        actions: 'removeNotification',
+      },
     },
     states: {},
   }).withContext(

@@ -14,6 +14,8 @@ import { create{{pascalCase name}}Machine } from './utils/create-{{dashCase name
 import { useMachine } from '@xstate/react';
 import { {{pascalCase name}}Context } from './utils/{{dashCase name}}-context';
 import { updateExternalInfo } from './machine-actions/context/update-external-info';
+import { addNotification } from './machine-actions/add-notification';
+import { removeNotification } from './machine-actions/remove-notification';
 import { onExternalInfoUpdated } from './machine-services/on-external-info-updated';
 import { MachineCalculatedValueEmitter } from './utils/machine-calculated-value-emitter';
 import { isExternalInfoLoaded } from './machine-guards/is-external-info-loaded';
@@ -25,7 +27,9 @@ export const {{pascalCase name}}Provider: React.FC{{#if isKME}}{{else}}<PropsWit
 
   const [, , {{camelCase name}}MachineService] = useMachine<{{#if isKME}}{{pascalCase name}}MachineContext, {{pascalCase name}}MachineEvents{{else}}{{pascalCase name}}Machine{{/if}}>(machine, {
     actions: {
-      updateExternalInfo 
+      updateExternalInfo,
+      addNotification,
+      removeNotification,
     },
     services: {
       onExternalInfoUpdated

@@ -5,7 +5,14 @@ export const use{{pascalCase name}}Service = () => {
   const { {{camelCase name}}MachineService } = useContext({{pascalCase name}}Context);
 
   const actions = useMemo(() => {
-    return {};
+    return {
+      removeNotification: (id: string) => {
+        {{camelCase name}}MachineService.send({
+          type: {{pascalCase name}}MachineEventsTypes.RemoveNotification,
+          id,
+        });
+      },
+    };
   }, [{{camelCase name}}MachineService]);
 
   return {    

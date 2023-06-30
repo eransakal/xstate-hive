@@ -1,0 +1,6 @@
+export type {{pascalCase name}}Notification = {
+  variant: 'error' | 'warning' | 'info' | 'success';
+  message: string;
+  payload?: Record<string, any>;
+  id: string;
+};

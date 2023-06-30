@@ -1,23 +1,43 @@
 import { {{pascalCase name}}MachineContext } from "./context";
+import { {{pascalCase name}}Notification } from "./notifications";
 
 export enum {{pascalCase name}}MachineEventsTypes {
   ExternalInfoUpdated = 'ExternalInfoUpdated',
-  ExternalInfoLoaded = 'ExternalInfoLoaded'
+  ExternalInfoLoaded = 'ExternalInfoLoaded',
+  AddNotification = 'AddNotification',
+  RemoveNotification = 'RemoveNotification',
 }
 
 // TODO add reference to example
 // type invokeEvents = unknown;
 
+type AddNotificationsEvent = {
+  type: {{pascalCase name}}MachineEventsTypes.AddNotification;  
+} & Omit<{{pascalCase name}}Notification, 'id'>
+
+type RemoveNotificationsEvent = {
+  type: {{pascalCase name}}MachineEventsTypes.RemoveNotification;
+  id: string;
+};
+
+type ExternalInfoLoadedEvent = {
+  type: {{pascalCase name}}MachineEventsTypes.ExternalInfoLoaded;      
+  loaded: boolean
+};
+
+type ExternalInfoUpdatedEvent = {
+  type: {{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated;
+  externalInfo: Partial<{{pascalCase name}}MachineContext['externalInfo']>;
+};
+
+
 export type {{pascalCase name}}MachineEvents = 
   //  | invokeEvents
-  {
-    type: {{pascalCase name}}MachineEventsTypes.ExternalInfoLoaded;      
-    loaded: boolean
-  }
-  | {
-      type: {{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated;
-      externalInfo: Partial<{{pascalCase name}}MachineContext['externalInfo']>;
-    }
+  | AddNotificationsEvent 
+  | RemoveNotificationsEvent
+  | ExternalInfoLoadedEvent
+  | ExternalInfoUpdatedEvent
+  | ExternalInfoUpdatedEvent;
     
 
 
