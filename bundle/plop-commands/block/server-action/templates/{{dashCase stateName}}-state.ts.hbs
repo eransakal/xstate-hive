@@ -1,5 +1,6 @@
-import { {{pascalCase machineName}}MachineContext, {{pascalCase machineName}}MachineEventsTypes , {{pascalCase machineName}}MachineStateConfig } from '{{relativePathToMachine}}types';
 import { actions } from 'xstate';
+import { {{pascalCase machineName}}MachineContext, {{pascalCase machineName}}MachineEventsTypes , {{pascalCase machineName}}MachineStateConfig } from '{{relativePathToMachine}}types';
+{{> xstateLogger machineName=machineName loggerName=(appendSuffix stateName 'State') isKME=isKME loggerType='State' loggerPath=(appendSuffix relativePathToMachine 'utils/') }}
 
 export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
   initial: 'idle',
@@ -8,7 +9,7 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
       on: {
         [{{pascalCase machineName}}MachineEventsTypes.{{pascalCase stateName}}]: [
           {
-            {{#if guardName }}cond: '{{pascalCase guardName}}',
+            {{#if guardName }}cond: '{{camelCase guardName}}',
             {{/if}}target: 'inProgress',
           },
         ],     
@@ -20,7 +21,15 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
         onDone: {
           target: 'idle',
         },
-        onError: {        
+        onError: {       
+          actions: (context, event) => {
+              logger.error(
+                {
+                  message: `An error occurred while sending server request '{{camelCase stateName}}'.`,
+                  data: event
+                }
+              );
+          }, 
           target: 'error',
         },
       },
@@ -28,7 +37,7 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
     error: {
       {{#if useNotifications}}entry: [
         actions.send((context: {{pascalCase machineName}}MachineContext) => ({
-          type: {{pascalCase machineName}}MachineEventsTypes.ShowNotification,
+          type: {{pascalCase machineName}}MachineEventsTypes.AddNotification,
           payload: {
             variant: 'error',
             message: `{{dashCase stateName}}-failed`,
@@ -39,7 +48,7 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
       {{/if}}on: {
         [{{pascalCase machineName}}MachineEventsTypes.{{pascalCase stateName}}]: [
           {
-            {{#if guardName }}cond: '{{pascalCase guardName}}',
+            {{#if guardName }}cond: '{{camelCase guardName}}',
             {{/if}}target: 'inProgress',
           },
         ],     

@@ -14,12 +14,12 @@ import { create{{pascalCase name}}Machine } from './utils/create-{{dashCase name
 import { useMachine } from '@xstate/react';
 import { {{pascalCase name}}Context } from './utils/{{dashCase name}}-context';
 import { updateExternalInfo } from './machine-actions/context/update-external-info';
-import { addNotification } from './machine-actions/add-notification';
-import { removeNotification } from './machine-actions/remove-notification';
+import { addNotification } from './machine-actions/context/add-notification';
+import { removeNotification } from './machine-actions/context/remove-notification';
 import { onExternalInfoUpdated } from './machine-services/on-external-info-updated';
 import { MachineCalculatedValueEmitter } from './utils/machine-calculated-value-emitter';
 import { isExternalInfoLoaded } from './machine-guards/is-external-info-loaded';
-{{> xstateLogger loggerName=(dynamicParam name 'Provider') isKME=isKME loggerType='Machine' loggerPath='./utils/'}}
+{{> xstateLogger machineName=name loggerName=(appendSuffix name 'Provider') isKME=isKME loggerType='Machine' loggerPath='./utils/'}}
 
 export const {{pascalCase name}}Provider: React.FC{{#if isKME}}{{else}}<PropsWithChildren>{{/if}} = ({ children }) => {
  

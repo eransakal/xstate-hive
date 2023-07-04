@@ -1,16 +1,16 @@
 {{#if commented}}/*{{/if}}
 {{#if isKME}}
-import { create{{pascalCase name}}MachineLogger } from '{{loggerPath}}logger';
+import { create{{pascalCase machineName}}MachineLogger } from '{{loggerPath}}logger';
 import { XStateMachineLogSenderTypes } from '@kme/room-diagnostics-utils-diagnostics';
 
-const logger = create{{pascalCase name}}MachineLogger(
+const logger = create{{pascalCase machineName}}MachineLogger(
   '{{loggerName}}',
   XStateMachineLogSenderTypes.{{loggerType}}
 );
 {{else}}
-import { create{{pascalCase name}}MachineLogger } from '{{loggerPath}}logger';
+import { create{{pascalCase machineName}}MachineLogger } from '{{loggerPath}}logger';
 
-const logger =  create{{pascalCase name}}MachineLogger(
+const logger =  create{{pascalCase machineName}}MachineLogger(
     '{{loggerName}}'
   );
 {{/if}}

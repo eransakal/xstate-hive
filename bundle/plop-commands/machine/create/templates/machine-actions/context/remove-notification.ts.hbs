@@ -4,7 +4,7 @@ import {
   {{pascalCase name}}MachineEvents,
   {{pascalCase name}}MachineEventsTypes,
 } from '../types';
-{{> xstateLogger loggerName='removeNotification' isKME=isKME loggerType='Machine' loggerPath='../utils/'}}
+{{> xstateLogger machineName=name loggerName='removeNotification' isKME=isKME loggerType='Machine' loggerPath='../utils/'}}
 
 export const removeNotification = assign<
   {{pascalCase name}}MachineContext,

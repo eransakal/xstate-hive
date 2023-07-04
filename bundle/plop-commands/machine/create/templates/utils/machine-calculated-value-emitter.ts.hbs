@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import { {{pascalCase name}}Context } from './{{dashCase name}}-context';
 import { {{pascalCase name}}MachineContext, {{pascalCase name}}MachineEvents, {{pascalCase name}}MachineState } from '../types';
 import { useSelector } from '@xstate/react';
-{{> xstateLogger isKME=isKME loggerType='Util' loggerName='MachineCalculatedValueEmitter' loggerPath='./'}}
+{{> xstateLogger machineName=name isKME=isKME loggerType='Util' loggerName='MachineCalculatedValueEmitter' loggerPath='./'}}
 
 export interface Props<TValue> {  
   formula: (context: {{pascalCase name}}MachineContext) => TValue;
@@ -27,8 +27,9 @@ export function MachineCalculatedValueEmitter<T>(props: Props<T>) {
     if (eventRef.current) {
       const event = eventRef.current(value)
       if (event) {
-        logger.log(`emitting calculated value changed event '${event.type}'`);
-        console.log(event)
+        logger.log({
+          message: `emitting calculated value changed event '${event.type}'`
+        });      
         {{camelCase name}}MachineService.send(event)
       }
     }

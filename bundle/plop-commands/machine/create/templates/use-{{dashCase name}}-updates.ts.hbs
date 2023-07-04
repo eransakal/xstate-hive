@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useSelector } from '@xstate/react';
 import { {{pascalCase name}}MachineState } from './types';
 import { {{pascalCase name}}Context } from './utils/{{dashCase name}}-context';
@@ -21,16 +21,14 @@ export const use{{pascalCase name}}Updates = <
 >(
   selectors: T
 ): {{pascalCase name}}Selectors<T> => {  
-  const { {{camelCase name}}MachineService } = useContext({{pascalCase name}}Context);
+  const { {{camelCase name}}MachineService: machineService } = useContext({{pascalCase name}}Context);
 
-  const { machineService } = useContext({{pascalCase name}}Context);
-
-  const getSelectorFn: () => ((state: {{pascalCase name}}State) => any) = ()  => {
+  const getSelectorFn: () => ((state: {{pascalCase name}}MachineState) => any) = ()  => {
     if (typeof selectors === 'function') {
       return selectors;
     } else if (typeof selectors === 'object') {
-      return (state: {{pascalCase name}}State) => {
-        const result: Partial<UsersSelectors<T>> = {};
+      return (state: {{pascalCase name}}MachineState) => {
+        const result: Partial<{{pascalCase name}}Selectors<T>> = {};
 
         for (const key in selectors) {
           if (Object.prototype.hasOwnProperty.call(selectors, key)) {
@@ -38,13 +36,13 @@ export const use{{pascalCase name}}Updates = <
           }
         }
 
-        return result as UsersSelectors<T>;
+        return result as {{pascalCase name}}Selectors<T>;
       };
     }
 
     return () => null;
   }
-  const [selectorFn] = useState<(state: {{pascalCase name}}State) => any>(() => getSelectorFn())
+  const [selectorFn] = useState<(state: {{pascalCase name}}MachineState) => any>(() => getSelectorFn())
 
-  return useSelector(machineService, selectorFn) as UsersSelectors<T>;
+  return useSelector(machineService, selectorFn) as {{pascalCase name}}Selectors<T>;
 };

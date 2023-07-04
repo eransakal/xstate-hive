@@ -4,7 +4,7 @@ import {
   {{pascalCase name}}MachineEvents,
   {{pascalCase name}}MachineEventsTypes,
 } from '../types';
-{{> xstateLogger loggerName='addNotification' isKME=isKME loggerType='Machine' loggerPath='../utils/'}}
+{{> xstateLogger machineName=name loggerName='addNotification' isKME=isKME loggerType='Machine' loggerPath='../utils/'}}
 
 // Note: you can replace it with the 'nano' library if you have a dependency on it
 let notificationCounter = 1;
@@ -28,6 +28,6 @@ export const addNotification = assign<
       },
     });
 
-    context.notifications = [...context.notifications, notification];
+    context.notifications.push(notification);
   }
 });

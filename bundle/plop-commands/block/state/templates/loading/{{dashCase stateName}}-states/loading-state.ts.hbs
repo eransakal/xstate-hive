@@ -41,8 +41,8 @@ export const loadingState: {{pascalCase machineName}}MachineStateConfig = {
         loading: {
           invoke: [
             {
-              id: 'loadPollsData',
-              src: 'getPollsSnapshot',
+              id: 'loadExampleData',
+              src: 'getExampleSnapshot',
               onDone: {
                 actions: ['setActiveExampleData'],
                 target: 'done',

@@ -1,11 +1,13 @@
+import { actions } from 'xstate';
 import { {{pascalCase machineName}}MachineEventsTypes , {{pascalCase machineName}}MachineStateConfig } from '{{relativePathToMachine}}types';
+{{> xstateLogger machineName=machineName loggerName=(appendSuffix stateName 'State') isKME=isKME loggerType='State' loggerPath=(appendSuffix relativePathToMachine 'utils/') }}
 
 export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStateConfig = {
   initial: 'idle',
   on: {
     [{{pascalCase machineName}}MachineEventsTypes.{{pathToPascalCase contextPropFullPath}}Updated]: [
       {
-        actions: ['update{{pathToPascalCase contextPropFullPath}}', 'cleanIntermediate{{pathToPascalCase contextPropFullPath}}'],
+        actions: ['update{{pathToPascalCase contextPropFullPath}}', 'clearIntermediate{{pathToPascalCase contextPropFullPath}}'],
         target: '.idle',
       },
     ],
@@ -15,7 +17,7 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
       on: {
         [{{pascalCase machineName}}MachineEventsTypes.Update{{pathToPascalCase contextPropFullPath}}]: [
           {
-            {{#if guardName }}cond: '{{pascalCase guardName}}',
+            {{#if guardName }}cond: '{{camelCase guardName}}',
             {{/if}}actions: ['updateIntermediate{{pathToPascalCase contextPropFullPath}}'],
             target: 'inProgress',
           },
@@ -30,15 +32,23 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
         },
         onError: {
           actions: [
+            (context, event) => {
+              logger.error(
+                {
+                  message: `An error occurred while sending server request 'update{{pathToPascalCase contextPropFullPath}}'.`,
+                  data: event
+                }
+              );
+            },
             {{#if useNotifications}}actions.send((context) => ({
-              type: {{pascalCase machineName}}MachineEventsTypes.ShowNotification,
+              type: {{pascalCase machineName}}MachineEventsTypes.AddNotification,
               payload: {
                 variant: 'error',
                 message: `{{dashCase stateName}}-failed`,
                 reason: `An error occurred while requesting an update for '{{camelCase (pathToPascalCase contextPropFullPath)}}' to '${context.{{optionalPath contextPropFullPath}} || ''}'. As a result, the intermediate value is being reverted.`
               },
             })),
-            {{/if}}'cleanIntermediate{{pathToPascalCase contextPropFullPath}}',          
+            {{/if}}'clearIntermediate{{pathToPascalCase contextPropFullPath}}',          
           ],
           target: 'idle',
         },
@@ -49,14 +59,14 @@ export const {{camelCase stateName}}State: {{pascalCase machineName}}MachineStat
         5000: {
           actions: [          
             {{#if useNotifications}}actions.send((context) => ({
-              type: {{pascalCase machineName}}MachineEventsTypes.ShowNotification,
+              type: {{pascalCase machineName}}MachineEventsTypes.AddNotification,
               payload: {
                 variant: 'error',
                 message: `{{dashCase stateName}}-failed`,
                 reason: `The server failed to respond via the web socket when updating '{{camelCase (pathToPascalCase contextPropFullPath)}}' to '${context.{{optionalPath contextPropFullPath}} || ''}'. As a result, the intermediate value is being reverted.`
               },
             })),
-            {{/if}}'cleanIntermediate{{pathToPascalCase contextPropFullPath}}',
+            {{/if}}'clearIntermediate{{pathToPascalCase contextPropFullPath}}',
           ],
           target: 'idle',
         },

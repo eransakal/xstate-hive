@@ -2,7 +2,7 @@ import {
   {{pascalCase name}}MachineContext,
   {{pascalCase name}}MachineSender,
 } from '../types';
-{{> xstateLogger isKME=isKME loggerName='onExternalInfoUpdated' loggerType='MachineService' commented=false loggerPath='../utils/'}}
+{{> xstateLogger machineName=name isKME=isKME loggerName='onExternalInfoUpdated' loggerType='MachineService' commented=false loggerPath='../utils/'}}
 
 // TODO add link to reference
 export const onExternalInfoUpdated =

@@ -88,7 +88,7 @@ export const optimisticActionBlockPrompts = async ({
             {
               type: 'input',
               name: 'value',
-              default: `canManage${toPascalCase(data.actionVerb!)}${toPascalCase(data.noun!)}`,
+              default: `canManage${toPascalCase(data.noun!)}`,
               message: 'Specify the context property to examine within the machine context:',
             },
           ])).value
