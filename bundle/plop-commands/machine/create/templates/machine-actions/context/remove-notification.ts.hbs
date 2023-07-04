@@ -3,8 +3,8 @@ import {
   {{pascalCase name}}MachineContext,
   {{pascalCase name}}MachineEvents,
   {{pascalCase name}}MachineEventsTypes,
-} from '../types';
-{{> xstateLogger machineName=name loggerName='removeNotification' isKME=isKME loggerType='Machine' loggerPath='../utils/'}}
+} from '../../types';
+{{> xstateLogger machineName=name loggerName='removeNotification' isKME=isKME loggerType='Action' loggerPath='../../utils/'}}
 
 export const removeNotification = assign<
   {{pascalCase name}}MachineContext,
