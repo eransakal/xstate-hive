@@ -1,0 +1,70 @@
+import { {{pascalCase machineName}}MachineEventsTypes, {{pascalCase machineName}}MachineStateConfig } from '{{relativePathToMachine}}../types';
+
+export const loadingState: {{pascalCase machineName}}MachineStateConfig = {
+  type: 'parallel',
+  onDone: [
+    {      
+      target: 'operational',
+    }    
+  ],   
+  states: {    
+    {{#if isMachineLoadingState}}externalInfo: {
+      initial: 'unknown',               
+      states: {
+        unknown: {
+          always: [
+            {
+              cond: 'isExternalInfoLoaded',
+              target: 'done',
+            },
+            {
+              target: 'loading',
+            }
+          ],
+        },
+        loading: {
+          on: {
+            [{{pascalCase machineName}}MachineEventsTypes.ExternalInfoLoaded]: {          
+              cond: 'isExternalInfoLoaded',
+              target: 'done',
+            },
+          },
+        },
+        done: {
+          type: 'final',
+        },
+      },
+    },
+    {{/if}}/*loadExampleData: {
+      initial: 'loading',
+      states: {
+        loading: {
+          invoke: [
+            {
+              id: 'loadExampleData',
+              src: 'getExampleSnapshot',
+              onDone: {
+                actions: ['setActiveExampleData'],
+                target: 'done',
+              },
+              onError: {
+                target: 'error'
+              }
+            },
+          ],
+        },
+        done: {
+          type: 'final',
+        },
+        error: {
+           on: {
+            [{{pascalCase machineName}}MachineEventsTypes.RetryLoadExampleData]: {                        
+              target: 'loading',
+            },
+          },
+        }
+      },
+    },*/
+  }  
+};
+

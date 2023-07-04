@@ -7,16 +7,16 @@ import {getActiveCommand} from '../active-command.js'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 interface TransformOptions {
-    transformerPath : string,
-    destFilePath: string,
-    options: Record<string, string>;
-  }
+  transformerPath : string,
+  destFilePath: string,
+  options: Record<string, string>;
+}
 
-export const executeJSCodeshiftTransformer = async ({
+const executeJSCodeshiftCommand = ({
   transformerPath,
   destFilePath,
   options,
-}: TransformOptions): Promise<void> => {
+}: TransformOptions): string[] => {
   const {debug} = getActiveCommand()
 
   const resolvedTransformerPath = resolve(
@@ -31,18 +31,39 @@ export const executeJSCodeshiftTransformer = async ({
 
   const parser = extname(destFilePath) === '.tsx' ? 'tsx' : 'ts'
 
-  debug(`execute jscodeshift transformer ${transformerPath} on ${destFilePath} (parser ${parser})`)
-
   const jscodemodOptions = Object.entries(options).map(([key, value]) => `--${key}=${value}`)
-  debug(jscodemodOptions)
+
+  const command = ['node', jscodemodCMD, '--verbose', '2', '--parser', parser, '-t', resolvedTransformerPath, destFilePath, ...jscodemodOptions]
+
+  debug(`Executing command: ${command.join(' ')}`)
+
+  return command
+}
+
+export const executeJSCodeshiftTransformer = async ({
+  transformerPath,
+  destFilePath,
+  options,
+}: TransformOptions): Promise<void> => {
+  const {debug} = getActiveCommand()
+
+  const command = executeJSCodeshiftCommand({transformerPath, destFilePath, options})
+
   const {stderr, stdout} = spawnSync(
-    'node',
-    [jscodemodCMD, '--parser', parser, '-t', resolvedTransformerPath, destFilePath, ...jscodemodOptions],
-    {encoding: 'utf-8'},
+    command[0],
+    command.slice(1),
+    {encoding: 'utf-8',
+      env: {...process.env}},
   )
 
-  if (stderr) {
-    throw new Error(stderr)
+  if (stderr || !stdout.includes('0 errors')) {
+    const trimmedStderr = stderr.trim().slice(0, 500)
+    if (trimmedStderr.length < stderr.trim().length) {
+      debug('Error was trimmed')
+    }
+
+    console.log('hereeeeee sakal')
+    throw new Error(trimmedStderr)
   } else {
     debug(stdout)
   }

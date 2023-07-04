@@ -1,6 +1,6 @@
 import fs from 'fs'
 
-function duplicateAndStripLoc(obj: Record<string, any>): Record<string, any> {
+export function duplicateAndStripLoc(obj: Record<string, any>): Record<string, any> {
   const duplicatedObj: Record<string, any> = {}
 
   try {

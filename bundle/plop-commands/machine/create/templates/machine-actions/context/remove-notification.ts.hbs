@@ -1,0 +1,26 @@
+import { assign } from '@xstate/immer';
+import {
+  {{pascalCase name}}MachineContext,
+  {{pascalCase name}}MachineEvents,
+  {{pascalCase name}}MachineEventsTypes,
+} from '../../types';
+{{> xstateLogger machineName=name loggerName='removeNotification' isKME=isKME loggerType='Action' loggerPath='../../utils/'}}
+
+export const removeNotification = assign<
+  {{pascalCase name}}MachineContext,
+  {{pascalCase name}}MachineEvents
+>((context, event) => {
+  if (event.type === {{pascalCase name}}MachineEventsTypes.RemoveNotification) {
+    logger.log({
+      message: 'Remove notification from context',
+      data: {
+        id: event,
+      },
+    });
+
+    context.notifications =
+      context.notifications?.filter(
+        (notification) => notification.id !== event.id
+      ) || [];
+  }
+});

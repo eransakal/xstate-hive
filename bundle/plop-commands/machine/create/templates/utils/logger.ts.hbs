@@ -1,14 +1,27 @@
 import { {{pascalCase name}}MachineId } from '../types';
+
 export const create{{pascalCase name}}MachineLogger = (
   sender: string
 ) => ({
-  log: (message: string, ...optionalParams: any[]) =>{
-    console.log(`[${ {{pascalCase name}}MachineId }:${sender}] ${message}`, ...optionalParams)
+  log: ({ message, data }: { message: string, data?: Record<string, any>}) =>{
+    if (data) {
+      console.log(`[${ {{pascalCase name}}MachineId }:${sender}] ${message}`, data)
+      return
+    }
+    console.log(`[${ {{pascalCase name}}MachineId }:${sender}] ${message}`)
   },
-  warn: (message: string, ...optionalParams: any[]) =>{
-    console.warn(`[${ {{pascalCase name}}MachineId }:${sender}] ${message}`, ...optionalParams)
+  warn: ({ message, data }: { message: string, data?: Record<string, any>}) =>{
+    if (data) {
+      console.warn(`[${ {{pascalCase name}}MachineId }:${sender}] ${message}`, data)
+      return
+    }
+    console.warn(`[${ {{pascalCase name}}MachineId }:${sender}] ${message}`)
   },
-  error: (message: string, ...optionalParams: any[]) =>{
-    console.error(`[${ {{pascalCase name}}MachineId }:${sender}] ${message}`, ...optionalParams)
+  error: ({ message, data }: { message: string, data?: Record<string, any>}) =>{
+    if (data) {
+      console.error(`[${ {{pascalCase name}}MachineId }:${sender}] ${message}`, data)
+      return
+    }
+    console.error(`[${ {{pascalCase name}}MachineId }:${sender}] ${message}`)
   }
 })

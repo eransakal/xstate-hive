@@ -2,19 +2,24 @@ import React, { useState, useMemo, PropsWithChildren } from 'react';
 {{#if isKME}}
 import {
   {{pascalCase name}}MachineContext,  
-  {{pascalCase name}}MachineEvents
+  {{pascalCase name}}MachineEventsTypes
 } from './types';
 {{else}}
 import {
-  {{pascalCase name}}Machine
+  {{pascalCase name}}Machine,
+  {{pascalCase name}}MachineEventsTypes
 } from './types';
 {{/if}}
 import { create{{pascalCase name}}Machine } from './utils/create-{{dashCase name}}-machine';
 import { useMachine } from '@xstate/react';
 import { {{pascalCase name}}Context } from './utils/{{dashCase name}}-context';
 import { updateExternalInfo } from './machine-actions/context/update-external-info';
-import { onExternalInfoChanged } from './machine-services/on-external-info-changed';
-{{> xstateLogger loggerName=(dynamicParam name 'Provider') isKME=isKME loggerType='Machine' loggerPath='./utils/'}}
+import { addNotification } from './machine-actions/context/add-notification';
+import { removeNotification } from './machine-actions/context/remove-notification';
+import { onExternalInfoUpdated } from './machine-services/on-external-info-updated';
+import { MachineCalculatedValueEmitter } from './utils/machine-calculated-value-emitter';
+import { isExternalInfoLoaded } from './machine-guards/is-external-info-loaded';
+{{> xstateLogger machineName=name loggerName=(appendSuffix name 'Provider') isKME=isKME loggerType='Machine' loggerPath='./utils/'}}
 
 export const {{pascalCase name}}Provider: React.FC{{#if isKME}}{{else}}<PropsWithChildren>{{/if}} = ({ children }) => {
  
@@ -22,12 +27,16 @@ export const {{pascalCase name}}Provider: React.FC{{#if isKME}}{{else}}<PropsWit
 
   const [, , {{camelCase name}}MachineService] = useMachine<{{#if isKME}}{{pascalCase name}}MachineContext, {{pascalCase name}}MachineEvents{{else}}{{pascalCase name}}Machine{{/if}}>(machine, {
     actions: {
-      updateExternalInfo 
+      updateExternalInfo,
+      addNotification,
+      removeNotification,
     },
     services: {
-      onExternalInfoChanged
+      onExternalInfoUpdated
      },
-    guards: { },
+    guards: {
+      isExternalInfoLoaded
+     },
   });
 
   const providerValue = useMemo(() => {
@@ -36,6 +45,17 @@ export const {{pascalCase name}}Provider: React.FC{{#if isKME}}{{else}}<PropsWit
 
   return (
     <{{pascalCase name}}Context.Provider value={providerValue}>
+     <MachineCalculatedValueEmitter
+      formula={isExternalInfoLoaded}
+      event={
+        (value) => {
+          return {
+            type: {{pascalCase name}}MachineEventsTypes.ExternalInfoLoaded,
+            loaded: value
+          }
+        }
+      }
+      />
       {children}
     </{{pascalCase name}}Context.Provider>
   );

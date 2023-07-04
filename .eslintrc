@@ -12,6 +12,7 @@
     "@typescript-eslint/no-empty-function": "off",
     "node/no-extraneous-import": "off",
     "unicorn/prefer-module": "off",
+    "unicorn/no-static-only-class": "off",
     "unicorn/prefer-ternary": "off",
     "unicorn/prefer-array-some": "off",
     "unicorn/consistent-function-scoping": "off",

@@ -1,5 +1,13 @@
+import { {{pascalCase name}}Notification } from "./notifications"
 
 
 export interface {{pascalCase name}}MachineContext {
     externalInfo: {}
+    notifications: {{pascalCase name}}Notification[]
 }
+
+export const createDefault{{pascalCase name}}MachineContext = (): {{pascalCase name}}MachineContext =>  ({    
+      externalInfo: {        
+      },
+        notifications: []
+})

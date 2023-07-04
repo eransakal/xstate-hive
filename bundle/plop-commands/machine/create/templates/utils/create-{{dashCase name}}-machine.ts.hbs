@@ -4,6 +4,7 @@ import {
   {{pascalCase name}}MachineEvents,
   {{pascalCase name}}MachineEventsTypes,
   {{pascalCase name}}MachineId,  
+  createDefault{{pascalCase name}}MachineContext
 } from '../types';
 
 export const create{{pascalCase name}}Machine = () => {
@@ -12,11 +13,25 @@ export const create{{pascalCase name}}Machine = () => {
     predictableActionArguments: true,{{/if}}
     preserveActionOrder: true,
     type: 'parallel',
-     on: {
-        [{{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated]: {
-          actions: 'updateExternalInfo',        
-        },
+    invoke: {
+      src: 'onExternalInfoUpdated',
+      data: {
+        emitLastValue: true
+      }
+    },
+    on: {
+      [{{pascalCase name}}MachineEventsTypes.ExternalInfoUpdated]: {
+        actions: 'updateExternalInfo',        
       },
+      [{{pascalCase name}}MachineEventsTypes.AddNotification]: {
+        actions: 'addNotification',
+      },
+      [{{pascalCase name}}MachineEventsTypes.RemoveNotification]: {
+        actions: 'removeNotification',
+      },
+    },
     states: {},
-  });
+  }).withContext(
+    createDefault{{pascalCase name}}MachineContext()
+  )
 };
