@@ -24,16 +24,16 @@ const executeJSCodeshiftCommand = ({
     `../../../bundle/jscodeshift-transformers/${transformerPath}`,
   )
 
-  const jscodemodCMD = resolve(
-    __dirname,
-    '../../../node_modules/.bin/evcodeshift',
-  )
+  // const jscodemodCMD = resolve(
+  //   __dirname,
+  //   '../../../node_modules/.bin/evcodeshift',
+  // )
 
   const parser = extname(destFilePath) === '.tsx' ? 'tsx' : 'ts'
 
   const jscodemodOptions = Object.entries(options).map(([key, value]) => `--${key}=${value}`)
 
-  const command = ['node', jscodemodCMD, '--verbose', '2', '--parser', parser, '-t', resolvedTransformerPath, destFilePath, ...jscodemodOptions]
+  const command = ['npx', 'evcodeshift', '--verbose', '2', '--parser', parser, '-t', resolvedTransformerPath, destFilePath, ...jscodemodOptions]
 
   debug(`Executing command: ${command.join(' ')}`)
 
@@ -56,15 +56,10 @@ export const executeJSCodeshiftTransformer = async ({
       env: {...process.env}},
   )
 
-  if (stderr || !stdout.includes('0 errors')) {
-    const trimmedStderr = stderr.trim().slice(0, 500)
-    if (trimmedStderr.length < stderr.trim().length) {
-      debug('Error was trimmed')
-    }
+  debug(`stdErr: ${stderr || ''}`)
+  debug(`stdOut: ${stdout || ''}`)
 
-    console.log('hereeeeee sakal')
-    throw new Error(trimmedStderr)
-  } else {
-    debug(stdout)
+  if (!stdout.includes('0 errors')) {
+    throw new Error(`Error executing jscodeshift transformer: ${transformerPath}\nstdErr: ${stderr || ''}\nstdOut: ${stdout || ''}`)
   }
 }
